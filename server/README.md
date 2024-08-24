@@ -11,7 +11,11 @@ A database for development purposes can also be setup using docker compose:
 docker-compose -f dev-docker-compose.yml up
 ```
 
-to start the server:
+The database is listening for active connections on 127.0.0.1:5432.
+
+Credentials can also be found the docker-compose file.
+
+To start the API server:
 ```
 fastapi dev --port 8080 src/main.py
 ```
