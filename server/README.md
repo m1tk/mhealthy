@@ -17,7 +17,7 @@ Credentials can also be found the docker-compose file.
 
 To start the API server:
 ```
-fastapi dev --port 8080 src/main.py
+fastapi dev --reload --port 8080 src/main.py
 ```
 
 Your server is now active on 127.0.0.1:8080
