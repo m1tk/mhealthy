@@ -1,0 +1,21 @@
+services:
+  database:
+    image: docker.io/postgres:14-bookworm
+    restart: always
+    volumes: 
+      - ./data/prod_db/:/var/lib/postgresql/data
+      - ./migrate/:/docker-entrypoint-initdb.d/
+    environment:
+      - POSTGRES_USER=mhealthy-server
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=mhealthy
+
+  api:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+      - 8080:8080
+    environment:
+      - PRODUCTION=1
