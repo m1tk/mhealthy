@@ -19,3 +19,4 @@ services:
       - 8080:8080
     environment:
       - PRODUCTION=1
+      - DATABASE_URL=postgresql://mhealthy-server:password@127.0.0.1/mhealthy
