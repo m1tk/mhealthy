@@ -4,18 +4,16 @@ create table userinfo (
     name varchar(60) not null,
     cin varchar(15) not null,
     account_type integer not null,
-    description varchar(100)
-);
-
-create table account (
-    id int primary key,
-    secret bytea not null,
-    foreign key(id) references userinfo (id) on delete cascade
+    description varchar(100),
+    tel varchar(15) not null,
+    create_time integer not null,
+    last_seen_time integer not null
 );
 
 create table token (
     id int primary key,
     token bytea not null,
+    change_time int not null,
     foreign key(id) references userinfo (id) on delete cascade
 );
 
