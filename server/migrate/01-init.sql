@@ -3,6 +3,7 @@ create table userinfo (
     id serial primary key,
     name bytea not null,
     cin bytea not null,
+    cin_hash bytea not null,
     account_type integer not null,
     description bytea,
     phone bytea not null,
