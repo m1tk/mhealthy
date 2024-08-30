@@ -1,6 +1,7 @@
 import os
 import base64
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 
@@ -24,7 +25,7 @@ class ColumnCryptor:
             p= 1,  # Parallelization factor
             backend=default_backend()
         )
-        self.key = kdf.derive(key[16:])
+        self.key = kdf.derive(key)
 
     def encrypt(self, column: bytes, nonce: bytes) -> bytes:
         chacha = ChaCha20Poly1305(self.key)
@@ -36,3 +37,9 @@ class ColumnCryptor:
 
     def gen_nonce(self) -> bytes:
         return os.urandom(12)
+
+    def gen_hash(self, data: bytes) -> bytes:
+        digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
+        digest.update(data)
+        digest.update(self.key[95:])
+        return digest.finalize()
