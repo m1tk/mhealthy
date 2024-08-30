@@ -1,11 +1,12 @@
 
 create table userinfo (
     id serial primary key,
-    name varchar(60) not null,
-    cin varchar(15) not null,
+    name bytea not null,
+    cin bytea not null,
     account_type integer not null,
-    description varchar(100),
-    tel varchar(15) not null,
+    description bytea,
+    phone bytea not null,
+    enc_nonce bytea not null,
     create_time integer not null,
     last_seen_time integer not null
 );
@@ -18,8 +19,10 @@ create table token (
 );
 
 create table assigned (
-    caregiver int primary key,
-    patient int primary key,
+    caregiver int not null,
+    patient int not null,
+    id serial not null,
+    primary key (caregiver, patient),
     foreign key(caregiver) references userinfo (id) on delete cascade,
     foreign key(patient) references userinfo (id) on delete cascade
 );
@@ -27,15 +30,64 @@ create table assigned (
 create table caregiver_instruction (
     caregiver int not null,
     patient int not null,
-    id int not null,
+    id bigserial not null,
     instruction bytea not null,
+    enc_nonce bytea not null,
+    primary key (caregiver, patient, id),
     foreign key(caregiver) references userinfo (id) on delete cascade,
     foreign key(patient) references userinfo (id) on delete cascade
 );
 
 create table patient_info (
     patient int not null,
-    id int not null,
+    id bigserial not null,
     info bytea not null,
+    enc_nonce bytea not null,
+    primary key (patient, id),
     foreign key(patient) references userinfo (id) on delete cascade
 );
+
+create or replace function new_assigned()
+  returns trigger as $$
+declare
+begin
+  perform pg_notify('assigned', format('%s,%s,%s', new.caregiver::text, new.patient::text, new.id::text));
+  return new;
+end;
+$$ language plpgsql;
+
+create or replace trigger trigger_new_assigned
+  after insert
+  on assigned
+  for each row
+  execute procedure new_assigned();
+
+create or replace function new_caregiver_instruction()
+  returns trigger as $$
+declare
+begin
+  perform pg_notify('instruction', format('%s,%s,%s', new.caregiver::text, new.patient::text, new.id::text));
+  return new;
+end;
+$$ language plpgsql;
+
+create or replace trigger trigger_new_caregiver_instruction
+  after insert
+  on caregiver_instruction
+  for each row
+  execute procedure new_caregiver_instruction();
+
+create or replace function new_patient_info()
+  returns trigger as $$
+declare
+begin
+  perform pg_notify('patient_info', format('%s,%s', new.patient::text, new.id::text));
+  return new;
+end;
+$$ language plpgsql;
+
+create or replace trigger trigger_patient_info
+  after insert
+  on patient_info
+  for each row
+  execute procedure new_patient_info();
