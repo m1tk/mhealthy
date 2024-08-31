@@ -29,11 +29,10 @@ async def login(request: Request, req: LoginRequest):
     trans = Lang(request.state.locale)
     try:
         token = base64.urlsafe_b64decode(req.token)
-        token = msgpack.unpackb(token, raw=False)
-        uid   = int.from_bytes(request.app.state.cse.decrypt(token["id"], token["n"]), byteorder='big')
-        encid = token["id"]
-        nonce = token["n"]
-        token = token["t"]
+        nonce = token[:12]
+        dectk = msgpack.unpackb(request.app.state.cse.decrypt(token[12:], nonce), raw=False)
+        uid   = dectk["id"]
+        token = dectk["t"]
     except:
         raise HTTPException(status_code=400, detail=trans.t("ivt"))
     
@@ -41,7 +40,8 @@ async def login(request: Request, req: LoginRequest):
         (resp, cookie) = await daccount.login(request.app.state.db, request.app.state.cse, uid, token)
         
         resp   = responses.JSONResponse(content=dict(resp))
-        cookie = msgpack.packb({"c": cookie, "id": encid, "n": nonce})
+        nonce  = request.app.state.cse.gen_nonce()
+        cookie = request.app.state.cse.encrypt(msgpack.packb({"c": cookie, "id": uid}), nonce)
         cookie = base64.urlsafe_b64encode(cookie).decode('utf-8')
 
         resp.set_cookie(key="session", value=cookie)

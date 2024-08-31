@@ -60,14 +60,14 @@ async def main():
         print(f"Failed to create user: {e}", file=sys.stderr)
         sys.exit(1)
 
-    nonce = cse.gen_nonce()
-    uid   = cse.encrypt(newid.to_bytes(4, byteorder='big'), nonce)
     tpack = msgpack.packb({
         "t": token,
-        "id": uid,
-        "n": nonce
+        "id": newid
     })
-    tb64 = base64.urlsafe_b64encode(tpack).decode('utf-8')
+
+    nonce = cse.gen_nonce()
+    tenc  = cse.encrypt(tpack, nonce)
+    tb64  = base64.urlsafe_b64encode(nonce + tenc).decode('utf-8')
 
     print(f"token: {tb64}")
     print(f"QR path: /v1/join_qr/{tb64}")
