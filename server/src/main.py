@@ -39,5 +39,5 @@ async def join_qr(token: str):
     return await saccount.join_token_qrcode(token)
 
 @app.post("/v1/login")
-async def login(req: saccount.LoginRequest):
-    return await saccount.login(app.state, req)
+async def login(request: Request, req: saccount.LoginRequest):
+    return await saccount.login(request, req)

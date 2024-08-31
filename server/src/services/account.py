@@ -2,13 +2,14 @@ import asyncio
 from typing import Optional
 from concurrent.futures import ProcessPoolExecutor
 from asyncpg import Pool
-from fastapi import HTTPException, responses
+from fastapi import HTTPException, Request, responses
 import qrcode
 from io import BytesIO
 import base64
 from pydantic import BaseModel
 
 from db import account as daccount
+from lang import Lang
 from models.account import Account
 
 executor = ProcessPoolExecutor()
@@ -26,17 +27,18 @@ async def join_token_qrcode(token: str):
 class LoginRequest(BaseModel):
     token: str
 
-async def login(state, req: LoginRequest):
+async def login(request: Request, req: LoginRequest):
     # this is first ever login
+    trans = Lang(request.state.locale)
     try:
         token = base64.urlsafe_b64decode(req.token)
     except:
-        raise HTTPException(status_code=400, detail="Invalid token given")
+        raise HTTPException(status_code=400, detail=trans.t("ivt"))
     
     try:
-        (resp, cookie) = await daccount.login(state.db, state.cse, token)
+        (resp, cookie) = await daccount.login(request.app.state.db, request.app.state.cse, token)
         resp = responses.JSONResponse(content=dict(resp))
         resp.set_cookie(key="session", value=cookie)
         return resp
     except:
-        raise HTTPException(status_code=400, detail="Invalid token or user never registered")
+        raise HTTPException(status_code=400, detail=trans.t("ivt2"))
