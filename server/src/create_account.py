@@ -4,6 +4,7 @@ import sys
 from db import connect_to_db, account
 import asyncio
 import base64
+import msgpack
 
 from db.column_cryptor import ColumnCryptor
 from models.account import AccountType
@@ -46,13 +47,11 @@ async def main():
             sys.exit(1)
         caregiver = args.caregiver
 
-    token_bytes = secrets.token_bytes(96)
-    token       = base64.urlsafe_b64encode(token_bytes).decode('utf-8')
-
+    token = secrets.token_bytes(64)
     try:
-        await account.create(
+        newid = await account.create(
             db, cse,
-            token_bytes,
+            token,
             args.name, args.cin, AccountType(args.type),
             args.description, args.phone,
             caregiver=caregiver
@@ -61,8 +60,17 @@ async def main():
         print(f"Failed to create user: {e}", file=sys.stderr)
         sys.exit(1)
 
-    print(f"token: {token}")
-    print(f"QR path: /v1/join_qr/{token}")
+    nonce = cse.gen_nonce()
+    uid   = cse.encrypt(newid.to_bytes(4, byteorder='big'), nonce)
+    tpack = msgpack.packb({
+        "t": token,
+        "id": uid,
+        "n": nonce
+    })
+    tb64 = base64.urlsafe_b64encode(tpack).decode('utf-8')
+
+    print(f"token: {tb64}")
+    print(f"QR path: /v1/join_qr/{tb64}")
 
 if __name__ == '__main__':
     asyncio.run(main())

@@ -21,7 +21,7 @@ create table token (
 
 create table cookie (
     id int primary key,
-    cookie varchar not null,
+    cookie bytea not null,
     update_time bigint not null,
     foreign key(id) references userinfo (id) on delete cascade
 );

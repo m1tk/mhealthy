@@ -3,6 +3,7 @@ from typing import Optional
 from concurrent.futures import ProcessPoolExecutor
 from asyncpg import Pool
 from fastapi import HTTPException, Request, responses
+import msgpack
 import qrcode
 from io import BytesIO
 import base64
@@ -32,13 +33,23 @@ async def login(request: Request, req: LoginRequest):
     trans = Lang(request.state.locale)
     try:
         token = base64.urlsafe_b64decode(req.token)
+        token = msgpack.unpackb(token, raw=False)
+        uid   = int.from_bytes(request.app.state.cse.decrypt(token["id"], token["n"]), byteorder='big')
+        encid = token["id"]
+        token = token["t"]
     except:
         raise HTTPException(status_code=400, detail=trans.t("ivt"))
     
     try:
-        (resp, cookie) = await daccount.login(request.app.state.db, request.app.state.cse, token)
-        resp = responses.JSONResponse(content=dict(resp))
+        (resp, cookie) = await daccount.login(request.app.state.db, request.app.state.cse, uid, token)
+        
+        resp   = responses.JSONResponse(content=dict(resp))
+        cookie = msgpack.packb({"c": cookie, "id": encid})
+        cookie = base64.urlsafe_b64encode(cookie).decode('utf-8')
+
         resp.set_cookie(key="session", value=cookie)
         return resp
-    except:
+    except Exception as e:
+        print("erge")
+        print(f"{e}")
         raise HTTPException(status_code=400, detail=trans.t("ivt2"))

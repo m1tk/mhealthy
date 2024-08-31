@@ -22,7 +22,7 @@ class ColumnCryptor:
             length=32,
             n=16384,  # CPU/memory cost factor
             r=8,  # Block size
-            p= 1,  # Parallelization factor
+            p=1,  # Parallelization factor
             backend=default_backend()
         )
         self.key = kdf.derive(key)

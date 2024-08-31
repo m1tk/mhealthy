@@ -2,7 +2,7 @@ import secrets
 from typing import Optional, Tuple
 from asyncpg import Pool
 from datetime import datetime, timezone
-
+from cryptography.hazmat.primitives import constant_time
 from pydantic import BaseModel
 
 from db.column_cryptor import ColumnCryptor
@@ -26,7 +26,7 @@ async def cin_exists(pool: Pool, cin_hash: bytes) -> bool:
 
 async def create(pool: Pool, cse: ColumnCryptor, token: bytes,
                          name: str, cin: str, atype: AccountType,
-                         description: str, phone: str, caregiver=None):
+                         description: str, phone: str, caregiver=None) -> int:
     async with pool.acquire() as con:
         async with con.transaction():
             nonce = cse.gen_nonce()
@@ -54,29 +54,33 @@ values ($1, $2, $3, $4, $5, $6, $7, $8, 0) returning id;
             await con.execute(
                 "insert into token (id, token, change_time) values ($1, $2, 0)",
                 newid,
-                token
+                cse.encrypt(token, nonce)
             )
+    return newid
 
 class UserLogin(BaseModel):
     name: str
     cin: str
 
-async def login(pool: Pool, cse: ColumnCryptor, token: bytes) -> Tuple[UserLogin, str]:
+async def login(pool: Pool, cse: ColumnCryptor, uid: int, token: bytes) -> Tuple[UserLogin, bytes]:
     async with pool.acquire() as con:
         user = await con.fetchrow(
-            "select userinfo.id, name, cin, enc_nonce from token, userinfo where token.id = userinfo.id and token.token = $1;",
-            token
+            "select name, cin, enc_nonce, token from token, userinfo where token.id = $1 and token.id = userinfo.id;",
+            uid
         )
 
-        cookie = secrets.token_urlsafe(96)
+        if not constant_time.bytes_eq(cse.decrypt(user["token"], user["enc_nonce"]), token):
+            raise ValueError("Token is not equal to the one stored in the db")
+
+        cookie = secrets.token_bytes(48)
         await con.execute(
             '''
 insert into cookie (id, cookie, update_time) values ($1, $2, $3)
 on conflict (id)
 do update set cookie = $2, update_time = $3
             ''',
-            user["id"],
-            cookie,
+            uid,
+            cse.encrypt(cookie, user["enc_nonce"]),
             int(datetime.now(timezone.utc).timestamp())
         )
 
