@@ -31,7 +31,7 @@ async def login(state, req: LoginRequest):
     try:
         token = base64.urlsafe_b64decode(req.token)
     except:
-        raise HTTPException(status_code=400, detail={"error": "Invalid join token given"})
+        raise HTTPException(status_code=400, detail="Invalid token given")
     
     try:
         (resp, cookie) = await daccount.login(state.db, state.cse, token)
@@ -39,4 +39,4 @@ async def login(state, req: LoginRequest):
         resp.set_cookie(key="session", value=cookie)
         return resp
     except:
-        raise HTTPException(status_code=400, detail={"error": "Invalid token or user never registered"})
+        raise HTTPException(status_code=400, detail="Invalid token or user never registered")

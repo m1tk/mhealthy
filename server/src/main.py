@@ -1,6 +1,8 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from contextlib import asynccontextmanager
+
+from fastapi.responses import JSONResponse
 
 from db import close_db_connection, connect_to_db
 from db.column_cryptor import ColumnCryptor
@@ -25,6 +27,12 @@ else:
 
 app.add_middleware(i18nMiddleware)
 
+@app.exception_handler(HTTPException)
+async def custom_http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": exc.detail}
+    )
 
 @app.get("/v1/join_qr/{token}")
 async def join_qr(token: str):
