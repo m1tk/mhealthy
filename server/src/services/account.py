@@ -38,6 +38,5 @@ async def login(state, req: LoginRequest):
         resp = responses.JSONResponse(content=dict(resp))
         resp.set_cookie(key="session", value=cookie)
         return resp
-    except Exception as e:
-        print(e)
+    except:
         raise HTTPException(status_code=400, detail={"error": "Invalid token or user never registered"})
