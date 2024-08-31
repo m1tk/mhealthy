@@ -1,7 +1,4 @@
-import asyncio
-from typing import Optional
 from concurrent.futures import ProcessPoolExecutor
-from asyncpg import Pool
 from fastapi import HTTPException, Request, responses
 import msgpack
 import qrcode
@@ -11,7 +8,6 @@ from pydantic import BaseModel
 
 from db import account as daccount
 from lang import Lang
-from models.account import Account
 
 executor = ProcessPoolExecutor()
 
@@ -49,7 +45,5 @@ async def login(request: Request, req: LoginRequest):
 
         resp.set_cookie(key="session", value=cookie)
         return resp
-    except Exception as e:
-        print("erge")
-        print(f"{e}")
+    except:
         raise HTTPException(status_code=400, detail=trans.t("ivt2"))

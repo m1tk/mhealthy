@@ -7,9 +7,7 @@ from fastapi.responses import JSONResponse
 from db import close_db_connection, connect_to_db
 from db.column_cryptor import ColumnCryptor
 from i18n import i18nMiddleware
-from models import account as maccount
 from services import account as saccount
-from lang import Lang
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
