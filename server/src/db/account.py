@@ -61,11 +61,12 @@ values ($1, $2, $3, $4, $5, $6, $7, $8, 0) returning id;
 class UserLogin(BaseModel):
     name: str
     cin: str
+    account_type: AccountType
 
 async def login(pool: Pool, cse: ColumnCryptor, uid: int, token: bytes) -> Tuple[UserLogin, bytes]:
     async with pool.acquire() as con:
         user = await con.fetchrow(
-            "select name, cin, enc_nonce, token from token, userinfo where token.id = $1 and token.id = userinfo.id;",
+            "select name, cin, account_type, enc_nonce, token from token, userinfo where token.id = $1 and token.id = userinfo.id;",
             uid
         )
 
@@ -84,9 +85,13 @@ do update set cookie = $2, update_time = $3
             int(datetime.now(timezone.utc).timestamp())
         )
 
+    acctype = account_type_from_int(user["account_type"])
+    if acctype is None:
+        raise ValueError("Invalid account type")
     return (
         UserLogin(
-            name=cse.decrypt(user["cin"], user["enc_nonce"]).decode(),
+            name=cse.decrypt(user["name"], user["enc_nonce"]).decode(),
+            account_type=acctype,
             cin=cse.decrypt(user["cin"], user["enc_nonce"]).decode()
         ),
         cookie

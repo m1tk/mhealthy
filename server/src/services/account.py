@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from db import account as daccount
 from lang import Lang
+from models.account import AccountType
 
 executor = ProcessPoolExecutor()
 
@@ -39,12 +40,22 @@ async def login(request: Request, req: LoginRequest):
     try:
         (resp, cookie) = await daccount.login(request.app.state.db, request.app.state.cse, uid, token)
         
+        cookie = {"c": cookie, "id": uid}
+        # we also add type of account so we can later on determine api calls allowed by type
+        if resp.account_type == AccountType.CareGiver:
+            cookie["g"] = True
+        elif resp.account_type == AccountType.SelfCarerPatient:
+            cookie["s"] = True
+        
+        resp.account_type = resp.account_type.value
+
         resp   = responses.JSONResponse(content=dict(resp))
         nonce  = request.app.state.cse.gen_nonce()
-        cookie = request.app.state.cse.encrypt(msgpack.packb({"c": cookie, "id": uid}), nonce)
+        cookie = request.app.state.cse.encrypt(msgpack.packb(cookie), nonce)
         cookie = base64.urlsafe_b64encode(cookie).decode('utf-8')
 
         resp.set_cookie(key="session", value=cookie)
         return resp
-    except:
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=400, detail=trans.t("ivt2"))
