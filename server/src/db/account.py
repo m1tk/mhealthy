@@ -1,6 +1,9 @@
-from typing import Optional
+import secrets
+from typing import Optional, Tuple
 from asyncpg import Pool
 from datetime import datetime, timezone
+
+from pydantic import BaseModel
 
 from db.column_cryptor import ColumnCryptor
 from models.account import AccountType, account_type_from_int, account_type_to_int
@@ -54,3 +57,33 @@ values ($1, $2, $3, $4, $5, $6, $7, $8, 0) returning id;
                 token
             )
 
+class UserLogin(BaseModel):
+    name: str
+    cin: str
+
+async def login(pool: Pool, cse: ColumnCryptor, token: bytes) -> Tuple[UserLogin, str]:
+    async with pool.acquire() as con:
+        user = await con.fetchrow(
+            "select userinfo.id, name, cin, enc_nonce from token, userinfo where token.id = userinfo.id and token.token = $1;",
+            token
+        )
+
+        cookie = secrets.token_urlsafe(96)
+        await con.execute(
+            '''
+insert into cookie (id, cookie, update_time) values ($1, $2, $3)
+on conflict (id)
+do update set cookie = $2, update_time = $3
+            ''',
+            user["id"],
+            cookie,
+            int(datetime.now(timezone.utc).timestamp())
+        )
+
+    return (
+        UserLogin(
+            name=cse.decrypt(user["cin"], user["enc_nonce"]).decode(),
+            cin=cse.decrypt(user["cin"], user["enc_nonce"]).decode()
+        ),
+        cookie
+    )

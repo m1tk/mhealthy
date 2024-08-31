@@ -8,14 +8,21 @@ create table userinfo (
     description bytea,
     phone bytea not null,
     enc_nonce bytea not null,
-    create_time integer not null,
-    last_seen_time integer not null
+    create_time bigint not null,
+    last_seen_time bigint not null
 );
 
 create table token (
     id int primary key,
     token bytea not null,
-    change_time int not null,
+    change_time bigint not null,
+    foreign key(id) references userinfo (id) on delete cascade
+);
+
+create table cookie (
+    id int primary key,
+    cookie varchar not null,
+    update_time bigint not null,
     foreign key(id) references userinfo (id) on delete cascade
 );
 
