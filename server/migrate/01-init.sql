@@ -42,8 +42,7 @@ create table caregiver_instruction (
     instruction bytea not null,
     enc_nonce bytea not null,
     primary key (caregiver, patient, id),
-    foreign key(caregiver) references userinfo (id) on delete cascade,
-    foreign key(patient) references userinfo (id) on delete cascade
+    foreign key(caregiver, patient) references assigned (caregiver, patient) on delete cascade
 );
 
 create table patient_info (
