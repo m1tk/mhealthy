@@ -36,10 +36,10 @@ async def add_info(request: Request, info: AddInfo):
     
     return {}
 
-class EventsReq(BaseModel):
+class PatientEventsReq(BaseModel):
     last: int
 
-async def events(request: Request, req: EventsReq):
+async def events(request: Request, req: PatientEventsReq):
     await authenticate(request)
 
     trans = Lang(request.state.locale)
@@ -49,7 +49,7 @@ async def events(request: Request, req: EventsReq):
 
     return StreamingResponse(stream.merge(instruction_iter(request, req), heartbeat()), media_type="text/event-stream")
 
-async def instruction_iter(request: Request, req: EventsReq):
+async def instruction_iter(request: Request, req: PatientEventsReq):
     async with request.app.state.listener.subscribe(channel="instruction_{}".format(request.state.session.uid)) as subscriber:
         while True:
             async for row in patient.get_instructions(
@@ -62,7 +62,7 @@ async def instruction_iter(request: Request, req: EventsReq):
                 req.last = row.id
 
             async for event in subscriber:
-                last = int(event.message)
+                last = event.message[1]
                 if last > req.last:
                     break
 

@@ -36,7 +36,7 @@ create table assigned (
 );
 
 create table caregiver_instruction (
-    caregiver int not null,
+    caregiver int,
     patient int not null,
     id bigserial not null,
     instruction bytea not null,

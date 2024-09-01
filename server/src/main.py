@@ -45,9 +45,9 @@ async def event_handler(event: asyncpg_listen.NotificationOrTimeout):
     print(f"Received notification '{event}' woooow")
     pay = event.payload.split(",")
     if event.channel == "patient_info":
-        await app.state.listener.publish(channel="patient_info_{}".format(pay[0]), message=pay[1])
+        await app.state.listener.publish(channel="patient_info_{}".format(pay[0]), message=int(pay[1]))
     else:
-        await app.state.listener.publish(channel="instruction_{}".format(pay[1]), message=pay[2])
+        await app.state.listener.publish(channel="instruction_{}".format(pay[1]), message=[int(pay[0]), int(pay[2])])
 
 @app.get("/v1/join_qr/{token}")
 async def join_qr(token: str):
@@ -61,10 +61,14 @@ async def login(request: Request, req: saccount.LoginRequest):
 async def instruction(request: Request, req: sc.AddInstruction):
     return await sc.add_instruction(request, req)
 
+@app.post("/v1/caregiver/events")
+async def caregiver_ev(request: Request, req: sc.CareGiverEventsReq):
+    return await sc.events(request, req)
+
 @app.post("/v1/patient/info")
 async def info(request: Request, req: sp.AddInfo):
     return await sp.add_info(request, req)
 
 @app.post("/v1/patient/events")
-async def patient_ev(request: Request, req: sp.EventsReq):
+async def patient_ev(request: Request, req: sp.PatientEventsReq):
     return await sp.events(request, req)
