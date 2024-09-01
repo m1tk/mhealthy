@@ -31,3 +31,33 @@ docker-compose up
 ```
 
 The previous command will launch both the database and the API server.
+
+
+# API
+
+Login:
+```
+curl -v http://127.0.0.1:8080/v1/login -H 'Content-Type: application/json' --data '{"token":"TOKEN_HERE"}'
+```
+
+If login is successful, a set-cookie header is returned and must be used as a mean of authentication
+
+Adding caregiver instruction (caregiver account only):
+```
+curl -v http://127.0.0.1:8080/v1/caregiver/instruction -H 'cookie: session="COOKIE_HERE"' -H 'Content-Type: application/json' --data '{"patient":PATIENT_ID, "data":{}}'
+```
+
+Adding patient info (patient account only):
+```
+curl -v http://127.0.0.1:8080/v1/patient/info -H 'cookie: session="COOKIE_HERE"' -H 'Content-Type: application/json' --data '{"data":{}}'
+```
+
+Event listener for caregiver (SSE):
+```
+curl -v http://127.0.0.1:8080/v1/caregiver/events -H 'cookie: session="COOKIE_HERE"' -H 'Content-Type: application/json' --data '{"last_info":LAST_INFO_ID,"last_instruction":LAST_INSTRUCTION_ID,"patient":PATIENT_ID}' -N
+```
+
+Event listener for patient (SSE):
+```
+curl -v http://127.0.0.1:8080/v1/patient/events -H 'cookie: session="COOKIE_HERE"' -H 'Content-Type: application/json' --data '{"last":LAST_ID}' -N
+```
