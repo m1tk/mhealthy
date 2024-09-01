@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from db import account as daccount
 from lang import Lang
-from models.account import AccountType
+from models.account import AccountSession, AccountType
 
 executor = ProcessPoolExecutor()
 
@@ -26,7 +26,6 @@ class LoginRequest(BaseModel):
     token: str
 
 async def login(request: Request, req: LoginRequest):
-    # this is first ever login
     trans = Lang(request.state.locale)
     try:
         token = base64.urlsafe_b64decode(req.token)
@@ -52,10 +51,32 @@ async def login(request: Request, req: LoginRequest):
         resp   = responses.JSONResponse(content=dict(resp))
         nonce  = request.app.state.cse.gen_nonce()
         cookie = request.app.state.cse.encrypt(msgpack.packb(cookie), nonce)
-        cookie = base64.urlsafe_b64encode(cookie).decode('utf-8')
+        cookie = base64.urlsafe_b64encode(nonce + cookie).decode('utf-8')
 
         resp.set_cookie(key="session", value=cookie)
         return resp
-    except Exception as e:
-        print(e)
+    except:
         raise HTTPException(status_code=400, detail=trans.t("ivt2"))
+
+async def authenticate(request: Request):
+    trans  = Lang(request.state.locale)
+    cookie = request.cookies.get("session")
+    if cookie is None:
+        raise HTTPException(status_code=401, detail=trans.t("login_needed"))
+
+    try:
+        cookie = base64.urlsafe_b64decode(cookie)
+        # Cookie is composed of the nonce and encrypted part which is the cookie ciphertext
+        cookie = msgpack.unpackb(request.app.state.cse.decrypt(cookie[12:], cookie[:12]), raw=False)
+        if "g" in cookie:
+            atype = AccountType.CareGiver
+        elif "s" in cookie:
+            atype = AccountType.SelfCarerPatient
+        else:
+            atype = AccountType.Patient
+        
+        session = AccountSession(uid=cookie["id"], account_type=atype)
+    except:
+        raise HTTPException(status_code=401, detail=trans.t("ivt2"))
+
+    request.state.session = session

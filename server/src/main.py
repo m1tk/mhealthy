@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from db import close_db_connection, connect_to_db
 from db.column_cryptor import ColumnCryptor
 from i18n import i18nMiddleware
-from services import account as saccount
+from services import account as saccount, caregiver as sc
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -39,3 +39,7 @@ async def join_qr(token: str):
 @app.post("/v1/login")
 async def login(request: Request, req: saccount.LoginRequest):
     return await saccount.login(request, req)
+
+@app.post("/v1/caregiver/instruction")
+async def instruction(request: Request, req: sc.AddInstruction):
+    return await sc.add_instruction(request, req)

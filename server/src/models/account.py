@@ -26,8 +26,6 @@ def account_type_to_int(account_type: AccountType) -> int:
         return 2
 
 @dataclass
-class Account:
-    name: str
-    cin: str
+class AccountSession:
+    uid: int
     account_type: AccountType
-    description: str
