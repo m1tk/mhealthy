@@ -54,21 +54,6 @@ create table patient_info (
     foreign key(patient) references userinfo (id) on delete cascade
 );
 
-create or replace function new_assigned()
-  returns trigger as $$
-declare
-begin
-  perform pg_notify('assigned', format('%s,%s,%s', new.caregiver::text, new.patient::text, new.id::text));
-  return new;
-end;
-$$ language plpgsql;
-
-create or replace trigger trigger_new_assigned
-  after insert
-  on assigned
-  for each row
-  execute procedure new_assigned();
-
 create or replace function new_caregiver_instruction()
   returns trigger as $$
 declare
