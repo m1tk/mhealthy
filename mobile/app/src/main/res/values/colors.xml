@@ -1,12 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<color name="background_color">#FFFFFF</color>
-<color name="primary_text_color">#000000</color>
-<!-- Add any other colors you need here -->
+    <!-- Dark background color -->
+    <color name="background_color">#1E1E1E</color>
+
+        <color name="colorPrimary">#6200EE</color>
+        <color name="colorPrimaryDark">#3700B3</color>
+        <color name="colorAccent">#03DAC5</color>
+
+
+    <!-- Text color for better contrast -->
+    <color name="text_color">#FFFFFF</color>
+
+    <!-- Additional color resources if needed -->
+    <color name="card_background_color">#272727</color>
+    <color name="button_background_color">#333333</color>
+    <color name="button_text_color">#FFFFFF</color>
+
+
 </resources>
+
+
+
+    <!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<resources>-->
+<!--    <color name="background_color">#272727  </color>-->
+<!--    <color name="text_color">#333333</color>-->
+<!--    &lt;!&ndash; Add other color resources as needed  #1E1E1E #212121  #1C1C1C&ndash;&gt;-->
+<!--</resources>-->
 <!--<?xml version="1.0" encoding="utf-8"?>-->
 <!--<resources>-->
-<!--    <color name="background_color">#FFFFFF</color>-->
+<!--    <color name="background_color">#FFFFFF #2F4F4F #353839</color>-->
 <!--    <color name="primary_text_color">#000000</color>-->
 <!--    &lt;!&ndash; Add any other colors you need here &ndash;&gt;-->
 <!--</resources>-->
