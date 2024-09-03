@@ -11,6 +11,9 @@ import androidx.annotation.Nullable;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 
+import fr.android.mhealthy.api.ApiService;
+import fr.android.mhealthy.api.HttpClient;
+import fr.android.mhealthy.api.LoginRequest;
 import fr.android.mhealthy.ui.PatientMainActivity;
 import fr.android.mhealthy.ui.QRScanActivity;
 
@@ -34,9 +37,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(v -> {
             String idToken = etIdToken.getText().toString().trim();
             if (!idToken.isEmpty()) {
-                // TODO: Implement authentication logic here
-                // If authentication is successful, navigate to PatientMainActivity
-                navigateToPatientMain();
+                this.authenticate(idToken);
             } else {
                 Toast.makeText(this, getString(R.string.enter_token), Toast.LENGTH_SHORT).show();
             }
@@ -63,13 +64,18 @@ public class AuthenticationActivity extends AppCompatActivity {
         if (requestCode == QR_SCAN_REQUEST_CODE && resultCode == RESULT_OK) {
             String scannedData = data.getStringExtra("SCAN_RESULT");
             if (scannedData != null && !scannedData.isEmpty()) {
-                etIdToken.setText(scannedData);
-                // TODO: Implement authentication logic here with the scanned data
-                // For now, we'll just navigate to PatientMainActivity
-                //navigateToPatientMain();
+                this.authenticate(scannedData);
             } else {
                 Toast.makeText(this, getString(R.string.nothing_scanned), Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    void authenticate(String token) {
+        ApiService client = HttpClient.getClient();
+        LoginRequest req  = new LoginRequest();
+        req.token         = token;
+        client.login(req);
+        //navigateToPatientMain();
     }
 }
