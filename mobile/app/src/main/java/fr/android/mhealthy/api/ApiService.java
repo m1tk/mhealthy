@@ -8,10 +8,10 @@ import retrofit2.http.POST;
 import java.util.List;
 
 public interface ApiService {
-    @GET("/items/")
-    Call<List<Item>> getItems();
-
-    @POST("/items/")
-    Call<Void> addItem(@Body Item item);
+    @POST("/v1/login")
+    void login(@Body LoginRequest req);
 }
 
+class LoginRequest {
+    public String token;
+}
