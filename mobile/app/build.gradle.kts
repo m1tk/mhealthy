@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
 }
@@ -20,10 +22,17 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            buildConfigField("String", "SERVER_URL", "\"${findProperty("SERVER_URL")}\"")
+
+            val p = Properties()
+            p.load(project.rootProject.file("local.properties").reader())
+            val server: String = p.getProperty("SERVER_URL")
+            buildConfigField("String", "SERVER_URL", "\"$server\"")
         }
         debug {
-            buildConfigField("String", "SERVER_URL", "\"${findProperty("SERVER_URL")}\"")
+            val p = Properties()
+            p.load(project.rootProject.file("local.properties").reader())
+            val server: String = p.getProperty("SERVER_URL")
+            buildConfigField("String", "SERVER_URL", "\"$server\"")
         }
     }
 

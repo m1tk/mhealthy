@@ -1,21 +1,27 @@
 package fr.android.mhealthy;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 
+import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
 
 import fr.android.mhealthy.api.ApiService;
+import fr.android.mhealthy.api.ErrorResp;
 import fr.android.mhealthy.api.HttpClient;
-import fr.android.mhealthy.api.LoginRequest;
+import fr.android.mhealthy.api.LoginReq;
+import fr.android.mhealthy.api.LoginResp;
 import fr.android.mhealthy.ui.PatientMainActivity;
 import fr.android.mhealthy.ui.QRScanActivity;
+import retrofit2.Response;
 
 public class AuthenticationActivity extends AppCompatActivity {
 
@@ -45,7 +51,8 @@ public class AuthenticationActivity extends AppCompatActivity {
 
         btnQrScan.setOnClickListener(v -> {
             IntentIntegrator integrator = new IntentIntegrator(this);
-            integrator.setPrompt("Scan a QR code");
+            integrator.setRequestCode(QR_SCAN_REQUEST_CODE);
+            integrator.setPrompt(getString(R.string.scan_qr));
             integrator.setCaptureActivity(QRScanActivity.class);
             integrator.setOrientationLocked(false);
             integrator.initiateScan();
@@ -72,10 +79,37 @@ public class AuthenticationActivity extends AppCompatActivity {
     }
 
     void authenticate(String token) {
-        ApiService client = HttpClient.getClient();
-        LoginRequest req  = new LoginRequest();
-        req.token         = token;
-        client.login(req);
-        //navigateToPatientMain();
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setMessage(getString(R.string.loggin_in))
+                .setCancelable(false)
+                .create();
+        dialog.show();
+        new Thread(() -> {
+            ApiService client = HttpClient.getClient();
+            LoginReq req  = new LoginReq();
+            req.token     = token;
+            try {
+                Response<LoginResp> resp = client.login(req).execute();
+                if (!resp.isSuccessful()) {
+                    Gson ser      = new Gson();
+                    ErrorResp err = ser.fromJson(resp.errorBody().charStream(), ErrorResp.class);
+                    runOnUiThread(() -> {
+                        dialog.hide();
+                        Toast.makeText(this, err.error, Toast.LENGTH_SHORT).show();
+                    });
+                } else {
+                    runOnUiThread(() -> {
+                        dialog.hide();
+                        // TODO: Store info here somewhere
+                        navigateToPatientMain();
+                    });
+                }
+            } catch (Exception e) {
+                dialog.hide();
+                runOnUiThread(() -> {
+                    Toast.makeText(this, getString(R.string.server_unreachable), Toast.LENGTH_SHORT).show();
+                });
+            }
+        }).start();
     }
 }

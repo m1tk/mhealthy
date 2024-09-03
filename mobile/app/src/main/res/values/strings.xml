@@ -11,4 +11,6 @@
     <string name="switch_to_caregiver">Switch to caregiver</string>
     <string name="enter_token">Please enter Token</string>
     <string name="nothing_scanned">Nothing was scanned</string>
+    <string name="server_unreachable">Server unreachable, try again later</string>
+    <string name="loggin_in">Login in progress...</string>
 </resources>

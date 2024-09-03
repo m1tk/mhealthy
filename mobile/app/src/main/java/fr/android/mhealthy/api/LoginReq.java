@@ -1,5 +1,5 @@
 package fr.android.mhealthy.api;
 
-public class LoginRequest {
+public class LoginReq {
     public String token;
 }

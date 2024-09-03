@@ -11,4 +11,6 @@
     <string name="switch_to_caregiver">Passer au mode soignant</string>
     <string name="enter_token">Veuillez entrer votre jeton</string>
     <string name="nothing_scanned">Rien n\'a été scanné</string>
+    <string name="server_unreachable">Serveur inaccessible, veuillez réessayer plus tard</string>
+    <string name="loggin_in">Connexion en cours...</string>
 </resources>
