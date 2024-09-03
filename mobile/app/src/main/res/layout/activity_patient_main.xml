@@ -7,13 +7,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_color"
-    tools:context=".PatientMainActivity">
+    tools:context=".ui.PatientMainActivity">
 
     <TextView
         android:id="@+id/tvWelcome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome, Patient"
+        android:text="@string/welcome_patient"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="@color/text_color"
@@ -38,7 +38,7 @@
             android:id="@+id/btnActivities"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Activities"
+            android:text="@string/activities"
             android:textSize="18sp"
             android:padding="16dp"
             app:icon="@drawable/ic_activities"
@@ -63,7 +63,7 @@
             android:id="@+id/btnMedication"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Medication"
+            android:text="@string/medication"
             android:textSize="18sp"
             android:padding="16dp"
             app:icon="@drawable/ic_medication"
@@ -76,7 +76,7 @@
         android:id="@+id/btnSwitchToCaregiver"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Switch to Caregiver"
+        android:text="@string/switch_to_caregiver"
         android:textSize="16sp"
         android:layout_marginBottom="32dp"
         app:layout_constraintBottom_toBottomOf="parent"

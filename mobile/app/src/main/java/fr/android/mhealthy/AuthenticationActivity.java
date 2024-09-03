@@ -3,11 +3,16 @@ package fr.android.mhealthy;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.android.material.button.MaterialButton;
+
 import android.widget.EditText;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+
+import com.google.zxing.integration.android.IntentIntegrator;
+
+import fr.android.mhealthy.ui.PatientMainActivity;
+import fr.android.mhealthy.ui.QRScanActivity;
 
 public class AuthenticationActivity extends AppCompatActivity {
 
@@ -33,13 +38,16 @@ public class AuthenticationActivity extends AppCompatActivity {
                 // If authentication is successful, navigate to PatientMainActivity
                 navigateToPatientMain();
             } else {
-                Toast.makeText(this, "Please enter ID or Token", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.enter_token), Toast.LENGTH_SHORT).show();
             }
         });
 
         btnQrScan.setOnClickListener(v -> {
-            Intent intent = new Intent(this, QRScanActivity.class);
-            startActivityForResult(intent, QR_SCAN_REQUEST_CODE);
+            IntentIntegrator integrator = new IntentIntegrator(this);
+            integrator.setPrompt("Scan a QR code");
+            integrator.setCaptureActivity(QRScanActivity.class);
+            integrator.setOrientationLocked(false);
+            integrator.initiateScan();
         });
     }
 
@@ -58,9 +66,9 @@ public class AuthenticationActivity extends AppCompatActivity {
                 etIdToken.setText(scannedData);
                 // TODO: Implement authentication logic here with the scanned data
                 // For now, we'll just navigate to PatientMainActivity
-                navigateToPatientMain();
+                //navigateToPatientMain();
             } else {
-                Toast.makeText(this, "No data scanned", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.nothing_scanned), Toast.LENGTH_SHORT).show();
             }
         }
     }

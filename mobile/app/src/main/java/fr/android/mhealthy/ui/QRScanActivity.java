@@ -1,4 +1,4 @@
-package fr.android.mhealthy;
+package fr.android.mhealthy.ui;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,17 +7,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.journeyapps.barcodescanner.CaptureActivity;
 
-public class QRScanActivity extends AppCompatActivity {
+public class QRScanActivity extends CaptureActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        IntentIntegrator integrator = new IntentIntegrator(this);
-        integrator.setOrientationLocked(false);
-        integrator.setPrompt("Scan a QR code");
-        integrator.initiateScan();
     }
 
     @Override

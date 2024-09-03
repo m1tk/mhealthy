@@ -1,4 +1,4 @@
-package fr.android.mhealthy;
+package fr.android.mhealthy.api;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

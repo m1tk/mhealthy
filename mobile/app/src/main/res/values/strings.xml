@@ -1,3 +1,14 @@
 <resources>
-    <string name="app_name">mHealthy</string>
+    <string name="app_name" translatable="false">mHealthy</string>
+    <string name="authenticate">Authentication</string>
+    <string name="token">Token</string>
+    <string name="login">Login</string>
+    <string name="or">Or</string>
+    <string name="scan_qr">Scan QR code</string>
+    <string name="welcome_patient">Welcome, Patient</string>
+    <string name="activities">Activities</string>
+    <string name="medication">Medication</string>
+    <string name="switch_to_caregiver">Switch to caregiver</string>
+    <string name="enter_token">Please enter Token</string>
+    <string name="nothing_scanned">Nothing was scanned</string>
 </resources>

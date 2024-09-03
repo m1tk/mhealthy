@@ -24,10 +24,12 @@
 //    }
 //}
 
-package fr.android.mhealthy;
+package fr.android.mhealthy.ui;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+
+import fr.android.mhealthy.R;
 
 public class PatientMainActivity extends AppCompatActivity {
 

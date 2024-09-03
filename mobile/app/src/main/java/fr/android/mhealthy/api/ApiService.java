@@ -1,4 +1,4 @@
-package fr.android.mhealthy;
+package fr.android.mhealthy.api;
 
 import retrofit2.Call;
 import retrofit2.http.Body;

@@ -1,4 +1,4 @@
-package fr.android.mhealthy;
+package fr.android.mhealthy.api;
 
 public class Item {
         private int id;
