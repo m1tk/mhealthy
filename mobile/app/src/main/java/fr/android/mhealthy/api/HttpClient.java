@@ -10,9 +10,9 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HttpClient {
-    private static Retrofit client = null;
+    private static ApiService client = null;
 
-    public static Retrofit getClient(String baseUrl) {
+    public static ApiService getClient() {
         if (client == null) {
             OkHttpClient ok = new OkHttpClient()
                 .newBuilder()
@@ -26,7 +26,8 @@ public class HttpClient {
                     .client(ok)
                     .baseUrl(BuildConfig.SERVER_URL)
                     .addConverterFactory(GsonConverterFactory.create())
-                    .build();
+                    .build()
+                    .create(ApiService.class);
         }
         return client;
     }
