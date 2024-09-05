@@ -26,16 +26,26 @@
 
 package fr.android.mhealthy.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import fr.android.mhealthy.R;
+import fr.android.mhealthy.model.Session;
 
 public class PatientMainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_patient_main); // Referencing the XML layout for the Patient Main Page
+        setContentView(R.layout.activity_patient_main);
+
+        Intent intent   = getIntent();
+        Session session = (Session) intent.getSerializableExtra("session");
+
+        TextView welcome = findViewById(R.id.tvWelcome);
+        welcome.setText(getString(R.string.welcome, session.name));
     }
 }

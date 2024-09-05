@@ -1,11 +1,10 @@
 <resources>
-    <string name="app_name" translatable="false">mHealthy</string>
     <string name="authenticate">Authentification</string>
     <string name="token">Jeton</string>
     <string name="login">Se connecter</string>
     <string name="or">Ou</string>
     <string name="scan_qr">Scanner votre QR code</string>
-    <string name="welcome_patient">Bonjour, Patient</string>
+    <string name="welcome">Bonjour, %1$s</string>
     <string name="activities">Activités</string>
     <string name="medication">Medication</string>
     <string name="switch_to_caregiver">Passer au mode soignant</string>

@@ -21,6 +21,7 @@ import fr.android.mhealthy.api.ErrorResp;
 import fr.android.mhealthy.api.HttpClient;
 import fr.android.mhealthy.api.LoginReq;
 import fr.android.mhealthy.api.LoginResp;
+import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.service.SessionManager;
 import fr.android.mhealthy.ui.PatientMainActivity;
 import fr.android.mhealthy.ui.QRScanActivity;
@@ -46,8 +47,9 @@ public class AuthenticationActivity extends AppCompatActivity {
                     .create();
             dialog.show();
         }
-        if (manager.is_logged()) {
-            navigateToPatientMain();
+        Session s = manager.get_logged_session();
+        if (s != null) {
+            navigateToPatientMain(s);
         }
 
         etIdToken = findViewById(R.id.etIdToken);
@@ -73,8 +75,9 @@ public class AuthenticationActivity extends AppCompatActivity {
         });
     }
 
-    private void navigateToPatientMain() {
+    private void navigateToPatientMain(Session session) {
         Intent intent = new Intent(this, PatientMainActivity.class);
+        intent.putExtra("session", session);
         startActivity(intent);
         finish(); // Close the authentication activity
     }
@@ -112,8 +115,9 @@ public class AuthenticationActivity extends AppCompatActivity {
                         Toast.makeText(this, err.error, Toast.LENGTH_SHORT).show();
                     });
                 } else {
+                    Session s;
                     try {
-                        manager.login(resp.body());
+                        s = manager.login(resp.body());
                     } catch (IOException e) {
                         runOnUiThread(() -> {
                             dialog.hide();
@@ -122,10 +126,11 @@ public class AuthenticationActivity extends AppCompatActivity {
                                     .create();
                             err.show();
                         });
+                        return;
                     }
                     runOnUiThread(() -> {
                         dialog.hide();
-                        navigateToPatientMain();
+                        navigateToPatientMain(s);
                     });
                 }
             } catch (Exception e) {

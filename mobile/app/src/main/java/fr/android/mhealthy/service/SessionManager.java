@@ -36,27 +36,32 @@ public class SessionManager {
         }
     }
 
-    public void login(LoginResp acc) throws IOException {
+    public Session login(LoginResp acc) throws IOException {
         // TODO: Method needs to return db of account
         int count = 0;
         for (Session s : session.sessions) {
             if (s.cin.equals(acc.cin)) {
                 session.active_account_id = count;
-                return;
+                return s;
             }
             count += 1;
         }
         Session s = new Session();
+        s.name = acc.name;
         s.cin = acc.cin;
         s.account_type = acc.account_type;
         session.sessions.add(s);
         session.active_account_id = session.sessions.size()-1;
         this.write_session_file(session);
         // TODO: New account, we need to create db
+        return s;
     }
 
-    public boolean is_logged() {
-        return this.is_logged;
+    public Session get_logged_session() {
+        if (is_logged) {
+            return session.sessions.get(session.active_account_id);
+        }
+        return null;
     }
 
     void write_session_file(SessionStore session) throws IOException {
