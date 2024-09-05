@@ -14,20 +14,22 @@ import androidx.annotation.Nullable;
 import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
 
+import java.io.IOException;
+
 import fr.android.mhealthy.api.ApiService;
 import fr.android.mhealthy.api.ErrorResp;
 import fr.android.mhealthy.api.HttpClient;
 import fr.android.mhealthy.api.LoginReq;
 import fr.android.mhealthy.api.LoginResp;
+import fr.android.mhealthy.service.SessionManager;
 import fr.android.mhealthy.ui.PatientMainActivity;
 import fr.android.mhealthy.ui.QRScanActivity;
 import retrofit2.Response;
 
 public class AuthenticationActivity extends AppCompatActivity {
+    SessionManager manager;
 
     private EditText etIdToken;
-    private Button btnLogin;
-    private Button btnQrScan;
 
     private static final int QR_SCAN_REQUEST_CODE = 1001;
 
@@ -36,9 +38,21 @@ public class AuthenticationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentication);
 
+        try {
+            manager = new SessionManager(getApplicationContext());
+        } catch (IOException e) {
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setMessage(e.getMessage())
+                    .create();
+            dialog.show();
+        }
+        if (manager.is_logged()) {
+            navigateToPatientMain();
+        }
+
         etIdToken = findViewById(R.id.etIdToken);
-        btnLogin = findViewById(R.id.btnLogin);
-        btnQrScan = findViewById(R.id.btnQrScan);
+        Button btnLogin = findViewById(R.id.btnLogin);
+        Button btnQrScan = findViewById(R.id.btnQrScan);
 
         btnLogin.setOnClickListener(v -> {
             String idToken = etIdToken.getText().toString().trim();
@@ -98,15 +112,25 @@ public class AuthenticationActivity extends AppCompatActivity {
                         Toast.makeText(this, err.error, Toast.LENGTH_SHORT).show();
                     });
                 } else {
+                    try {
+                        manager.login(resp.body());
+                    } catch (IOException e) {
+                        runOnUiThread(() -> {
+                            dialog.hide();
+                            AlertDialog err = new AlertDialog.Builder(this)
+                                    .setMessage(e.toString())
+                                    .create();
+                            err.show();
+                        });
+                    }
                     runOnUiThread(() -> {
                         dialog.hide();
-                        // TODO: Store info here somewhere
                         navigateToPatientMain();
                     });
                 }
             } catch (Exception e) {
-                dialog.hide();
                 runOnUiThread(() -> {
+                    dialog.hide();
                     Toast.makeText(this, getString(R.string.server_unreachable), Toast.LENGTH_SHORT).show();
                 });
             }
