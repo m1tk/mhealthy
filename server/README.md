@@ -47,6 +47,11 @@ Adding caregiver instruction (caregiver account only):
 curl -v http://127.0.0.1:8080/v1/caregiver/instruction -H 'cookie: session="COOKIE_HERE"' -H 'Content-Type: application/json' --data '{"patient":PATIENT_ID, "data":{}}'
 ```
 
+Assigning new caregiver to patient:
+```
+curl -v http://127.0.0.1:8080/v1/caregiver/assign -H 'cookie: session="COOKIE_HERE"' -H 'Content-Type: application/json' --data '{"new_caregiver":NEW_CAREGIVER_ID,"patient":PATIENT_ID}'
+```
+
 Adding patient info (patient account only):
 ```
 curl -v http://127.0.0.1:8080/v1/patient/info -H 'cookie: session="COOKIE_HERE"' -H 'Content-Type: application/json' --data '{"data":{}}'
@@ -55,6 +60,11 @@ curl -v http://127.0.0.1:8080/v1/patient/info -H 'cookie: session="COOKIE_HERE"'
 Event listener for caregiver (SSE):
 ```
 curl -v http://127.0.0.1:8080/v1/caregiver/events -H 'cookie: session="COOKIE_HERE"' -H 'Content-Type: application/json' --data '{"last_info":LAST_INFO_ID,"last_instruction":LAST_INSTRUCTION_ID,"patient":PATIENT_ID}' -N
+```
+
+Assigning event listener for caregiver (SSE):
+```
+curl -v http://127.0.0.1:8080/v1/caregiver/assigned_events -H 'cookie: session="COOKIE_HERE"' -N
 ```
 
 Event listener for patient (SSE):
