@@ -19,13 +19,6 @@ create table token (
     foreign key(id) references userinfo (id) on delete cascade
 );
 
-create table cookie (
-    id int primary key,
-    cookie bytea not null,
-    update_time bigint not null,
-    foreign key(id) references userinfo (id) on delete cascade
-);
-
 create table assigned (
     caregiver int not null,
     patient int not null,

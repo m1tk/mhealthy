@@ -1,5 +1,5 @@
 import secrets
-from typing import Optional, Tuple
+from typing import Optional
 from asyncpg import Pool
 from datetime import datetime, timezone
 from cryptography.hazmat.primitives import constant_time
@@ -63,7 +63,7 @@ class UserLogin(BaseModel):
     cin: str
     account_type: AccountType
 
-async def login(pool: Pool, cse: ColumnCryptor, uid: int, token: bytes) -> Tuple[UserLogin, bytes]:
+async def login(pool: Pool, cse: ColumnCryptor, uid: int, token: bytes) -> UserLogin:
     async with pool.acquire() as con:
         user = await con.fetchrow(
             "select name, cin, account_type, enc_nonce, token from token, userinfo where token.id = $1 and token.id = userinfo.id;",
@@ -73,26 +73,11 @@ async def login(pool: Pool, cse: ColumnCryptor, uid: int, token: bytes) -> Tuple
         if not constant_time.bytes_eq(cse.decrypt(user["token"], user["enc_nonce"]), token):
             raise ValueError("Token is not equal to the one stored in the db")
 
-        cookie = secrets.token_bytes(48)
-        await con.execute(
-            '''
-insert into cookie (id, cookie, update_time) values ($1, $2, $3)
-on conflict (id)
-do update set cookie = $2, update_time = $3
-            ''',
-            uid,
-            cse.encrypt(cookie, user["enc_nonce"]),
-            int(datetime.now(timezone.utc).timestamp())
-        )
-
     acctype = account_type_from_int(user["account_type"])
     if acctype is None:
         raise ValueError("Invalid account type")
-    return (
-        UserLogin(
-            name=cse.decrypt(user["name"], user["enc_nonce"]).decode(),
-            account_type=acctype,
-            cin=cse.decrypt(user["cin"], user["enc_nonce"]).decode()
-        ),
-        cookie
+    return UserLogin(
+        name=cse.decrypt(user["name"], user["enc_nonce"]).decode(),
+        account_type=acctype,
+        cin=cse.decrypt(user["cin"], user["enc_nonce"]).decode()
     )

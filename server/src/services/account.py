@@ -1,4 +1,5 @@
 from concurrent.futures import ProcessPoolExecutor
+import secrets
 from fastapi import HTTPException, Request, responses
 import msgpack
 import qrcode
@@ -37,7 +38,8 @@ async def login(request: Request, req: LoginRequest):
         raise HTTPException(status_code=400, detail=trans.t("ivt"))
     
     try:
-        (resp, cookie) = await daccount.login(request.app.state.db, request.app.state.cse, uid, token)
+        resp   = await daccount.login(request.app.state.db, request.app.state.cse, uid, token)
+        cookie = secrets.token_bytes(48)
         
         cookie = {"c": cookie, "id": uid}
         # we also add type of account so we can later on determine api calls allowed by type
