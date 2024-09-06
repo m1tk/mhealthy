@@ -56,7 +56,7 @@ async def get_instructions(pool: Pool, cse: ColumnCryptor,
         async with con.transaction():
             async for row in con.cursor('''
 select id, caregiver, instruction, enc_nonce from caregiver_instruction
-where patient = $1 and id > $2 and caregiver != $3;
+where patient = $1 and id > $2 and (caregiver != $3 or (caregiver = $3 and is_assign = true));
                 ''',
                 patient,
                 start,
@@ -74,35 +74,45 @@ async def assign_caregiver_to_patient(pool: Pool, cse: ColumnCryptor,
                                       caregiver: int) -> bool:
     async with pool.acquire() as con:
         async with con.transaction():
-            user = await con.fetchrow(
-                "select name, phone, account_type, enc_nonce from userinfo where id = $1;",
-                new_caregiver
+            return await assign_caregiver_to_patient_inner(
+                con, cse,
+                new_caregiver, patient,
+                caregiver
             )
 
-            acctype = account_type_from_int(user["account_type"])
-            if acctype is None or acctype != AccountType.CareGiver:
-                return False
+async def assign_caregiver_to_patient_inner(con, cse: ColumnCryptor,
+                                      new_caregiver: int, patient: int,
+                                      caregiver: int) -> bool:
+    user = await con.fetchrow(
+        "select name, phone, account_type, enc_nonce from userinfo where id = $1;",
+        new_caregiver
+    )
 
-            await con.execute("insert into assigned (caregiver, patient) values ($1, $2)", new_caregiver, patient)
+    acctype = account_type_from_int(user["account_type"])
+    if acctype is None or acctype != AccountType.CareGiver:
+        return False
 
-            instruction = {
-                "type": "assign_caregiver",
-                "time": int(datetime.now(timezone.utc).timestamp()),
-                "new_caregiver": {
-                    "id": new_caregiver,
-                    "name": cse.decrypt(user["name"], user["enc_nonce"]).decode(),
-                    "phone": cse.decrypt(user["phone"], user["enc_nonce"]).decode()
-                }
-            }
+    await con.execute("insert into assigned (caregiver, patient) values ($1, $2)", new_caregiver, patient)
 
-            nonce = cse.gen_nonce()
-            await con.execute('''
-insert into caregiver_instruction (caregiver, patient, instruction, enc_nonce)
-values ($1, $2, $3, $4);
-                ''',
-                caregiver,
-                patient,
-                cse.encrypt(json.dumps(instruction).encode(), nonce),
-                nonce
-            )
+    instruction = {
+        "type": "assign_caregiver",
+        "time": int(datetime.now(timezone.utc).timestamp()),
+        "new_caregiver": {
+            "id": new_caregiver,
+            "name": cse.decrypt(user["name"], user["enc_nonce"]).decode(),
+            "phone": cse.decrypt(user["phone"], user["enc_nonce"]).decode()
+        }
+    }
+
+    nonce = cse.gen_nonce()
+    await con.execute('''
+insert into caregiver_instruction (caregiver, patient, instruction, enc_nonce, is_assign)
+values ($1, $2, $3, $4, $5);
+        ''',
+        caregiver,
+        patient,
+        cse.encrypt(json.dumps(instruction).encode(), nonce),
+        nonce,
+        True
+    )
     return True

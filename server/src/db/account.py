@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from cryptography.hazmat.primitives import constant_time
 from pydantic import BaseModel
 
+from db.caregiver import assign_caregiver_to_patient_inner
 from db.column_cryptor import ColumnCryptor
 from models.account import AccountType, account_type_from_int, account_type_to_int
 
@@ -46,11 +47,7 @@ values ($1, $2, $3, $4, $5, $6, $7, $8, 0) returning id;
                 int(datetime.now(timezone.utc).timestamp())
             )
             if caregiver is not None:
-                await con.execute(
-                    "insert into assigned (caregiver, patient) values ($1, $2)",
-                    caregiver,
-                    newid
-                )
+                await assign_caregiver_to_patient_inner(con, cse, caregiver, newid, caregiver)
             await con.execute(
                 "insert into token (id, token, change_time) values ($1, $2, 0)",
                 newid,

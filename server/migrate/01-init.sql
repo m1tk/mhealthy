@@ -34,6 +34,7 @@ create table caregiver_instruction (
     id bigserial not null,
     instruction bytea not null,
     enc_nonce bytea not null,
+    is_assign boolean default false,
     primary key (caregiver, patient, id),
     foreign key(caregiver, patient) references assigned (caregiver, patient) on delete cascade
 );
