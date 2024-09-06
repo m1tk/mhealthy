@@ -1,5 +1,6 @@
 from typing import Any, Dict
 from aiostream import stream
+from asyncpg import UniqueViolationError
 from fastapi import HTTPException
 from fastapi.requests import Request
 from fastapi.responses import StreamingResponse
@@ -110,3 +111,46 @@ async def caregiver_events_iter(request: Request, req: CareGiverEventsReq):
                         if last > req.last_info:
                             read_pat = True
                             break
+
+class CareGiverAssign(BaseModel):
+    patient: int
+    new_caregiver: int
+
+async def assign_caregiver(request: Request, assign: CareGiverAssign):
+    await authenticate(request)
+
+    trans = Lang(request.state.locale)
+
+    if request.state.session.account_type != AccountType.CareGiver:
+        raise HTTPException(status_code=401, detail=trans.t("not_caregiver3"))
+
+    if assign.new_caregiver == request.state.session.uid:
+        raise HTTPException(status_code=401, detail=trans.t("no_self_assign"))
+
+    try:
+        assigned = await caregiver.caregiver_assigned_to_patient(
+            request.app.state.db,
+            request.state.session.uid,
+            assign.patient
+        )
+    except:
+        raise HTTPException(status_code=500)
+
+    if not assigned:
+        raise HTTPException(status_code=401, detail=trans.t("not_assigned"))
+
+
+    try:
+        is_caregiver = await caregiver.assign_caregiver_to_patient(
+                request.app.state.db,
+                request.app.state.cse,
+                assign.new_caregiver,
+                assign.patient,
+                caregiver=request.state.session.uid
+        )
+    except UniqueViolationError:
+        raise HTTPException(status_code=401, detail=trans.t("caregiver_already_assigned"))
+
+    if not is_caregiver:
+        raise HTTPException(status_code=401, detail=trans.t("assignee_not_caregiver"))
+    return {}

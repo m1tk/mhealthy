@@ -61,6 +61,10 @@ async def login(request: Request, req: saccount.LoginRequest):
 async def instruction(request: Request, req: sc.AddInstruction):
     return await sc.add_instruction(request, req)
 
+@app.post("/v1/caregiver/assign")
+async def assign(request: Request, req: sc.CareGiverAssign):
+    return await sc.assign_caregiver(request, req)
+
 @app.post("/v1/caregiver/events")
 async def caregiver_ev(request: Request, req: sc.CareGiverEventsReq):
     return await sc.events(request, req)

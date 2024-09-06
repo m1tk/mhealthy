@@ -9,5 +9,9 @@ locale = {
     "not_patient": "Vous n'êtes pas un patient pour ajouter une information",
     "add_info_failed": "Impossible d'ajouter l'information du patient",
     "not_caregiver2": "Vous n'êtes pas un soignant pour acceder au information du patient",
-    "not_assigned": "Soignant pas assigner au patient"
+    "not_assigned": "Soignant pas assigner au patient",
+    "not_caregiver3": "Vous n'êtes pas un soignant pour assigner d'autre soignant au patient",
+    "assignee_not_caregiver": "Impossible d'assigner le patient à un utilisateur non soignant",
+    "no_self_assign": "Impossible d'assigner le patient pour soi-même",
+    "caregiver_already_assigned": "Soignant déjà assigné au patient",
 }
