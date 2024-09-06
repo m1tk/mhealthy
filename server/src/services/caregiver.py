@@ -49,7 +49,7 @@ async def events(request: Request, req: CareGiverEventsReq):
     trans = Lang(request.state.locale)
 
     if request.state.session.account_type != AccountType.CareGiver:
-        raise HTTPException(status_code=401, detail=trans.t("not_caregiver2"))
+        raise HTTPException(status_code=401, detail=trans.t("not_caregiver"))
 
     try:
         assigned = await caregiver.caregiver_assigned_to_patient(
@@ -122,7 +122,7 @@ async def assign_caregiver(request: Request, assign: CareGiverAssign):
     trans = Lang(request.state.locale)
 
     if request.state.session.account_type != AccountType.CareGiver:
-        raise HTTPException(status_code=401, detail=trans.t("not_caregiver3"))
+        raise HTTPException(status_code=401, detail=trans.t("not_caregiver"))
 
     if assign.new_caregiver == request.state.session.uid:
         raise HTTPException(status_code=401, detail=trans.t("no_self_assign"))
@@ -154,3 +154,30 @@ async def assign_caregiver(request: Request, assign: CareGiverAssign):
     if not is_caregiver:
         raise HTTPException(status_code=401, detail=trans.t("assignee_not_caregiver"))
     return {}
+
+async def assigned_events(request: Request):
+    await authenticate(request)
+
+    trans = Lang(request.state.locale)
+
+    if request.state.session.account_type != AccountType.CareGiver:
+        raise HTTPException(status_code=401, detail=trans.t("not_caregiver"))
+
+    return StreamingResponse(stream.merge(assigned_events_iter(request), heartbeat()), media_type="text/event-stream")
+
+async def assigned_events_iter(request: Request):
+    async with request.app.state.listener.subscribe(channel="assigned_{}".format(request.state.session.uid)) as subscriber:
+        patients = []
+        async for patient_id in caregiver.get_assigned(
+            request.app.state.db,
+            request.state.session.uid,
+            ):
+            yield "event:assigned\ndata:{}\n\n".format(patient_id)
+            patients.append(patient_id)
+
+        while True:
+            async for event in subscriber:
+                patient_id = event.message
+                if patient_id not in patients:
+                    yield "event:assigned\ndata:{}\n\n".format(patient_id)
+

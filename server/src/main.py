@@ -42,9 +42,10 @@ async def custom_http_exception_handler(request: Request, exc: HTTPException):
 async def event_handler(event: asyncpg_listen.NotificationOrTimeout):
     if isinstance(event, asyncpg_listen.Timeout) or event.payload is None:
         return
-    print(f"Received notification '{event}' woooow")
     pay = event.payload.split(",")
-    if event.channel == "patient_info":
+    if event.channel == "assigned":
+        await app.state.listener.publish(channel="assigned_{}".format(pay[0]), message=int(pay[1]))
+    elif event.channel == "patient_info":
         await app.state.listener.publish(channel="patient_info_{}".format(pay[0]), message=int(pay[1]))
     else:
         await app.state.listener.publish(channel="instruction_{}".format(pay[1]), message=[int(pay[0]), int(pay[2])])
@@ -68,6 +69,10 @@ async def assign(request: Request, req: sc.CareGiverAssign):
 @app.post("/v1/caregiver/events")
 async def caregiver_ev(request: Request, req: sc.CareGiverEventsReq):
     return await sc.events(request, req)
+
+@app.get("/v1/caregiver/assigned_events")
+async def caregiver_assigned_ev(request: Request):
+    return await sc.assigned_events(request)
 
 @app.post("/v1/patient/info")
 async def info(request: Request, req: sp.AddInfo):

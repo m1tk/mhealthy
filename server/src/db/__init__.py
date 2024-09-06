@@ -16,7 +16,11 @@ async def event_listener(event_handler):
     listener = asyncpg_listen.NotificationListener(asyncpg_listen.connect_func(os.getenv("DATABASE_URL")))
     asyncio.create_task(
         listener.run(
-            {"instruction": event_handler, "patient_info": event_handler},
+            {
+                "instruction": event_handler,
+                "patient_info": event_handler,
+                "assigned": event_handler
+            },
             policy=asyncpg_listen.ListenPolicy.ALL
         )
     )

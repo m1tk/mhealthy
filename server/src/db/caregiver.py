@@ -68,6 +68,16 @@ where patient = $1 and id > $2 and (caregiver != $3 or (caregiver = $3 and is_as
                     caregiver=row["caregiver"]
                 )
 
+async def get_assigned(pool: Pool, caregiver: int):
+    async with pool.acquire() as con:
+        async with con.transaction():
+            async for row in con.cursor('''
+select patient from assigned where caregiver = $1;
+                ''',
+                caregiver
+                ):
+                yield row["patient"]
+
 
 async def assign_caregiver_to_patient(pool: Pool, cse: ColumnCryptor,
                                       new_caregiver: int, patient: int,

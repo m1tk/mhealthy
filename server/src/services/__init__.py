@@ -2,5 +2,5 @@ import asyncio
 
 async def heartbeat():
     while True:
-        await asyncio.sleep(10)
+        await asyncio.sleep(30)
         yield ":\n\n"
