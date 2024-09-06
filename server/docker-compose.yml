@@ -19,3 +19,11 @@ services:
       - 8080:8080
     environment:
       - PRODUCTION=1
+      - DATABASE_URL=postgresql://mhealthy-server:password@database/mhealthy
+      - ENCRYPTION_KEY=/run/secrets/encryption
+    secrets:
+      - encryption
+
+secrets:
+  encryption:
+    file: ./secrets/encryption.key
