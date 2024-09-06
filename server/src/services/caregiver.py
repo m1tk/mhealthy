@@ -56,10 +56,11 @@ async def events(request: Request, req: CareGiverEventsReq):
             request.state.session.uid,
             req.patient
         )
-        if not assigned:
-            raise HTTPException(status_code=401, detail=trans.t("not_assigned"))
     except:
         raise HTTPException(status_code=500)
+
+    if not assigned:
+        raise HTTPException(status_code=401, detail=trans.t("not_assigned"))
 
     return StreamingResponse(stream.merge(caregiver_events_iter(request, req), heartbeat()), media_type="text/event-stream")
 
@@ -95,16 +96,17 @@ async def caregiver_events_iter(request: Request, req: CareGiverEventsReq):
                     req.last_info = row.id
                 read_pat = False
 
-            async for event in stream.merge(s1, s2):
-                if event.channel.startswith("instruction"):
-                    if event.message[0] == request.state.session.uid:
-                        continue
-                    last = event.message[1]
-                    if last > req.last_instruction:
-                        read_ins = True
-                        break
-                elif event.channel.startswith("patient"):
-                    last = event.message
-                    if last > req.last_info:
-                        read_pat = True
-                        break
+            async with stream.merge(s1, s2).stream() as s:
+                async for event in s:
+                    if event.channel.startswith("instruction"):
+                        if event.message[0] == request.state.session.uid:
+                            continue
+                        last = event.message[1]
+                        if last > req.last_instruction:
+                            read_ins = True
+                            break
+                    elif event.channel.startswith("patient"):
+                        last = event.message
+                        if last > req.last_info:
+                            read_pat = True
+                            break
