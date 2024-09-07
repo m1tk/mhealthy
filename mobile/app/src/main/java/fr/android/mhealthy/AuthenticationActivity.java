@@ -21,6 +21,7 @@ import fr.android.mhealthy.api.HttpClient;
 import fr.android.mhealthy.api.LoginReq;
 import fr.android.mhealthy.api.LoginResp;
 import fr.android.mhealthy.model.Session;
+import fr.android.mhealthy.service.EventHandlerBackground;
 import fr.android.mhealthy.service.SessionManager;
 import fr.android.mhealthy.ui.PatientMainActivity;
 import fr.android.mhealthy.ui.QRScanActivity;
@@ -49,6 +50,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         }
         Session s = manager.get_logged_session();
         if (s != null) {
+            spawn_event_handler_service(s);
             navigateToPatientMain(s);
         }
 
@@ -95,6 +97,14 @@ public class AuthenticationActivity extends AppCompatActivity {
         }
     }
 
+    public void spawn_event_handler_service(Session session) {
+        if (!EventHandlerBackground.isServiceRunning()) {
+            Intent intent = new Intent(this, EventHandlerBackground.class);
+            intent.putExtra("session", session);
+            startService(intent);
+        }
+    }
+
     void authenticate(String token) {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setMessage(getString(R.string.loggin_in))
@@ -130,6 +140,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                     }
                     runOnUiThread(() -> {
                         dialog.hide();
+                        spawn_event_handler_service(s);
                         navigateToPatientMain(s);
                     });
                 }

@@ -1,6 +1,7 @@
 package fr.android.mhealthy.service;
 
 import android.content.Context;
+import android.content.Intent;
 
 import com.google.gson.Gson;
 
