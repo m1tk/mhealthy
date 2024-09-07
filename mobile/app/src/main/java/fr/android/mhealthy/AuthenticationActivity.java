@@ -38,6 +38,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentication);
 
+        HttpClient.init_cookie_jar(getApplicationContext());
         try {
             manager = new SessionManager(getApplicationContext());
         } catch (IOException e) {

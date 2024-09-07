@@ -69,5 +69,5 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.10")
 
 
-
+    implementation("com.github.franmontiel:PersistentCookieJar:v1.0.1")
 }
