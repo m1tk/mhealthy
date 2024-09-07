@@ -11,10 +11,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import fr.android.mhealthy.api.ErrorResp;
 import fr.android.mhealthy.api.LoginResp;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.model.SessionStore;
+import fr.android.mhealthy.storage.SecretDAO;
 
 public class SessionManager {
     private static final String SESSION_MANAGER_PATH = "sessions.json";
@@ -36,8 +36,7 @@ public class SessionManager {
         }
     }
 
-    public Session login(LoginResp acc) throws IOException {
-        // TODO: Method needs to return db of account
+    public Session login(LoginResp acc, String token) throws Exception {
         int count = 0;
         for (Session s : session.sessions) {
             if (s.cin.equals(acc.cin)) {
@@ -47,13 +46,16 @@ public class SessionManager {
             count += 1;
         }
         Session s = new Session();
+        s.id = session.sessions.size();
         s.name = acc.name;
         s.cin = acc.cin;
         s.account_type = acc.account_type;
         session.sessions.add(s);
-        session.active_account_id = session.sessions.size()-1;
+        session.active_account_id = s.id;
         this.write_session_file(session);
-        // TODO: New account, we need to create db
+        // New account, we need to create db
+        SecretDAO db = new SecretDAO(ctx, s);
+        db.update_token(token);
         return s;
     }
 
