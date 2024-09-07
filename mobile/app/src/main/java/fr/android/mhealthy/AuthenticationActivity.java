@@ -100,7 +100,6 @@ public class AuthenticationActivity extends AppCompatActivity {
     public void spawn_event_handler_service(Session session) {
         if (!EventHandlerBackground.isServiceRunning()) {
             Intent intent = new Intent(this, EventHandlerBackground.class);
-            intent.putExtra("session", session);
             startService(intent);
         }
     }

@@ -10,6 +10,8 @@ import android.os.IBinder;
 
 import androidx.core.app.NotificationCompat;
 
+import java.io.IOException;
+
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.model.Session;
 
@@ -52,10 +54,21 @@ public class EventHandlerBackground extends Service {
 
         startForeground(1, notification);
 
-        Session s = (Session)intent.getSerializableExtra("session");
+        SessionManager m;
+        try {
+            m = new SessionManager(getApplicationContext());
+        } catch (IOException e) {
+            return START_NOT_STICKY;
+        }
+        Session s = m.get_logged_session();
+        if (s == null) {
+            return START_NOT_STICKY;
+        }
         new Thread(() -> {
             if (s.account_type.equals("caregiver")) {
                 new CaregiverEvents(s);
+            } else if (s.account_type.equals("patient")) {
+                new PatientEvents(getApplicationContext(), s);
             }
         }).start();
 
