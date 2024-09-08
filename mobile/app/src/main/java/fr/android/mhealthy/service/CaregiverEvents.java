@@ -132,9 +132,9 @@ public class CaregiverEvents {
             return;
         }
 
-        if (ins.type == Instruction.InstructionType.AddCaregiver) {
-            Instruction.AddCaregiver inst = (Instruction.AddCaregiver) ins.instruction;
-            cd.new_caregiver(inst, patient, ins.caregiver, ins.id);
+        if (ins.type == Instruction.InstructionType.AddPatient) {
+            Instruction.AddPatient inst = (Instruction.AddPatient) ins.instruction;
+            cd.new_patient(inst, patient, ins.id);
         } else if (ins.type == Instruction.InstructionType.AddMedicine ||
                 ins.type == Instruction.InstructionType.EditMedicine ||
                 ins.type == Instruction.InstructionType.RemoveMedicine) {

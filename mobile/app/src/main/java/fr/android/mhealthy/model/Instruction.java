@@ -12,9 +12,21 @@ public class Instruction {
 
     public enum InstructionType {
         AddCaregiver,
+        AddPatient,
         AddMedicine,
         EditMedicine,
         RemoveMedicine
+    }
+
+    public static class AddPatient {
+        public int time;
+        public NewPatient new_patient;
+
+        public static class NewPatient {
+            public int id;
+            public String name;
+            public String phone;
+        }
     }
 
     public static class AddCaregiver {
@@ -50,8 +62,13 @@ public class Instruction {
     public Instruction(Gson p, JsonObject ins, int caregiver, int id) {
         switch (ins.get("type").getAsString()) {
             case "assign_caregiver":
-                this.type = InstructionType.AddCaregiver;
-                this.instruction = p.fromJson(ins.toString(), AddCaregiver.class);
+                if (ins.has("new_patient")) {
+                    this.type = InstructionType.AddPatient;
+                    this.instruction = p.fromJson(ins.toString(), AddPatient.class);
+                } else {
+                    this.type = InstructionType.AddCaregiver;
+                    this.instruction = p.fromJson(ins.toString(), AddCaregiver.class);
+                }
                 break;
             case "add_medicine":
                 this.type = InstructionType.AddMedicine;

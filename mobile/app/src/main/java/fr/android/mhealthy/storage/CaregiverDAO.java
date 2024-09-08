@@ -33,12 +33,18 @@ public class CaregiverDAO {
         );
     }
 
-    public void new_caregiver(Instruction.AddCaregiver add_caregiver, int patient,
-                              int by_caregiver, int last_id) {
+    public void new_patient(Instruction.AddPatient add, int patient,
+                            int last_id) {
         SQLiteDatabase db = sdb.getWritableDatabase();
         db.beginTransaction();
         try {
-            PatientDAO.new_caregiver_inner(db, add_caregiver, by_caregiver);
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.USER_ID, add.new_patient.id);
+            values.put(DatabaseHelper.USER_NAME, add.new_patient.name);
+            values.put(DatabaseHelper.USER_PHONE, add.new_patient.phone);
+            values.put(DatabaseHelper.USER_ADDED_DATE, add.time);
+            values.putNull(DatabaseHelper.USER_ADDED_BY);
+            db.insertOrThrow(DatabaseHelper.TABLE_USER, null, values);
             update_last_instruction_id(db, patient, last_id);
             db.setTransactionSuccessful();
             db.endTransaction();
