@@ -23,6 +23,7 @@ import fr.android.mhealthy.api.LoginResp;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.service.EventHandlerBackground;
 import fr.android.mhealthy.service.SessionManager;
+import fr.android.mhealthy.ui.CaregiverMainActivity;
 import fr.android.mhealthy.ui.PatientMainActivity;
 import fr.android.mhealthy.ui.QRScanActivity;
 import retrofit2.Response;
@@ -51,7 +52,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         Session s = manager.get_logged_session();
         if (s != null) {
             spawn_event_handler_service(s);
-            navigateToPatientMain(s);
+            navigateToMain(s);
         }
 
         etIdToken = findViewById(R.id.etIdToken);
@@ -77,8 +78,13 @@ public class AuthenticationActivity extends AppCompatActivity {
         });
     }
 
-    private void navigateToPatientMain(Session session) {
-        Intent intent = new Intent(this, PatientMainActivity.class);
+    private void navigateToMain(Session session) {
+        Intent intent;
+        if (session.account_type.equals("patient")) {
+            intent = new Intent(this, PatientMainActivity.class);
+        } else {
+            intent = new Intent(this, CaregiverMainActivity.class);
+        }
         intent.putExtra("session", session);
         startActivity(intent);
         finish(); // Close the authentication activity
@@ -140,7 +146,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         dialog.dismiss();
                         spawn_event_handler_service(s);
-                        navigateToPatientMain(s);
+                        navigateToMain(s);
                     });
                 }
             } catch (Exception e) {

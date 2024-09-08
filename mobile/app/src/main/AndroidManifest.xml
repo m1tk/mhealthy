@@ -40,6 +40,10 @@
             android:name=".ui.PatientMainActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.CaregiverMainActivity"
+            android:exported="false" />
+
         <service android:name=".service.EventHandlerBackground"
             android:foregroundServiceType="remoteMessaging" />
     </application>

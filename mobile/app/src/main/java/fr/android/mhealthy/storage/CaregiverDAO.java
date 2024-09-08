@@ -1,10 +1,16 @@
 package fr.android.mhealthy.storage;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import fr.android.mhealthy.model.Instruction;
+import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
 
 public class CaregiverDAO {
@@ -54,6 +60,28 @@ public class CaregiverDAO {
             db.close();
             throw e;
         }
+    }
+
+    @SuppressLint("Range")
+    public List<Patient> get_all_patients() {
+        SQLiteDatabase db   = sdb.getReadableDatabase();
+        List<Patient> patients = new ArrayList<>();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + DatabaseHelper.TABLE_USER + " ORDER BY " +
+                DatabaseHelper.USER_ADDED_DATE +" DESC", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                int id      = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.USER_ID));
+                String name = cursor.getString(cursor.getColumnIndex(DatabaseHelper.USER_NAME));
+                int time    = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.USER_ADDED_DATE));
+                String phone = cursor.getString(cursor.getColumnIndex(DatabaseHelper.USER_PHONE));
+                Patient patient = new Patient(id, name, time, phone);
+                patients.add(patient);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return patients;
     }
 
     public void medicine_operation(Instruction op, String json, int patient) {

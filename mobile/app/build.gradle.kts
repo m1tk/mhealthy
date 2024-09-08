@@ -71,4 +71,6 @@ dependencies {
 
     implementation("net.gotev:cookie-store:1.5.0")
     implementation("net.gotev:cookie-store-okhttp:1.5.0")
+
+    implementation("org.greenrobot:eventbus:3.2.0")
 }

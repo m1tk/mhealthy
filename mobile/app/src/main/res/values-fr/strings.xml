@@ -12,4 +12,5 @@
     <string name="nothing_scanned">Rien n\'a été scanné</string>
     <string name="server_unreachable">Serveur inaccessible, veuillez réessayer plus tard</string>
     <string name="loggin_in">Connexion en cours...</string>
+    <string name="patient_list">Liste des patients</string>
 </resources>

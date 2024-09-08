@@ -7,6 +7,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -17,6 +19,7 @@ import fr.android.mhealthy.api.PatientEventReq;
 import fr.android.mhealthy.api.SSE;
 import fr.android.mhealthy.api.SSEdata;
 import fr.android.mhealthy.model.Instruction;
+import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.storage.CaregiverDAO;
 import fr.android.mhealthy.storage.LastIdDAO;
@@ -135,6 +138,12 @@ public class CaregiverEvents {
         if (ins.type == Instruction.InstructionType.AddPatient) {
             Instruction.AddPatient inst = (Instruction.AddPatient) ins.instruction;
             cd.new_patient(inst, patient, ins.id);
+            EventBus.getDefault().post(new Patient(
+                    inst.new_patient.id,
+                    inst.new_patient.name,
+                    inst.time,
+                    inst.new_patient.phone
+            ));
         } else if (ins.type == Instruction.InstructionType.AddMedicine ||
                 ins.type == Instruction.InstructionType.EditMedicine ||
                 ins.type == Instruction.InstructionType.RemoveMedicine) {
