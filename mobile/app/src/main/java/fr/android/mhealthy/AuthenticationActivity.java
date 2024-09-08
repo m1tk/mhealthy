@@ -120,7 +120,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                     Gson ser      = new Gson();
                     ErrorResp err = ser.fromJson(resp.errorBody().charStream(), ErrorResp.class);
                     runOnUiThread(() -> {
-                        dialog.hide();
+                        dialog.dismiss();
                         Toast.makeText(this, err.error, Toast.LENGTH_SHORT).show();
                     });
                 } else {
@@ -129,7 +129,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                         s = manager.login(resp.body(), req.token);
                     } catch (Exception e) {
                         runOnUiThread(() -> {
-                            dialog.hide();
+                            dialog.dismiss();
                             AlertDialog err = new AlertDialog.Builder(this)
                                     .setMessage(e.toString())
                                     .create();
@@ -138,14 +138,14 @@ public class AuthenticationActivity extends AppCompatActivity {
                         return;
                     }
                     runOnUiThread(() -> {
-                        dialog.hide();
+                        dialog.dismiss();
                         spawn_event_handler_service(s);
                         navigateToPatientMain(s);
                     });
                 }
             } catch (Exception e) {
                 runOnUiThread(() -> {
-                    dialog.hide();
+                    dialog.dismiss();
                     Toast.makeText(this, getString(R.string.server_unreachable), Toast.LENGTH_SHORT).show();
                 });
             }
