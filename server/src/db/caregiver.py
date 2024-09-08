@@ -62,8 +62,15 @@ where patient = $1 and id > $2 and (caregiver != $3 or (caregiver = $3 and is_as
                 start,
                 caregiver
                 ):
+                inst = json.loads(cse.decrypt(row["instruction"], row["enc_nonce"]))
+                if "type" in inst and inst["type"] == "assign_caregiver":
+                    if caregiver == inst["new_caregiver"]["id"]:
+                        del inst["new_caregiver"]
+                    else:
+                        del inst["new_patient"]
+
                 yield Instruction(
-                    instruction=json.loads(cse.decrypt(row["instruction"], row["enc_nonce"])),
+                    instruction=inst,
                     id=row["id"],
                     caregiver=row["caregiver"]
                 )
@@ -102,6 +109,11 @@ async def assign_caregiver_to_patient_inner(con, cse: ColumnCryptor,
     if acctype is None or acctype != AccountType.CareGiver:
         return False
 
+    patient = await con.fetchrow(
+        "select name, phone, account_type, enc_nonce from userinfo where id = $1;",
+        patient
+    )
+
     await con.execute("insert into assigned (caregiver, patient) values ($1, $2)", new_caregiver, patient)
 
     instruction = {
@@ -111,6 +123,11 @@ async def assign_caregiver_to_patient_inner(con, cse: ColumnCryptor,
             "id": new_caregiver,
             "name": cse.decrypt(user["name"], user["enc_nonce"]).decode(),
             "phone": cse.decrypt(user["phone"], user["enc_nonce"]).decode()
+        },
+        "new_patient": {
+            "id": patient,
+            "name": cse.decrypt(patient["name"], patient["enc_nonce"]).decode(),
+            "phone": cse.decrypt(patient["phone"], patient["enc_nonce"]).decode()
         }
     }
 

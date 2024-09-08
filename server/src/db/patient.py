@@ -36,8 +36,11 @@ where patient = $1 and id > $2;
                 patient,
                 start
                 ):
+                inst = json.loads(cse.decrypt(row["instruction"], row["enc_nonce"]))
+                if "type" in inst and inst["type"] == "assign_caregiver":
+                    del inst["new_patient"]
                 yield Instruction(
-                    instruction=json.loads(cse.decrypt(row["instruction"], row["enc_nonce"])),
+                    instruction=inst,
                     id=row["id"],
                     caregiver=row["caregiver"]
                 )
