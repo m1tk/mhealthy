@@ -15,6 +15,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String USER_NAME = "name";
     public static final String USER_PHONE = "phone";
     public static final String USER_ADDED_DATE = "added_date";
+    public static final String USER_ADDED_BY = "added_by";
 
     public static final String TABLE_MEDICATION = "medication";
     public static final String MEDICATION_NAME = "name";
@@ -76,6 +77,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 USER_ID + " INTEGER PRIMARY KEY," +
                 USER_NAME + " TEXT," +
                 USER_ADDED_DATE + " INTEGER," +
+                USER_ADDED_BY + " INTEGER," +
                 USER_PHONE + " TEXT);");
 
         db.execSQL("CREATE TABLE " + TABLE_MEDICATION + " (" +
