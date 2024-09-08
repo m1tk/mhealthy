@@ -18,17 +18,9 @@ public class PatientDAO {
     public void new_caregiver(Instruction.AddCaregiver add_caregiver,
                               int by_caregiver, int last_id) {
         SQLiteDatabase db = sdb.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.USER_ID, add_caregiver.new_caregiver.id);
-        values.put(DatabaseHelper.USER_NAME, add_caregiver.new_caregiver.name);
-        values.put(DatabaseHelper.USER_PHONE, add_caregiver.new_caregiver.phone);
-        values.put(DatabaseHelper.USER_ADDED_DATE, add_caregiver.time);
-        if (by_caregiver != add_caregiver.new_caregiver.id) {
-            values.put(DatabaseHelper.USER_ADDED_BY, by_caregiver);
-        }
         db.beginTransaction();
         try {
-            db.insertOrThrow(DatabaseHelper.TABLE_USER, null, values);
+            new_caregiver_inner(db, add_caregiver, by_caregiver);
             update_last_id(db, last_id);
             db.setTransactionSuccessful();
             db.endTransaction();
@@ -38,6 +30,19 @@ public class PatientDAO {
             db.close();
             throw e;
         }
+    }
+
+    static void new_caregiver_inner(SQLiteDatabase db, Instruction.AddCaregiver add_caregiver,
+                       int by_caregiver) {
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.USER_ID, add_caregiver.new_caregiver.id);
+        values.put(DatabaseHelper.USER_NAME, add_caregiver.new_caregiver.name);
+        values.put(DatabaseHelper.USER_PHONE, add_caregiver.new_caregiver.phone);
+        values.put(DatabaseHelper.USER_ADDED_DATE, add_caregiver.time);
+        if (by_caregiver != add_caregiver.new_caregiver.id) {
+            values.put(DatabaseHelper.USER_ADDED_BY, by_caregiver);
+        }
+        db.insertOrThrow(DatabaseHelper.TABLE_USER, null, values);
     }
 
     private void update_last_id(SQLiteDatabase db, int last_id) {
@@ -78,7 +83,7 @@ public class PatientDAO {
         }
     }
 
-    void add_medicine_inner(SQLiteDatabase db, Instruction.AddMedicine add,
+    static void add_medicine_inner(SQLiteDatabase db, Instruction.AddMedicine add,
                             Integer src, Integer dst, String json) {
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.MEDICATION_NAME, add.name);
@@ -95,14 +100,14 @@ public class PatientDAO {
         add_medicine_history(db, json, add.name, add.time, src);
     }
 
-    void edit_medicine_inner(SQLiteDatabase db, Instruction.EditMedicine edit,
+    static void edit_medicine_inner(SQLiteDatabase db, Instruction.EditMedicine edit,
                              Integer src, Integer dst, String json) {
         SQLiteStatement stmt = db.compileStatement("update "+ DatabaseHelper.TABLE_MEDICATION +
                 " set " + DatabaseHelper.MEDICATION_DOSE + " = ?, " +
                 DatabaseHelper.MEDICATION_TIME + " = ?, " +
                 DatabaseHelper.MEDICATION_UPDATED_AT + " = ? where " +
                 DatabaseHelper.MEDICATION_NAME + " = ? and " +
-                DatabaseHelper.MEDICATION_USER + " = ?;");
+                DatabaseHelper.MEDICATION_USER + " is ?;");
         stmt.bindString(1, edit.dose);
         stmt.bindString(2, edit.dose_time);
         stmt.bindLong(3, edit.time);
@@ -112,16 +117,16 @@ public class PatientDAO {
         } else {
             stmt.bindNull(5);
         }
-
+        stmt.execute();
         add_medicine_history(db, json, edit.name, edit.time, src);
     }
 
-    void remove_medicine_inner(SQLiteDatabase db, Instruction.RemoveMedicine rm,
+    static void remove_medicine_inner(SQLiteDatabase db, Instruction.RemoveMedicine rm,
                                Integer src, Integer dst, String json) {
         SQLiteStatement stmt = db.compileStatement("update "+ DatabaseHelper.TABLE_MEDICATION +
                 " set " + DatabaseHelper.MEDICATION_ACTIVE + " = ? where " +
                 DatabaseHelper.MEDICATION_NAME + " = ? and " +
-                DatabaseHelper.MEDICATION_USER + " = ?;");
+                DatabaseHelper.MEDICATION_USER + " is ?;");
         stmt.bindLong(1, 0);
         stmt.bindString(2, rm.name);
         if (dst != null) {
@@ -129,11 +134,11 @@ public class PatientDAO {
         } else {
             stmt.bindNull(3);
         }
-
+        stmt.execute();
         add_medicine_history(db, json, rm.name, rm.time, src);
     }
 
-    void add_medicine_history(SQLiteDatabase db, String json,
+    static void add_medicine_history(SQLiteDatabase db, String json,
                               String name, int time, Integer patient) {
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.HISTORY_MEDICATION, name);

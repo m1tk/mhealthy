@@ -66,7 +66,7 @@ public class EventHandlerBackground extends Service {
         }
         new Thread(() -> {
             if (s.account_type.equals("caregiver")) {
-                new CaregiverEvents(s);
+                new CaregiverEvents(getApplicationContext(), s);
             } else if (s.account_type.equals("patient")) {
                 new PatientEvents(getApplicationContext(), s);
             }

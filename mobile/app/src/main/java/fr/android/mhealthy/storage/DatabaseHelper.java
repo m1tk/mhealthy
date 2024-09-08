@@ -131,8 +131,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE " + TABLE_LAST_ID + " (" +
                 LAST_ID + " INTEGER," +
                 LAST_ID_TYPE + " TEXT," +
-                LAST_ID_USER + " INTEGER," +
-                "FOREIGN KEY (" + LAST_ID_USER + ") REFERENCES " + TABLE_USER + "(" + USER_ID + ") ON DELETE CASCADE);");
+                LAST_ID_USER + " INTEGER);");
 
         db.execSQL("CREATE TABLE " + TABLE_SECRET + " (" +
                 SECRET_TYPE + " TEXT PRIMARY KEY," +
