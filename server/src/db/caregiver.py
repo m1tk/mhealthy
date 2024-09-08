@@ -109,7 +109,7 @@ async def assign_caregiver_to_patient_inner(con, cse: ColumnCryptor,
     if acctype is None or acctype != AccountType.CareGiver:
         return False
 
-    patient = await con.fetchrow(
+    patientacc = await con.fetchrow(
         "select name, phone, account_type, enc_nonce from userinfo where id = $1;",
         patient
     )
@@ -126,8 +126,8 @@ async def assign_caregiver_to_patient_inner(con, cse: ColumnCryptor,
         },
         "new_patient": {
             "id": patient,
-            "name": cse.decrypt(patient["name"], patient["enc_nonce"]).decode(),
-            "phone": cse.decrypt(patient["phone"], patient["enc_nonce"]).decode()
+            "name": cse.decrypt(patientacc["name"], patientacc["enc_nonce"]).decode(),
+            "phone": cse.decrypt(patientacc["phone"], patientacc["enc_nonce"]).decode()
         }
     }
 
