@@ -21,7 +21,7 @@ import fr.android.mhealthy.storage.PatientDAO;
 
 
 public class PatientEvents {
-    private Gson p;
+    private final Gson p;
     private int last;
 
     public PatientEvents(Context ctx, Session s) {
@@ -82,6 +82,11 @@ public class PatientEvents {
         if (ins.type == Instruction.InstructionType.AddCaregiver) {
             Instruction.AddCaregiver inst = (Instruction.AddCaregiver) ins.instruction;
             pd.new_caregiver(inst, ins.caregiver, ins.id);
+        } else if (ins.type == Instruction.InstructionType.AddMedicine ||
+                   ins.type == Instruction.InstructionType.EditMedicine ||
+                   ins.type == Instruction.InstructionType.RemoveMedicine) {
+            pd.medicine_operation(ins, ons.toString());
         }
+        last = ins.id;
     }
 }

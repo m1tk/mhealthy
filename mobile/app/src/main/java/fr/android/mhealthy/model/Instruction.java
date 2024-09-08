@@ -11,7 +11,10 @@ public class Instruction {
     public int id;
 
     public enum InstructionType {
-        AddCaregiver
+        AddCaregiver,
+        AddMedicine,
+        EditMedicine,
+        RemoveMedicine
     }
 
     public static class AddCaregiver {
@@ -25,12 +28,45 @@ public class Instruction {
         }
     }
 
+    public static class AddMedicine {
+        public int time;
+        public String name;
+        public String dose;
+        public String dose_time;
+    }
+
+    public static class EditMedicine {
+        public int time;
+        public String name;
+        public String dose;
+        public String dose_time;
+    }
+
+    public static class RemoveMedicine {
+        public int time;
+        public String name;
+    }
+
     public Instruction(Gson p, JsonObject ins, int caregiver, int id) {
-        if (ins.get("type").getAsString().equals("assign_caregiver")) {
-            this.type        = InstructionType.AddCaregiver;
-            this.instruction = p.fromJson(ins.toString(), AddCaregiver.class);
-        } else {
-            throw new InstantiationError("Unknown instruction type");
+        switch (ins.get("type").getAsString()) {
+            case "assign_caregiver":
+                this.type = InstructionType.AddCaregiver;
+                this.instruction = p.fromJson(ins.toString(), AddCaregiver.class);
+                break;
+            case "add_medicine":
+                this.type = InstructionType.AddMedicine;
+                this.instruction = p.fromJson(ins.toString(), AddMedicine.class);
+                break;
+            case "edit_medicine":
+                this.type = InstructionType.EditMedicine;
+                this.instruction = p.fromJson(ins.toString(), EditMedicine.class);
+                break;
+            case "remove_medicine":
+                this.type = InstructionType.RemoveMedicine;
+                this.instruction = p.fromJson(ins.toString(), RemoveMedicine.class);
+                break;
+            default:
+                throw new InstantiationError("Unknown instruction type");
         }
         this.caregiver = caregiver;
         this.id = id;

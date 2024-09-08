@@ -24,6 +24,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String MEDICATION_CREATED_AT = "created_at";
     public static final String MEDICATION_UPDATED_AT = "updated_at";
     public static final String MEDICATION_USER = "user";
+    public static final String MEDICATION_ACTIVE = "active";
 
     public static final String TABLE_MEDICATION_HISTORY = "medication_history";
     public static final String HISTORY_ID = "history_id";
@@ -39,6 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String ACTIVITY_CREATED_AT = "created_at";
     public static final String ACTIVITY_UPDATED_AT = "updated_at";
     public static final String ACTIVITY_USER = "user";
+    public static final String ACTIVITY_ACTIVE = "active";
 
     public static final String TABLE_ACTIVITY_HISTORY = "activity_history";
     public static final String ACTIVITY_HISTORY_ID = "history_id";
@@ -87,6 +89,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 MEDICATION_CREATED_AT + " INTEGER," +
                 MEDICATION_UPDATED_AT + " DATETIME," +
                 MEDICATION_USER + " INTEGER," +
+                MEDICATION_ACTIVE + " INTEGER DEFAULT 1," +
                 "PRIMARY KEY (" + MEDICATION_NAME + "," + MEDICATION_USER + ")," +
                 "FOREIGN KEY (" + MEDICATION_USER + ") REFERENCES " + TABLE_USER + "(" + USER_ID + ") ON DELETE CASCADE);");
 
@@ -106,6 +109,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ACTIVITY_CREATED_AT + " INTEGER," +
                 ACTIVITY_UPDATED_AT + " DATETIME," +
                 ACTIVITY_USER + " INTEGER," +
+                ACTIVITY_ACTIVE + " INTEGER DEFAULT 1," +
                 "PRIMARY KEY (" + ACTIVITY_NAME + "," + ACTIVITY_USER + ")," +
                 "FOREIGN KEY (" + ACTIVITY_USER + ") REFERENCES " + TABLE_USER + "(" + USER_ID + ") ON DELETE CASCADE);");
 
