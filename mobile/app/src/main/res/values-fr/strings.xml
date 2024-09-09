@@ -19,4 +19,5 @@
     <string name="pick_lang_desc">Choisissez votre langue préférée</string>
     <string name="settings">Parametres</string>
     <string name="logout">Déconnexion</string>
+    <string name="caregiver_patient_main">Patient: %1$s</string>
 </resources>

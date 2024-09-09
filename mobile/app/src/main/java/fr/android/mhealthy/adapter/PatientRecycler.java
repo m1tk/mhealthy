@@ -1,9 +1,9 @@
 package fr.android.mhealthy.adapter;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,11 +17,16 @@ import fr.android.mhealthy.storage.CaregiverDAO;
 public class PatientRecycler extends RecyclerView.Adapter<PatientHolder> {
     private final CaregiverDAO access;
     private final List<Patient> patients;
+    private OnItemClickListener mListener;
 
-    public PatientRecycler(CaregiverDAO access) {
+    public interface OnItemClickListener {
+        void onItemClick(Patient p);
+    }
+
+    public PatientRecycler(CaregiverDAO access, OnItemClickListener listener) {
         this.access = access;
         this.patients = access.get_all_patients();
-        Log.d("Ins", String.valueOf(patients.size()));
+        this.mListener = listener;
     }
 
     @NonNull
@@ -36,6 +41,12 @@ public class PatientRecycler extends RecyclerView.Adapter<PatientHolder> {
     public void onBindViewHolder(PatientHolder holder, int position) {
         Patient p = patients.get(position);
         holder.name.setText(p.name);
+        holder.itemView.setOnClickListener(v -> {
+            v.animate().scaleX(0.95f).scaleY(0.95f).setDuration(100).withEndAction(() -> {
+                v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
+            });
+            mListener.onItemClick(p);
+        });
     }
 
     @Override

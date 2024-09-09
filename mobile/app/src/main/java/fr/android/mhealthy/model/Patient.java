@@ -1,6 +1,8 @@
 package fr.android.mhealthy.model;
 
-public class Patient {
+import java.io.Serializable;
+
+public class Patient implements Serializable {
     public int id;
     public String name;
     public int add_time;

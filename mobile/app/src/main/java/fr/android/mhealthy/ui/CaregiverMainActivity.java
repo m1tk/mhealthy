@@ -37,7 +37,14 @@ public class CaregiverMainActivity extends AppCompatActivity {
         EventBus.getDefault().register(this);
 
         patient_view = findViewById(R.id.patient_view);
-        adapter = new PatientRecycler(new CaregiverDAO(getApplicationContext(), session));
+        adapter = new PatientRecycler(
+                new CaregiverDAO(getApplicationContext(), session),
+                v -> {
+                    Intent i = new Intent(this, PatientMainActivity.class);
+                    i.putExtra("session", session);
+                    i.putExtra("patient", v);
+                    startActivity(i);
+                });
         patient_view.setLayoutManager(new LinearLayoutManager(this));
         patient_view.setAdapter(adapter);
     }

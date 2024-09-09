@@ -33,6 +33,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import fr.android.mhealthy.R;
+import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
 
 public class PatientMainActivity extends AppCompatActivity {
@@ -45,7 +46,13 @@ public class PatientMainActivity extends AppCompatActivity {
         Intent intent   = getIntent();
         Session session = (Session) intent.getSerializableExtra("session");
 
-        TextView welcome = findViewById(R.id.tvWelcome);
-        welcome.setText(getString(R.string.welcome, session.name));
+        if (session.account_type.equals("patient")) {
+            TextView welcome = findViewById(R.id.tvWelcome);
+            welcome.setText(getString(R.string.welcome, session.name));
+        } else {
+            Patient p = (Patient) intent.getSerializableExtra("patient");
+            TextView welcome = findViewById(R.id.tvWelcome);
+            welcome.setText(getString(R.string.caregiver_patient_main, p.name));
+        }
     }
 }
