@@ -14,4 +14,10 @@
     <string name="server_unreachable">Server unreachable, try again later</string>
     <string name="loggin_in">Login in progress...</string>
     <string name="patient_list">Patients list</string>
+    <string name="dark_mode_desc">Toggle this switch to enable dark mode</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="pick_lang">Select language</string>
+    <string name="pick_lang_desc">Choose your preferred language</string>
+    <string name="settings">Settings</string>
+    <string name="logout">Logout</string>
 </resources>

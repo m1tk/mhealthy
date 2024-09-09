@@ -52,6 +52,7 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
+    implementation("androidx.preference:preference-ktx:1.2.0")
     // CameraX dependencies (use consistent versions)
     val camerax_version = "1.3.0"
     implementation("androidx.camera:camera-core:$camerax_version")

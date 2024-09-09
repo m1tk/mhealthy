@@ -13,4 +13,10 @@
     <string name="server_unreachable">Serveur inaccessible, veuillez réessayer plus tard</string>
     <string name="loggin_in">Connexion en cours...</string>
     <string name="patient_list">Liste des patients</string>
+    <string name="dark_mode_desc">Activez ce switch pour activer le mode sombre</string>
+    <string name="dark_mode">Mode sombre</string>
+    <string name="pick_lang">Choisir la langue</string>
+    <string name="pick_lang_desc">Choisissez votre langue préférée</string>
+    <string name="settings">Parametres</string>
+    <string name="logout">Déconnexion</string>
 </resources>
