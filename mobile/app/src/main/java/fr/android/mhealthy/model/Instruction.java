@@ -92,4 +92,30 @@ public class Instruction {
     public Instruction(Gson p, String ins, int caregiver, int id) {
         this(p, JsonParser.parseString(ins).getAsJsonObject(), caregiver, id);
     }
+
+    public JsonObject to_json_format(Gson p) {
+        JsonObject obj = p.toJsonTree(this.instruction)
+                .getAsJsonObject();
+        // We must also insert the type
+        String type;
+        switch (this.type) {
+            case AddCaregiver:
+                type = "assign_caregiver";
+                break;
+            case AddMedicine:
+                type = "add_medicine";
+                break;
+            case EditMedicine:
+                type = "edit_medicine";
+                break;
+            case RemoveMedicine:
+                type = "remove_medicine";
+                break;
+            default:
+                // This should not happen
+                throw new InstantiationError("Unknown instruction type");
+        }
+        obj.addProperty("type", type);
+        return obj;
+    }
 }

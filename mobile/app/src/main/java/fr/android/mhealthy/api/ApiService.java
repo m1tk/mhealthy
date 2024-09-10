@@ -17,8 +17,12 @@ public interface ApiService {
     @POST("v1/caregiver/events")
     @Streaming
     Call<ResponseBody> caregiver_events(@Body CaregiverEventsReq req);
+    @POST("v1/caregiver/instruction")
+    Call<ResponseBody> instruction(@Body InstructionReq req);
 
     @POST("v1/patient/events")
     @Streaming
     Call<ResponseBody> patient_events(@Body PatientEventReq req);
+    @POST("v1/patient/info")
+    Call<ResponseBody> patient_info(@Body PatientInfoReq req);
 }
