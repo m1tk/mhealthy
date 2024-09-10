@@ -1,12 +1,19 @@
-package fr.android.mhealthy;
+package fr.android.mhealthy.utils;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.util.DisplayMetrics;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
+import java.util.Locale;
 
+import fr.android.mhealthy.AuthenticationActivity;
+import fr.android.mhealthy.R;
 import fr.android.mhealthy.service.SessionManager;
 import fr.android.mhealthy.ui.SettingsActivity;
 

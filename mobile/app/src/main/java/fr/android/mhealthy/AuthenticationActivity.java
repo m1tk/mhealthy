@@ -2,6 +2,7 @@ package fr.android.mhealthy;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,11 +10,14 @@ import android.widget.EditText;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Locale;
 
 import fr.android.mhealthy.api.ApiService;
 import fr.android.mhealthy.api.ErrorResp;
@@ -26,6 +30,8 @@ import fr.android.mhealthy.service.SessionManager;
 import fr.android.mhealthy.ui.CaregiverMainActivity;
 import fr.android.mhealthy.ui.PatientMainActivity;
 import fr.android.mhealthy.ui.QRScanActivity;
+import fr.android.mhealthy.utils.MenuUtils;
+import fr.android.mhealthy.utils.SettingsUtils;
 import retrofit2.Response;
 
 public class AuthenticationActivity extends AppCompatActivity {
@@ -39,6 +45,8 @@ public class AuthenticationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentication);
+
+        SettingsUtils.setup_defaults(this);
 
         HttpClient.init_cookie_jar(getApplicationContext());
         try {

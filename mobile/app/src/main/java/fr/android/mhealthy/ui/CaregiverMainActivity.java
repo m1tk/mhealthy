@@ -2,6 +2,7 @@ package fr.android.mhealthy.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -13,12 +14,13 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import fr.android.mhealthy.MenuUtils;
+import fr.android.mhealthy.utils.MenuUtils;
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.adapter.PatientRecycler;
 import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.storage.CaregiverDAO;
+import fr.android.mhealthy.utils.SettingsUtils;
 
 public class CaregiverMainActivity extends AppCompatActivity {
     RecyclerView patient_view;

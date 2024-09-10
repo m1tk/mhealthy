@@ -44,7 +44,8 @@
             android:name=".ui.CaregiverMainActivity"
             android:exported="false" />
 
-        <activity android:name=".ui.SettingsActivity" />
+        <activity android:name=".ui.SettingsActivity"
+            android:configChanges="locale|orientation" />
 
         <service android:name=".service.EventHandlerBackground"
             android:foregroundServiceType="remoteMessaging" />
