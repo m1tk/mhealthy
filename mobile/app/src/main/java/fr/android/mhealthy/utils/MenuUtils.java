@@ -20,9 +20,9 @@ import fr.android.mhealthy.ui.SettingsActivity;
 
 public class MenuUtils {
     public static void onClickMenuItem(AppCompatActivity act, int id) {
-        if (id == R.id.c_logout) {
+        if (id == R.id.c_logout || id == R.id.p_logout) {
             logout(act);
-        } else if (id == R.id.c_settings) {
+        } else if (id == R.id.c_settings || id == R.id.p_settings) {
             settings(act);
         }
     }

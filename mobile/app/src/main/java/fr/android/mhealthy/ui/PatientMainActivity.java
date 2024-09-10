@@ -28,6 +28,7 @@ package fr.android.mhealthy.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,6 +36,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
+import fr.android.mhealthy.utils.MenuUtils;
 
 public class PatientMainActivity extends AppCompatActivity {
 
@@ -42,6 +44,18 @@ public class PatientMainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_patient_main);
+
+        TextView im = findViewById(R.id.menu_button);
+        PopupMenu menu = new PopupMenu(this, im);
+        menu.getMenuInflater()
+                .inflate(R.menu.patient_menu, menu.getMenu());
+        menu.setOnMenuItemClickListener(v -> {
+            MenuUtils.onClickMenuItem(this, v.getItemId());
+            return true;
+        });
+        im.setOnClickListener(v -> {
+            menu.show();
+        });
 
         Intent intent   = getIntent();
         Session session = (Session) intent.getSerializableExtra("session");

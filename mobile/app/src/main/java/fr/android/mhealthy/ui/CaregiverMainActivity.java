@@ -70,6 +70,7 @@ public class CaregiverMainActivity extends AppCompatActivity {
         EventBus.getDefault().unregister(this);
     }
 
+    @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void new_patient_event(Patient p) {
         adapter.insert(p);
