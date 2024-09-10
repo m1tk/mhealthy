@@ -2,8 +2,8 @@ package fr.android.mhealthy.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,6 +13,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import fr.android.mhealthy.MenuUtils;
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.adapter.PatientRecycler;
 import fr.android.mhealthy.model.Patient;
@@ -35,6 +36,18 @@ public class CaregiverMainActivity extends AppCompatActivity {
         welcome.setText(getString(R.string.welcome, session.name));
 
         EventBus.getDefault().register(this);
+
+        TextView im = findViewById(R.id.menu_button);
+        PopupMenu menu = new PopupMenu(this, im);
+        menu.getMenuInflater()
+                .inflate(R.menu.caregiver_menu, menu.getMenu());
+        menu.setOnMenuItemClickListener(v -> {
+            MenuUtils.onClickMenuItem(this, v.getItemId());
+            return true;
+        });
+        im.setOnClickListener(v -> {
+            menu.show();
+        });
 
         patient_view = findViewById(R.id.patient_view);
         adapter = new PatientRecycler(

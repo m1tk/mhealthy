@@ -20,4 +20,9 @@
     <string name="settings">Parametres</string>
     <string name="logout">Déconnexion</string>
     <string name="caregiver_patient_main">Patient: %1$s</string>
+    <string name="settings_desc">Button de menu</string>
+    <string name="logout_dialog">Êtes-vous sûr de vouloir vous déconnecter?</string>
+    <string name="confirm">Confirmation</string>
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
 </resources>

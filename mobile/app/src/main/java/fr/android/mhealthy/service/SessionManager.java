@@ -42,6 +42,7 @@ public class SessionManager {
         for (Session s : session.sessions) {
             if (s.cin.equals(acc.cin)) {
                 session.active_account_id = count;
+                write_session_file(this.session);
                 return s;
             }
             count += 1;
@@ -65,6 +66,11 @@ public class SessionManager {
             return session.sessions.get(session.active_account_id);
         }
         return null;
+    }
+
+    public void logout() throws IOException {
+        this.session.active_account_id = -1;
+        write_session_file(this.session);
     }
 
     void write_session_file(SessionStore session) throws IOException {

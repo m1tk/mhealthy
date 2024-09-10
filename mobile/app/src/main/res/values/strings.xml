@@ -21,4 +21,9 @@
     <string name="settings">Settings</string>
     <string name="logout">Logout</string>
     <string name="caregiver_patient_main">Patient: %1$s</string>
+    <string name="settings_desc">Menu button</string>
+    <string name="logout_dialog">Are you sure you want to logout?</string>
+    <string name="confirm">Confirm</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
