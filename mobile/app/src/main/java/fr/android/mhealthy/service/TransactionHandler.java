@@ -5,6 +5,7 @@ import android.content.Context;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 import fr.android.mhealthy.api.ApiService;
@@ -22,6 +23,8 @@ public class TransactionHandler {
     Gson p;
     private long last_id;
     public TransactionHandler(Context ctx, Session s) {
+        EventHandlerBackground.tasks.put(Thread.currentThread(), Optional.empty());
+
         p = new Gson();
         last_id = 0;
         PendingTransactionDAO db = new PendingTransactionDAO(ctx, s);
@@ -35,7 +38,9 @@ public class TransactionHandler {
             }
             try {
                 Thread.sleep(5000);
-            } catch (Exception e) {}
+            } catch (InterruptedException e) {
+                return;
+            }
         }
     }
 

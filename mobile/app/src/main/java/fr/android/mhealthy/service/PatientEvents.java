@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import fr.android.mhealthy.api.ApiService;
 import fr.android.mhealthy.api.HttpClient;
@@ -25,6 +26,7 @@ public class PatientEvents {
     private int last;
 
     public PatientEvents(Context ctx, Session s) {
+        EventHandlerBackground.tasks.put(Thread.currentThread(), Optional.empty());
         {
             LastIdDAO last_db = new LastIdDAO(ctx, s);
             last = last_db.patient_last_id();
@@ -36,7 +38,9 @@ public class PatientEvents {
             event_handler(pd);
             try {
                 Thread.sleep(5000);
-            } catch (Exception e) {}
+            } catch (InterruptedException e) {
+                return;
+            }
         }
     }
 
@@ -48,6 +52,7 @@ public class PatientEvents {
         } catch (IOException e) {
             return;
         }
+        EventHandlerBackground.tasks.put(Thread.currentThread(), Optional.of(sse));
 
         while (true) {
             try {

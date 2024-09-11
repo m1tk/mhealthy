@@ -9,11 +9,15 @@ import android.util.DisplayMetrics;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.IOException;
 import java.util.Locale;
 
 import fr.android.mhealthy.AuthenticationActivity;
 import fr.android.mhealthy.R;
+import fr.android.mhealthy.model.PendingTransactionNotification;
+import fr.android.mhealthy.service.EventHandlerBackground;
 import fr.android.mhealthy.service.SessionManager;
 import fr.android.mhealthy.ui.SettingsActivity;
 
@@ -43,6 +47,7 @@ public class MenuUtils {
     }
 
     static void logout_inner(AppCompatActivity act) {
+        EventBus.getDefault().post(new EventHandlerBackground.StopForegroundTask());
         SessionManager manager;
         try {
             manager = new SessionManager(act.getApplicationContext());

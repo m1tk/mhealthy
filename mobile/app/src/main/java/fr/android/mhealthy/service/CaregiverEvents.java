@@ -10,12 +10,12 @@ import com.google.gson.JsonParser;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Optional;
 
 import fr.android.mhealthy.api.ApiService;
 import fr.android.mhealthy.api.CaregiverEventsReq;
 import fr.android.mhealthy.api.HttpClient;
-import fr.android.mhealthy.api.PatientEventReq;
 import fr.android.mhealthy.api.SSE;
 import fr.android.mhealthy.api.SSEdata;
 import fr.android.mhealthy.model.Instruction;
@@ -26,16 +26,18 @@ import fr.android.mhealthy.storage.LastIdDAO;
 
 public class CaregiverEvents {
     private final Gson p;
-    private HashMap<Integer, Thread> tasks;
+    private HashSet<Integer> tasks;
 
     public CaregiverEvents(Context ctx, Session s) {
         p = new Gson();
-        tasks = new HashMap<>();
+        EventHandlerBackground.tasks.put(Thread.currentThread(), Optional.empty());
         while (true) {
             assigned_listener(ctx, s);
             try {
                 Thread.sleep(5000);
-            } catch (Exception e) {}
+            } catch (InterruptedException e) {
+                return;
+            }
         }
     }
 
@@ -47,6 +49,7 @@ public class CaregiverEvents {
         } catch (IOException e) {
             return;
         }
+        EventHandlerBackground.tasks.put(Thread.currentThread(), Optional.of(sse));
         while (true) {
             try {
                 SSEdata data = sse.read_next();
@@ -57,13 +60,13 @@ public class CaregiverEvents {
                     } catch (Exception e) {
                         continue;
                     }
-                    if (tasks.containsKey(patient)) {
+                    if (tasks.contains(patient)) {
                         continue;
                     }
                     Thread t = new Thread(() -> {
                         instruction_event_handler(ctx, s, patient);
                     });
-                    tasks.put(patient, t);
+                    tasks.add(patient);
                     t.start();
                 }
             } catch (Exception e) {
@@ -87,6 +90,7 @@ public class CaregiverEvents {
     }
 
     private void instruction_event_handler(Context ctx, Session s, int patient) {
+        EventHandlerBackground.tasks.put(Thread.currentThread(), Optional.empty());
         LastId last = new LastId();
         {
             LastIdDAO ld = new LastIdDAO(ctx, s);
@@ -104,6 +108,7 @@ public class CaregiverEvents {
         } catch (IOException e) {
             return;
         }
+        EventHandlerBackground.tasks.put(Thread.currentThread(), Optional.of(sse));
 
         while (true) {
             try {

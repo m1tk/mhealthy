@@ -16,15 +16,19 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import fr.android.mhealthy.R;
-import fr.android.mhealthy.model.Patient;
+import fr.android.mhealthy.api.SSE;
 import fr.android.mhealthy.model.PendingTransactionNotification;
 import fr.android.mhealthy.model.Session;
 
 public class EventHandlerBackground extends Service {
     private static final String CHANNEL_ID = "EventHandler";
     private static boolean isServiceRunning = false;
+
+    static ConcurrentHashMap<Thread, Optional<SSE>> tasks = new ConcurrentHashMap<>();
 
     @Override
     public void onCreate() {
@@ -104,5 +108,27 @@ public class EventHandlerBackground extends Service {
         if (TransactionHandler.update_id.get() < p.id) {
             TransactionHandler.update_id.set(p.id);
         }
+    }
+
+    public static class StopForegroundTask {}
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void pending_transaction(StopForegroundTask s) {
+        tasks.forEach((t, sse) -> {
+            t.interrupt();
+            if (sse.isPresent()) {
+                try {
+                    sse.get().close();
+                } catch (Exception e) {}
+            }
+        });
+        for (Thread t: tasks.keySet()) {
+            try {
+                t.join(1000);
+            } catch (Exception e) {}
+        }
+        tasks.clear();
+        Log.d("ForegroundTask", "All tasks stopped, exiting.");
+        stopSelf();
     }
 }
