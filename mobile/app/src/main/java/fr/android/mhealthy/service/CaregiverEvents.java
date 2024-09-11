@@ -147,7 +147,7 @@ public class CaregiverEvents {
         } else if (ins.type == Instruction.InstructionType.AddMedicine ||
                 ins.type == Instruction.InstructionType.EditMedicine ||
                 ins.type == Instruction.InstructionType.RemoveMedicine) {
-            cd.medicine_operation(ins, ons.toString(), patient);
+            cd.medicine_operation(ins, ons.toString(), null, patient);
         }
         last.last_instruction = ins.id;
     }

@@ -26,4 +26,13 @@
     <string name="yes">Oui</string>
     <string name="no">Non</string>
     <string name="conf_change_restart">Ce changement nécessite de redémarrer l\'application. Acceptez-vous cela ?</string>
+    <string name="add_med">Ajouter medicine</string>
+    <string name="med_name">Nom du medicine</string>
+    <string name="med_dose">Dose du medicine</string>
+    <string name="day">Jour</string>
+    <string name="night">Nuit</string>
+    <string name="edit_med">Modifier medicine</string>
+    <string name="empty_field">Tous les champs doivent être remplis</string>
+    <string name="pending">L\'opération est en cours de traitement, veuillez patienter...</string>
+    <string name="med_assigned_patient">%1$s est maintenant assignée à %2$s</string>
 </resources>

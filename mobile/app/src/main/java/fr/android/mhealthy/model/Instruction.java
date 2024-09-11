@@ -19,7 +19,7 @@ public class Instruction {
     }
 
     public static class AddPatient {
-        public int time;
+        public long time;
         public NewPatient new_patient;
 
         public static class NewPatient {
@@ -30,7 +30,7 @@ public class Instruction {
     }
 
     public static class AddCaregiver {
-        public int time;
+        public long time;
         public NewCaregiver new_caregiver;
 
         public static class NewCaregiver {
@@ -41,21 +41,21 @@ public class Instruction {
     }
 
     public static class AddMedicine {
-        public int time;
+        public long time;
         public String name;
         public String dose;
         public String dose_time;
     }
 
     public static class EditMedicine {
-        public int time;
+        public long time;
         public String name;
         public String dose;
         public String dose_time;
     }
 
     public static class RemoveMedicine {
-        public int time;
+        public long time;
         public String name;
     }
 
@@ -93,7 +93,15 @@ public class Instruction {
         this(p, JsonParser.parseString(ins).getAsJsonObject(), caregiver, id);
     }
 
-    public JsonObject to_json_format(Gson p) {
+    /// This is used for internal usage only and should not be sent to server
+    public Instruction(InstructionType type, Object ins, int caregiver, int id) {
+        this.type = type;
+        this.instruction = ins;
+        this.caregiver = caregiver;
+        this.id = id;
+    }
+
+    public JsonObject to_store_json_format(Gson p) {
         JsonObject obj = p.toJsonTree(this.instruction)
                 .getAsJsonObject();
         // We must also insert the type
@@ -117,5 +125,12 @@ public class Instruction {
         }
         obj.addProperty("type", type);
         return obj;
+    }
+
+    public JsonObject to_server_json_format(Gson p, int patient) {
+        JsonObject o = new JsonObject();
+        o.add("data", to_store_json_format(p));
+        o.addProperty("patient", patient);
+        return o;
     }
 }

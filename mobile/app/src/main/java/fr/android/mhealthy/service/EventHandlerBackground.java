@@ -7,12 +7,19 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
 
 import fr.android.mhealthy.R;
+import fr.android.mhealthy.model.Patient;
+import fr.android.mhealthy.model.PendingTransactionNotification;
 import fr.android.mhealthy.model.Session;
 
 public class EventHandlerBackground extends Service {
@@ -23,6 +30,7 @@ public class EventHandlerBackground extends Service {
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
+        EventBus.getDefault().register(this);
         isServiceRunning = true;
     }
 
@@ -72,6 +80,10 @@ public class EventHandlerBackground extends Service {
             }
         }).start();
 
+        new Thread(() -> {
+            new TransactionHandler(getApplicationContext(), s);
+        }).start();
+
         // If the service is killed, restart it with the last intent
         return START_STICKY;
     }
@@ -84,5 +96,13 @@ public class EventHandlerBackground extends Service {
 
     public static boolean isServiceRunning() {
         return isServiceRunning;
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.POSTING)
+    public void pending_transaction(PendingTransactionNotification p) {
+        if (TransactionHandler.update_id.get() < p.id) {
+            TransactionHandler.update_id.set(p.id);
+        }
     }
 }

@@ -6,11 +6,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.google.gson.Gson;
+
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import fr.android.mhealthy.model.Instruction;
 import fr.android.mhealthy.model.Patient;
+import fr.android.mhealthy.model.PendingTransactionNotification;
 import fr.android.mhealthy.model.Session;
 
 public class CaregiverDAO {
@@ -84,8 +89,10 @@ public class CaregiverDAO {
         return patients;
     }
 
-    public void medicine_operation(Instruction op, String json, int patient) {
+    public void medicine_operation(Instruction op, String json, String trans_json,
+                                   int patient) {
         SQLiteDatabase db = sdb.getWritableDatabase();
+        long pending = 0;
         db.beginTransaction();
         try {
             switch (op.type) {
@@ -106,6 +113,9 @@ public class CaregiverDAO {
                     return;
             }
             update_last_instruction_id(db, patient, op.id);
+            if (trans_json != null) {
+                pending = PendingTransactionDAO.insert(db, "instruction", trans_json);
+            }
             db.setTransactionSuccessful();
             db.endTransaction();
             db.close();
@@ -113,6 +123,9 @@ public class CaregiverDAO {
             db.endTransaction();
             db.close();
             throw e;
+        }
+        if (pending != 0) {
+            EventBus.getDefault().post(new PendingTransactionNotification(pending));
         }
     }
 }

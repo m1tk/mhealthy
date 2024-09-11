@@ -28,6 +28,7 @@ package fr.android.mhealthy.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -68,5 +69,14 @@ public class PatientMainActivity extends AppCompatActivity {
             TextView welcome = findViewById(R.id.tvWelcome);
             welcome.setText(getString(R.string.caregiver_patient_main, p.name));
         }
+
+        Button med = findViewById(R.id.btnMedication);
+        med.setOnClickListener(v -> {
+            Patient p = (Patient) intent.getSerializableExtra("patient");
+            Intent intent1 = new Intent(this, MedicationManagerActivity.class);
+            intent1.putExtra("session", session);
+            intent1.putExtra("patient", p);
+            startActivity(intent1);
+        });
     }
 }

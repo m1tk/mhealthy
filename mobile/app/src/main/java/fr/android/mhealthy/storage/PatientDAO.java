@@ -139,7 +139,7 @@ public class PatientDAO {
     }
 
     static void add_medicine_history(SQLiteDatabase db, String json,
-                              String name, int time, Integer patient) {
+                              String name, long time, Integer patient) {
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.HISTORY_MEDICATION, name);
         values.put(DatabaseHelper.HISTORY_DATA, json);

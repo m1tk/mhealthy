@@ -27,4 +27,13 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="conf_change_restart">This change requires restarting the application. Do you agree to this?</string>
+    <string name="add_med">Add medicine</string>
+    <string name="med_name">Medicine name</string>
+    <string name="med_dose">Medicine dose</string>
+    <string name="day">Day</string>
+    <string name="night">Night</string>
+    <string name="edit_med">Edit medicine</string>
+    <string name="empty_field">All fields must be filled</string>
+    <string name="pending">Operation is being processed, please hold on...</string>
+    <string name="med_assigned_patient">%1$s is now assigned to %2$s</string>
 </resources>

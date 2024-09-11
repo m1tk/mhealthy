@@ -44,6 +44,12 @@
             android:name=".ui.CaregiverMainActivity"
             android:exported="false" />
 
+        <activity android:name=".ui.MedicationActionActivity"
+            android:exported="false" />
+
+        <activity android:name=".ui.MedicationManagerActivity"
+            android:exported="false" />
+
         <activity android:name=".ui.SettingsActivity"
             android:configChanges="locale|orientation" />
 
