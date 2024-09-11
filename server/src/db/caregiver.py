@@ -56,7 +56,7 @@ async def get_instructions(pool: Pool, cse: ColumnCryptor,
         async with con.transaction():
             async for row in con.cursor('''
 select id, caregiver, instruction, enc_nonce from caregiver_instruction
-where patient = $1 and id > $2 and (caregiver != $3 or (caregiver = $3 and is_assign = true));
+where patient = $1 and id > $2;
                 ''',
                 patient,
                 start,
