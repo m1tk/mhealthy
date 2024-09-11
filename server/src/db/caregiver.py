@@ -59,8 +59,7 @@ select id, caregiver, instruction, enc_nonce from caregiver_instruction
 where patient = $1 and id > $2;
                 ''',
                 patient,
-                start,
-                caregiver
+                start
                 ):
                 inst = json.loads(cse.decrypt(row["instruction"], row["enc_nonce"]))
                 if "type" in inst and inst["type"] == "assign_caregiver":
