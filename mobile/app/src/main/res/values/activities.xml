@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="activities_options">
+        <item>@string/blood_gl_test</item>
+        <item>@string/blood_pr_test</item>
+    </string-array>
+</resources>

@@ -78,5 +78,13 @@ public class PatientMainActivity extends AppCompatActivity {
             intent1.putExtra("patient", p);
             startActivity(intent1);
         });
+        Button act = findViewById(R.id.btnActivities);
+        act.setOnClickListener(v -> {
+            Patient p = (Patient) intent.getSerializableExtra("patient");
+            Intent intent1 = new Intent(this, ActivityManagerActivity.class);
+            intent1.putExtra("session", session);
+            intent1.putExtra("patient", p);
+            startActivity(intent1);
+        });
     }
 }

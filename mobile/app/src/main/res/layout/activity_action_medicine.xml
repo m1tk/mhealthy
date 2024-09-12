@@ -59,36 +59,15 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <RadioGroup
-        android:id="@+id/rgTimeOfDay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tilMedicationDose"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:orientation="horizontal"
-        android:layout_marginTop="50dp">
-
-        <RadioButton
-            android:id="@+id/rbDay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/day" />
-
-        <RadioButton
-            android:id="@+id/rbNight"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/night" />
-    </RadioGroup>
 
     <TimePicker
         android:id="@+id/timePicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/rgTimeOfDay"
+        app:layout_constraintTop_toBottomOf="@id/tilMedicationDose"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnAddMedication"
         android:timePickerMode="spinner" />
 
     <com.google.android.material.button.MaterialButton

@@ -38,4 +38,12 @@
     <string name="med_assigned_patient">%1$s is now assigned to %2$s</string>
     <string name="med_list_patient">My medicines</string>
     <string name="med_list_caregiver">Medicines</string>
+    <string name="add_act">Add activity</string>
+    <string name="edit_act">Edit activity</string>
+    <string name="sel_act">Select wanted activity</string>
+    <string name="act_goal">Goal</string>
+    <string name="blood_gl_test">Blood glucose mesure</string>
+    <string name="blood_pr_test">Blood pressure mesure</string>
+    <string name="act_list_patient">My activities</string>
+    <string name="act_list_caregiver">Activities</string>
 </resources>

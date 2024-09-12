@@ -50,6 +50,12 @@
         <activity android:name=".ui.MedicationManagerActivity"
             android:exported="false" />
 
+        <activity android:name=".ui.ActivityActionActivity"
+            android:exported="false" />
+
+        <activity android:name=".ui.ActivityManagerActivity"
+            android:exported="false" />
+
         <activity android:name=".ui.SettingsActivity"
             android:configChanges="locale|orientation" />
 
