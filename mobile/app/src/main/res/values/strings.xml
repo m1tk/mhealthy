@@ -36,4 +36,6 @@
     <string name="empty_field">All fields must be filled</string>
     <string name="pending">Operation is being processed, please hold on...</string>
     <string name="med_assigned_patient">%1$s is now assigned to %2$s</string>
+    <string name="med_list_patient">My medicines</string>
+    <string name="med_list_caregiver">Medicines</string>
 </resources>

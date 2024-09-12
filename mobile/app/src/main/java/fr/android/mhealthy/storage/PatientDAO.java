@@ -1,11 +1,20 @@
 package fr.android.mhealthy.storage;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import fr.android.mhealthy.model.Instruction;
+import fr.android.mhealthy.model.Medicine;
+import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
 
 public class PatientDAO {
@@ -98,6 +107,16 @@ public class PatientDAO {
         db.insertOrThrow(DatabaseHelper.TABLE_MEDICATION, null, values);
 
         add_medicine_history(db, json, add.name, add.time, src);
+
+        // Notifying of new message
+        Medicine med = new Medicine();
+        med.name = add.name;
+        med.dose = add.dose;
+        med.time = add.dose_time;
+        med.created_at = add.time;
+        med.updated_at = add.time;
+        med.active = true;
+        EventBus.getDefault().post(new Medicine.AddMedicineNotification(dst, med));
     }
 
     static void edit_medicine_inner(SQLiteDatabase db, Instruction.EditMedicine edit,
@@ -148,5 +167,30 @@ public class PatientDAO {
             values.put(DatabaseHelper.HISTORY_USER, patient);
         }
         db.insertOrThrow(DatabaseHelper.TABLE_MEDICATION_HISTORY, null, values);
+    }
+
+    @SuppressLint("Range")
+    public List<Medicine> get_all_meds(Integer user) {
+        SQLiteDatabase db = sdb.getReadableDatabase();
+        List<Medicine> meds = new ArrayList<>();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + DatabaseHelper.TABLE_MEDICATION + " WHERE " +
+                DatabaseHelper.MEDICATION_USER + " is " + (user == null ? "null" : String.valueOf(user)) +
+                " ORDER BY " + DatabaseHelper.MEDICATION_CREATED_AT + " DESC", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                Medicine med = new Medicine();
+                med.name = cursor.getString(cursor.getColumnIndex(DatabaseHelper.MEDICATION_NAME));
+                med.dose = cursor.getString(cursor.getColumnIndex(DatabaseHelper.MEDICATION_DOSE));
+                med.time = cursor.getString(cursor.getColumnIndex(DatabaseHelper.MEDICATION_TIME));
+                med.created_at = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.MEDICATION_CREATED_AT));
+                med.updated_at = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.MEDICATION_UPDATED_AT));
+                med.active = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.MEDICATION_ACTIVE)) == 1;
+                meds.add(med);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return meds;
     }
 }

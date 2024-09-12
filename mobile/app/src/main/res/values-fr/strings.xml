@@ -35,4 +35,6 @@
     <string name="empty_field">Tous les champs doivent être remplis</string>
     <string name="pending">L\'opération est en cours de traitement, veuillez patienter...</string>
     <string name="med_assigned_patient">%1$s est maintenant assignée à %2$s</string>
+    <string name="med_list_patient">Mes medicines</string>
+    <string name="med_list_caregiver">Medicines</string>
 </resources>
