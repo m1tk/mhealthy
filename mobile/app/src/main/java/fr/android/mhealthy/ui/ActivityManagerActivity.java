@@ -13,16 +13,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import fr.android.mhealthy.R;
-import fr.android.mhealthy.adapter.MedicineRecycler;
+import fr.android.mhealthy.adapter.ActivityRecycler;
+import fr.android.mhealthy.model.Activity;
 import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.storage.PatientDAO;
 
 public class ActivityManagerActivity extends AppCompatActivity {
     RecyclerView act_view;
-    MedicineRecycler adapter;
+    ActivityRecycler adapter;
     Integer patient;
 
     @Override
@@ -32,7 +35,7 @@ public class ActivityManagerActivity extends AppCompatActivity {
 
         patient = null;
 
-        //EventBus.getDefault().register(this);
+        EventBus.getDefault().register(this);
 
         Intent intent   = getIntent();
         Session session = (Session) intent.getSerializableExtra("session");
@@ -57,14 +60,24 @@ public class ActivityManagerActivity extends AppCompatActivity {
             fab.setVisibility(View.INVISIBLE);
         }
 
-        /*act_view = findViewById(R.id.act_view);
-        adapter = new MedicineRecycler(
+        act_view = findViewById(R.id.act_view);
+        adapter = new ActivityRecycler(
+                getApplicationContext(),
                 new PatientDAO(getApplicationContext(), session),
                 patient,
                 v -> {
                     return;
                 });
         act_view.setLayoutManager(new LinearLayoutManager(this));
-        act_view.setAdapter(adapter);*/
+        act_view.setAdapter(adapter);
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+    public void new_medicine_event(Activity.AddActivityNotification p) {
+        if (patient.equals(p.patient)) {
+            adapter.insert(p.act);
+            act_view.smoothScrollToPosition(0);
+        }
     }
 }

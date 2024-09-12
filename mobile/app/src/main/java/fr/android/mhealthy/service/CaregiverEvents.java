@@ -152,8 +152,11 @@ public class CaregiverEvents {
             ));
         } else if (ins.type == Instruction.InstructionType.AddMedicine ||
                 ins.type == Instruction.InstructionType.EditMedicine ||
-                ins.type == Instruction.InstructionType.RemoveMedicine) {
-            cd.medicine_operation(ins, ons.toString(), null, patient);
+                ins.type == Instruction.InstructionType.RemoveMedicine ||
+                ins.type == Instruction.InstructionType.AddActivity ||
+                ins.type == Instruction.InstructionType.EditActivity ||
+                ins.type == Instruction.InstructionType.RemoveActivity) {
+            cd.instruction_operation(ins, ons.toString(), null, patient);
         }
         last.last_instruction = ins.id;
     }

@@ -99,7 +99,7 @@ public class MedicationActionActivity extends AppCompatActivity {
             );
             try {
                 JsonObject op = ins.to_server_json_format(new Gson(), patient.id);
-                db.medicine_operation(
+                db.instruction_operation(
                         ins,
                         op.get("data").getAsJsonObject().toString(),
                         op.toString(),

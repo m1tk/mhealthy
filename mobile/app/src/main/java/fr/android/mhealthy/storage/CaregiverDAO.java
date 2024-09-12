@@ -5,9 +5,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
-
-import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -93,8 +90,8 @@ public class CaregiverDAO {
         return patients;
     }
 
-    public void medicine_operation(Instruction op, String json, String trans_json,
-                                   int patient) {
+    public void instruction_operation(Instruction op, String json, String trans_json,
+                                      int patient) {
         SQLiteDatabase db = sdb.getWritableDatabase();
         long pending = 0;
         db.beginTransaction();
@@ -118,6 +115,18 @@ public class CaregiverDAO {
                 case RemoveMedicine:
                     Instruction.RemoveMedicine rm = (Instruction.RemoveMedicine)op.instruction;
                     PatientDAO.remove_medicine_inner(db, rm, patient, patient, json);
+                    break;
+                case AddActivity:
+                    Instruction.AddActivity adda = (Instruction.AddActivity)op.instruction;
+                    PatientDAO.add_activity_inner(db, adda, op.caregiver, patient, json);
+                    break;
+                case EditActivity:
+                    Instruction.EditActivity edita = (Instruction.EditActivity)op.instruction;
+                    PatientDAO.edit_activity_inner(db, edita, op.caregiver, patient, json);
+                    break;
+                case RemoveActivity:
+                    Instruction.RemoveActivity rma = (Instruction.RemoveActivity)op.instruction;
+                    PatientDAO.remove_activity_inner(db, rma, op.caregiver, patient, json);
                     break;
                 default:
                     // This should be unreachable

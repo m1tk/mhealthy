@@ -88,9 +88,12 @@ public class PatientEvents {
             Instruction.AddCaregiver inst = (Instruction.AddCaregiver) ins.instruction;
             pd.new_caregiver(inst, ins.caregiver, ins.id);
         } else if (ins.type == Instruction.InstructionType.AddMedicine ||
-                   ins.type == Instruction.InstructionType.EditMedicine ||
-                   ins.type == Instruction.InstructionType.RemoveMedicine) {
-            pd.medicine_operation(ins, ons.toString());
+                ins.type == Instruction.InstructionType.EditMedicine ||
+                ins.type == Instruction.InstructionType.RemoveMedicine ||
+                ins.type == Instruction.InstructionType.AddActivity ||
+                ins.type == Instruction.InstructionType.EditActivity ||
+                ins.type == Instruction.InstructionType.RemoveActivity) {
+            pd.instruction_operation(ins, ons.toString());
         }
         last = ins.id;
     }

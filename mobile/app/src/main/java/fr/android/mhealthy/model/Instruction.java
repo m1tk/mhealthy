@@ -16,7 +16,10 @@ public class Instruction {
         AddPatient,
         AddMedicine,
         EditMedicine,
-        RemoveMedicine
+        RemoveMedicine,
+        AddActivity,
+        EditActivity,
+        RemoveActivity
     }
 
     public static class AddPatient {
@@ -60,6 +63,25 @@ public class Instruction {
         public String name;
     }
 
+    public static class AddActivity {
+        public long time;
+        public String name;
+        public String goal;
+        public String activity_time;
+    }
+
+    public static class EditActivity {
+        public long time;
+        public String name;
+        public String goal;
+        public String activity_time;
+    }
+
+    public static class RemoveActivity {
+        public long time;
+        public String name;
+    }
+
     public Instruction(Gson p, JsonObject ins, int caregiver, int id) {
         switch (ins.get("type").getAsString()) {
             case "assign_caregiver":
@@ -82,6 +104,18 @@ public class Instruction {
             case "remove_medicine":
                 this.type = InstructionType.RemoveMedicine;
                 this.instruction = p.fromJson(ins.toString(), RemoveMedicine.class);
+                break;
+            case "add_activity":
+                this.type = InstructionType.AddActivity;
+                this.instruction = p.fromJson(ins.toString(), AddActivity.class);
+                break;
+            case "edit_activity":
+                this.type = InstructionType.EditActivity;
+                this.instruction = p.fromJson(ins.toString(), EditActivity.class);
+                break;
+            case "remove_activity":
+                this.type = InstructionType.RemoveActivity;
+                this.instruction = p.fromJson(ins.toString(), RemoveActivity.class);
                 break;
             default:
                 throw new InstantiationError("Unknown instruction type");
@@ -126,6 +160,15 @@ public class Instruction {
                 break;
             case RemoveMedicine:
                 type = "remove_medicine";
+                break;
+            case AddActivity:
+                type = "add_activity";
+                break;
+            case EditActivity:
+                type = "edit_activity";
+                break;
+            case RemoveActivity:
+                type = "remove_activity";
                 break;
             default:
                 // This should not happen

@@ -12,9 +12,9 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.android.mhealthy.model.Activity;
 import fr.android.mhealthy.model.Instruction;
 import fr.android.mhealthy.model.Medicine;
-import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
 
 public class PatientDAO {
@@ -60,7 +60,7 @@ public class PatientDAO {
         db.update(DatabaseHelper.TABLE_LAST_ID, values2, null, null);
     }
 
-    public void medicine_operation(Instruction op, String json) {
+    public void instruction_operation(Instruction op, String json) {
         SQLiteDatabase db = sdb.getWritableDatabase();
         db.beginTransaction();
         try {
@@ -76,6 +76,18 @@ public class PatientDAO {
                 case RemoveMedicine:
                     Instruction.RemoveMedicine rm = (Instruction.RemoveMedicine)op.instruction;
                     remove_medicine_inner(db, rm, op.caregiver, null, json);
+                    break;
+                case AddActivity:
+                    Instruction.AddActivity adda = (Instruction.AddActivity)op.instruction;
+                    add_activity_inner(db, adda, op.caregiver, null, json);
+                    break;
+                case EditActivity:
+                    Instruction.EditActivity edita = (Instruction.EditActivity)op.instruction;
+                    edit_activity_inner(db, edita, op.caregiver, null, json);
+                    break;
+                case RemoveActivity:
+                    Instruction.RemoveActivity rma = (Instruction.RemoveActivity)op.instruction;
+                    remove_activity_inner(db, rma, op.caregiver, null, json);
                     break;
                 default:
                     // This should be unreachable
@@ -192,5 +204,107 @@ public class PatientDAO {
         }
         cursor.close();
         return meds;
+    }
+
+    static void add_activity_inner(SQLiteDatabase db, Instruction.AddActivity add,
+                                   Integer src, Integer dst, String json) {
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.ACTIVITY_NAME, add.name);
+        values.put(DatabaseHelper.ACTIVITY_DESC, add.goal);
+        values.put(DatabaseHelper.ACTIVITY_TIME, add.activity_time);
+        values.put(DatabaseHelper.ACTIVITY_CREATED_AT, add.time);
+        values.put(DatabaseHelper.ACTIVITY_UPDATED_AT, add.time);
+        if (dst != null) {
+            values.put(DatabaseHelper.ACTIVITY_USER, dst);
+        }
+
+        db.insertOrThrow(DatabaseHelper.TABLE_ACTIVITY, null, values);
+
+        add_activity_history(db, json, add.name, add.time, src);
+
+        // Notifying of new message
+        Activity act = new Activity();
+        act.name = add.name;
+        act.goal = add.goal;
+        act.time = add.activity_time;
+        act.created_at = add.time;
+        act.updated_at = add.time;
+        act.active = true;
+        EventBus.getDefault().post(new Activity.AddActivityNotification(dst, act));
+    }
+
+    static void edit_activity_inner(SQLiteDatabase db, Instruction.EditActivity edit,
+                                    Integer src, Integer dst, String json) {
+        SQLiteStatement stmt = db.compileStatement("update "+ DatabaseHelper.TABLE_ACTIVITY +
+                " set " + DatabaseHelper.ACTIVITY_DESC + " = ?, " +
+                DatabaseHelper.ACTIVITY_TIME + " = ?, " +
+                DatabaseHelper.ACTIVITY_UPDATED_AT + " = ? where " +
+                DatabaseHelper.ACTIVITY_NAME + " = ? and " +
+                DatabaseHelper.ACTIVITY_USER + " is ?;");
+        stmt.bindString(1, edit.goal);
+        stmt.bindString(2, edit.activity_time);
+        stmt.bindLong(3, edit.time);
+        stmt.bindString(4, edit.name);
+        if (dst != null) {
+            stmt.bindLong(5, dst);
+        } else {
+            stmt.bindNull(5);
+        }
+        stmt.execute();
+        add_activity_history(db, json, edit.name, edit.time, src);
+    }
+
+    static void remove_activity_inner(SQLiteDatabase db, Instruction.RemoveActivity rm,
+                                      Integer src, Integer dst, String json) {
+        SQLiteStatement stmt = db.compileStatement("update "+ DatabaseHelper.TABLE_ACTIVITY +
+                " set " + DatabaseHelper.ACTIVITY_ACTIVE + " = ? where " +
+                DatabaseHelper.ACTIVITY_NAME + " = ? and " +
+                DatabaseHelper.ACTIVITY_USER + " is ?;");
+        stmt.bindLong(1, 0);
+        stmt.bindString(2, rm.name);
+        if (dst != null) {
+            stmt.bindLong(3, dst);
+        } else {
+            stmt.bindNull(3);
+        }
+        stmt.execute();
+        add_activity_history(db, json, rm.name, rm.time, src);
+    }
+
+    static void add_activity_history(SQLiteDatabase db, String json,
+                                     String name, long time, Integer patient) {
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.ACTIVITY_HISTORY_NAME, name);
+        values.put(DatabaseHelper.ACTIVITY_HISTORY_DATA, json);
+        values.put(DatabaseHelper.ACTIVITY_HISTORY_UPDATE_TIME, time);
+        if (patient != null) {
+            values.put(DatabaseHelper.ACTIVITY_HISTORY_USER, patient);
+        }
+        db.insertOrThrow(DatabaseHelper.TABLE_ACTIVITY_HISTORY, null, values);
+    }
+
+    @SuppressLint("Range")
+    public List<Activity> get_all_activities(Integer user) {
+        SQLiteDatabase db = sdb.getReadableDatabase();
+        List<Activity> acts = new ArrayList<>();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + DatabaseHelper.TABLE_ACTIVITY + " WHERE " +
+                DatabaseHelper.ACTIVITY_USER + " is " + (user == null ? "null" : String.valueOf(user)) +
+                " ORDER BY " + DatabaseHelper.ACTIVITY_CREATED_AT + " DESC", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                Activity act = new Activity();
+                act.name = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ACTIVITY_NAME));
+                act.goal = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ACTIVITY_DESC));
+                act.time = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ACTIVITY_TIME));
+                act.created_at = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.ACTIVITY_CREATED_AT));
+                act.updated_at = cursor.getLong(cursor.getColumnIndex(DatabaseHelper.ACTIVITY_UPDATED_AT));
+                act.active = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.ACTIVITY_ACTIVE)) == 1;
+                acts.add(act);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return acts;
     }
 }
