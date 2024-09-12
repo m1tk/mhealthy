@@ -14,18 +14,17 @@ import java.util.List;
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.model.Activity;
 import fr.android.mhealthy.storage.PatientDAO;
+import fr.android.mhealthy.ui.ActivityActionActivity;
 
 public class ActivityRecycler extends RecyclerView.Adapter<ActivityHolder> {
     private final List<Activity> acts;
     private OnItemClickListener mListener;
-    private final Context ctx;
 
     public interface OnItemClickListener {
         void onItemClick(Activity m);
     }
 
-    public ActivityRecycler(Context ctx, PatientDAO access, Integer patient, OnItemClickListener listener) {
-        this.ctx = ctx;
+    public ActivityRecycler(PatientDAO access, Integer patient, OnItemClickListener listener) {
         this.acts = access.get_all_activities(patient);
         Log.d("Instruction", String.valueOf(this.acts.size()));
         this.mListener = listener;
@@ -43,10 +42,10 @@ public class ActivityRecycler extends RecyclerView.Adapter<ActivityHolder> {
     public void onBindViewHolder(@NonNull ActivityHolder holder, int position) {
         Activity p = acts.get(position);
         try {
-            p.name = ctx.getResources().getStringArray(R.array.activities_options)[Integer.parseInt(p.name)];
+            p.name = ActivityActionActivity.get_options(holder.name.getContext())[Integer.parseInt(p.name)];
         } catch (NumberFormatException e) {}
         holder.name.setText(p.name);
-        holder.goal.setText(p.goal);
+        holder.goal.setText(p.goal.isEmpty() ? holder.name.getContext().getString(R.string.no_goal) : p.goal);
         holder.time.setText(p.time);
         holder.itemView.setOnClickListener(v -> {
             v.animate().scaleX(0.95f).scaleY(0.95f).setDuration(100).withEndAction(() -> {

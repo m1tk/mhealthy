@@ -41,8 +41,6 @@
     <string name="edit_act">Modifier l\'activité</string>
     <string name="sel_act">Sélectionner l\'activité souhaitée</string>
     <string name="act_goal">Objectif</string>
-    <string name="blood_gl_test">Test de glycémie</string>
-    <string name="blood_pr_test">Test de tension artérielle</string>
     <string name="act_list_patient">Mes activités</string>
     <string name="act_list_caregiver">Activités</string>
     <string name="no_goal">Pas d\'objectif</string>

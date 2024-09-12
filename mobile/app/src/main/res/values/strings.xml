@@ -42,8 +42,6 @@
     <string name="edit_act">Edit activity</string>
     <string name="sel_act">Select wanted activity</string>
     <string name="act_goal">Goal</string>
-    <string name="blood_gl_test">Blood glucose test</string>
-    <string name="blood_pr_test">Blood pressure test</string>
     <string name="act_list_patient">My activities</string>
     <string name="act_list_caregiver">Activities</string>
     <string name="no_goal">No goal</string>

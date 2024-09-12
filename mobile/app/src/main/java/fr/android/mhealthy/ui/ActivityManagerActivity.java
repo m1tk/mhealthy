@@ -62,7 +62,6 @@ public class ActivityManagerActivity extends AppCompatActivity {
 
         act_view = findViewById(R.id.act_view);
         adapter = new ActivityRecycler(
-                getApplicationContext(),
                 new PatientDAO(getApplicationContext(), session),
                 patient,
                 v -> {

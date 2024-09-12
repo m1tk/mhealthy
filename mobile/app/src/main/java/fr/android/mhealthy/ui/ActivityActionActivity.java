@@ -1,9 +1,10 @@
 package fr.android.mhealthy.ui;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -46,7 +48,7 @@ public class ActivityActionActivity extends AppCompatActivity {
         TimePicker tp = findViewById(R.id.timePicker);
         tp.setIs24HourView(true);
 
-        String[] options = getResources().getStringArray(R.array.activities_options);
+        String[] options = get_options(getApplicationContext());
         ArrayAdapter<String> actadapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, options);
         MaterialAutoCompleteTextView act_name = findViewById(R.id.etActName);
         act_name.setAdapter(actadapter);
@@ -93,6 +95,17 @@ public class ActivityActionActivity extends AppCompatActivity {
         });
     }
 
+    public static String[] get_options(Context ctx) {
+        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(ctx);
+        int id;
+        if (p.getString("language_preference", "en").equals("en")) {
+            id = R.array.activities_options_en;
+        } else {
+            id = R.array.activities_options_fr;
+        }
+        return ctx.getResources().getStringArray(id);
+    }
+
     private void add_activity(String name, String goal, String time) {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setMessage(getString(R.string.pending))
@@ -132,7 +145,7 @@ public class ActivityActionActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 dialog.dismiss();
                 try {
-                    add.name = getResources().getStringArray(R.array.activities_options)[Integer.parseInt(add.name)];
+                    add.name = get_options(getApplicationContext())[Integer.parseInt(add.name)];
                 } catch (NumberFormatException e) {}
                 Toast.makeText(
                         this,

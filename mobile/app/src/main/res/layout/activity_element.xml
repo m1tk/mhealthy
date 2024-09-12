@@ -6,26 +6,30 @@
     <TextView
         android:id="@+id/activity_name"
         android:textSize="22sp"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        app:layout_constraintWidth_percent="0.7"
         android:layout_height="wrap_content"
         android:textColor="@color/text_color"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        app:layout_constraintWidth_percent="0.3"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
         <TextView
             android:id="@+id/activity_time"
-            android:textSize="22sp"
-            android:layout_width="wrap_content"
+            android:textSize="14sp"
+            android:gravity="end"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/text_color" />
         <TextView
             android:id="@+id/activity_goal"
-            android:textSize="22sp"
+            android:textSize="14sp"
+            android:gravity="end"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/text_color" />
