@@ -59,7 +59,11 @@ public class PatientRecycler extends RecyclerView.Adapter<PatientHolder> {
         if (patients.stream().anyMatch(e -> e.id == p.id)) {
             return;
         }
-        patients.add(0, p);
-        notifyItemInserted(0);
+        int position = 0;
+        while (position < patients.size() && patients.get(position).id > p.id) {
+            position += 1;
+        }
+        patients.add(position, p);
+        notifyItemInserted(position);
     }
 }
