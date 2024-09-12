@@ -95,7 +95,7 @@ public class MedicationActionActivity extends AppCompatActivity {
                     Instruction.InstructionType.AddMedicine,
                     add,
                     session.id,
-                    patient.id
+                    0
             );
             try {
                 JsonObject op = ins.to_server_json_format(new Gson(), patient.id);

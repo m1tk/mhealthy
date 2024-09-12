@@ -131,7 +131,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE " + TABLE_LAST_ID + " (" +
                 LAST_ID + " INTEGER," +
                 LAST_ID_TYPE + " TEXT," +
-                LAST_ID_USER + " INTEGER);");
+                LAST_ID_USER + " INTEGER," +
+                "PRIMARY KEY (" + LAST_ID_USER + "," + LAST_ID_TYPE + "));");
 
         db.execSQL("CREATE TABLE " + TABLE_SECRET + " (" +
                 SECRET_TYPE + " TEXT PRIMARY KEY," +

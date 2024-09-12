@@ -30,6 +30,7 @@ public class CaregiverEvents {
 
     public CaregiverEvents(Context ctx, Session s) {
         p = new Gson();
+        tasks = new HashSet<>();
         EventHandlerBackground.tasks.put(Thread.currentThread(), Optional.empty());
         while (true) {
             assigned_listener(ctx, s);
@@ -64,7 +65,7 @@ public class CaregiverEvents {
                         continue;
                     }
                     Thread t = new Thread(() -> {
-                        instruction_event_handler(ctx, s, patient);
+                        event_handler(ctx, s, patient);
                     });
                     tasks.add(patient);
                     t.start();
@@ -89,7 +90,7 @@ public class CaregiverEvents {
         }
     }
 
-    private void instruction_event_handler(Context ctx, Session s, int patient) {
+    private void event_handler(Context ctx, Session s, int patient) {
         EventHandlerBackground.tasks.put(Thread.currentThread(), Optional.empty());
         LastId last = new LastId();
         {

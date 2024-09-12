@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -34,6 +35,9 @@ public class CaregiverDAO {
     }
 
     private void update_last_id(SQLiteDatabase db, int patient, String type, int last_id) {
+        if (last_id == 0) {
+            return;
+        }
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.LAST_ID, last_id);
         db.update(
@@ -95,18 +99,25 @@ public class CaregiverDAO {
         long pending = 0;
         db.beginTransaction();
         try {
+            if (instruction_exists(db, op, patient)) {
+                update_last_instruction_id(db, patient, op.id);
+                db.setTransactionSuccessful();
+                db.endTransaction();
+                db.close();
+                return;
+            }
             switch (op.type) {
                 case AddMedicine:
                     Instruction.AddMedicine add = (Instruction.AddMedicine)op.instruction;
-                    PatientDAO.add_medicine_inner(db, add, op.caregiver, patient, json);
+                    PatientDAO.add_medicine_inner(db, add, patient, patient, json);
                     break;
                 case EditMedicine:
                     Instruction.EditMedicine edit = (Instruction.EditMedicine)op.instruction;
-                    PatientDAO.edit_medicine_inner(db, edit, op.caregiver, patient, json);
+                    PatientDAO.edit_medicine_inner(db, edit, patient, patient, json);
                     break;
                 case RemoveMedicine:
                     Instruction.RemoveMedicine rm = (Instruction.RemoveMedicine)op.instruction;
-                    PatientDAO.remove_medicine_inner(db, rm, op.caregiver, patient, json);
+                    PatientDAO.remove_medicine_inner(db, rm, patient, patient, json);
                     break;
                 default:
                     // This should be unreachable
@@ -127,5 +138,19 @@ public class CaregiverDAO {
         if (pending != 0) {
             EventBus.getDefault().post(new PendingTransactionNotification(pending));
         }
+    }
+
+    private boolean instruction_exists(SQLiteDatabase db, Instruction op, int patient) {
+        Cursor cursor = db.rawQuery("SELECT 1 from " + DatabaseHelper.TABLE_MEDICATION_HISTORY +
+                        " WHERE " + DatabaseHelper.HISTORY_USER + " = ? and " +
+                        DatabaseHelper.HISTORY_UPDATE_TIME + " = ? and " +
+                        DatabaseHelper.HISTORY_DATA + " like '%\"" + op.get_type() + "\"%'",
+                new String[]{ String.valueOf(patient), String.valueOf(op.get_time()) });
+        if (cursor == null) {
+            return false;
+        }
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        return exists;
     }
 }

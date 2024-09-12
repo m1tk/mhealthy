@@ -9,6 +9,7 @@ public class Instruction {
     public Object instruction;
     public int caregiver;
     public int id;
+    private long time;
 
     public enum InstructionType {
         AddCaregiver,
@@ -87,6 +88,7 @@ public class Instruction {
         }
         this.caregiver = caregiver;
         this.id = id;
+        this.time = ins.get("time").getAsLong();
     }
 
     public Instruction(Gson p, String ins, int caregiver, int id) {
@@ -105,6 +107,12 @@ public class Instruction {
         JsonObject obj = p.toJsonTree(this.instruction)
                 .getAsJsonObject();
         // We must also insert the type
+        String type = get_type();
+        obj.addProperty("type", type);
+        return obj;
+    }
+
+    public String get_type() {
         String type;
         switch (this.type) {
             case AddCaregiver:
@@ -123,8 +131,11 @@ public class Instruction {
                 // This should not happen
                 throw new InstantiationError("Unknown instruction type");
         }
-        obj.addProperty("type", type);
-        return obj;
+        return type;
+    }
+
+    public long get_time() {
+        return this.time;
     }
 
     public JsonObject to_server_json_format(Gson p, int patient) {
