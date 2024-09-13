@@ -43,10 +43,9 @@ public class AuthenticationActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SettingsUtils.setup_defaults(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentication);
-
-        SettingsUtils.setup_defaults(this);
 
         HttpClient.init_cookie_jar(getApplicationContext());
         try {

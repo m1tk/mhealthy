@@ -24,5 +24,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     SettingsUtils.restart_on_change(act);
                     return true;
                 });
+
+        findPreference("dark_mode")
+                .setOnPreferenceChangeListener((p, n) -> {
+                    SettingsUtils.restart_on_change(act);
+                    return true;
+                });
     }
 }

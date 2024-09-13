@@ -14,6 +14,7 @@
         <SwitchPreferenceCompat
             android:key="dark_mode"
             android:title="@string/dark_mode"
-            android:summary="@string/dark_mode_desc" />
+            android:summary="@string/dark_mode_desc"
+            android:defaultValue="true" />
     </PreferenceCategory>
 </androidx.preference.PreferenceScreen>

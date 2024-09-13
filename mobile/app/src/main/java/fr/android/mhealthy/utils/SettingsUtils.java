@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
 import java.util.Arrays;
@@ -32,6 +33,12 @@ public class SettingsUtils {
         if (!act.getResources().getConfiguration()
                 .getLocales().get(0).getLanguage().equals(lang)) {
             change_lang(act, lang);
+        }
+
+        if (p.getBoolean("dark_mode", true)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
     }
 
