@@ -3,18 +3,19 @@ create table userinfo (
     id serial primary key,
     name bytea not null,
     cin bytea not null,
+    cin_hash bytea not null,
     account_type integer not null,
     description bytea,
     phone bytea not null,
     enc_nonce bytea not null,
-    create_time integer not null,
-    last_seen_time integer not null
+    create_time bigint not null,
+    last_seen_time bigint not null
 );
 
 create table token (
     id int primary key,
     token bytea not null,
-    change_time int not null,
+    change_time bigint not null,
     foreign key(id) references userinfo (id) on delete cascade
 );
 
@@ -28,14 +29,14 @@ create table assigned (
 );
 
 create table caregiver_instruction (
-    caregiver int not null,
+    caregiver int,
     patient int not null,
     id bigserial not null,
     instruction bytea not null,
     enc_nonce bytea not null,
+    is_assign boolean default false,
     primary key (caregiver, patient, id),
-    foreign key(caregiver) references userinfo (id) on delete cascade,
-    foreign key(patient) references userinfo (id) on delete cascade
+    foreign key(caregiver, patient) references assigned (caregiver, patient) on delete cascade
 );
 
 create table patient_info (
