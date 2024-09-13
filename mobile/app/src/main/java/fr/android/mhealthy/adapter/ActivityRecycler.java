@@ -41,10 +41,13 @@ public class ActivityRecycler extends RecyclerView.Adapter<ActivityHolder> {
     @Override
     public void onBindViewHolder(@NonNull ActivityHolder holder, int position) {
         Activity p = acts.get(position);
+        String name;
         try {
-            p.name = ActivityActionActivity.get_options(holder.name.getContext())[Integer.parseInt(p.name)];
-        } catch (NumberFormatException e) {}
-        holder.name.setText(p.name);
+            name = ActivityActionActivity.get_options(holder.name.getContext())[Integer.parseInt(p.name)];
+        } catch (NumberFormatException e) {
+            name = p.name;
+        }
+        holder.name.setText(name);
         holder.goal.setText(p.goal.isEmpty() ? holder.name.getContext().getString(R.string.no_goal) : p.goal);
         holder.time.setText(p.time);
         holder.itemView.setOnClickListener(v -> {
