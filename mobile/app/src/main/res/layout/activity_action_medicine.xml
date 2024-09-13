@@ -70,6 +70,20 @@
         app:layout_constraintBottom_toTopOf="@id/btnAddMedication"
         android:timePickerMode="spinner" />
 
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRemoveMedication"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/remove_med"
+        android:textColor="@color/button_text_color"
+        app:backgroundTint="@color/delete_color"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="14dp"
+        app:layout_constraintBottom_toTopOf="@id/btnAddMedication" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAddMedication"
         android:layout_width="0dp"

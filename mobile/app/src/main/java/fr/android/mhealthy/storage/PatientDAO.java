@@ -106,18 +106,34 @@ public class PatientDAO {
 
     static void add_medicine_inner(SQLiteDatabase db, Instruction.AddMedicine add,
                             Integer src, Integer dst, String json) {
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.MEDICATION_NAME, add.name);
-        values.put(DatabaseHelper.MEDICATION_DOSE, add.dose);
-        values.put(DatabaseHelper.MEDICATION_TIME, add.dose_time);
-        values.put(DatabaseHelper.MEDICATION_CREATED_AT, add.time);
-        values.put(DatabaseHelper.MEDICATION_UPDATED_AT, add.time);
-        if (dst != null) {
-            values.put(DatabaseHelper.MEDICATION_USER, dst);
+        ContentValues vals = new ContentValues();
+        vals.put(DatabaseHelper.MEDICATION_DOSE, add.dose);
+        vals.put(DatabaseHelper.MEDICATION_TIME, add.dose_time);
+        vals.put(DatabaseHelper.MEDICATION_UPDATED_AT, add.time);
+        vals.put(DatabaseHelper.MEDICATION_ACTIVE, 1);
+
+        int up = db.update(
+                DatabaseHelper.TABLE_MEDICATION,
+                vals,
+                DatabaseHelper.MEDICATION_NAME + " = ? and " +
+                DatabaseHelper.MEDICATION_USER + " is " + (dst == null ? "null" : String.valueOf(dst)) + " and " +
+                DatabaseHelper.MEDICATION_ACTIVE + " = 0",
+                new String[]{ add.name }
+        );
+
+        if (up <= 0) {
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.MEDICATION_NAME, add.name);
+            values.put(DatabaseHelper.MEDICATION_DOSE, add.dose);
+            values.put(DatabaseHelper.MEDICATION_TIME, add.dose_time);
+            values.put(DatabaseHelper.MEDICATION_CREATED_AT, add.time);
+            values.put(DatabaseHelper.MEDICATION_UPDATED_AT, add.time);
+            if (dst != null) {
+                values.put(DatabaseHelper.MEDICATION_USER, dst);
+            }
+
+            db.insertOrThrow(DatabaseHelper.TABLE_MEDICATION, null, values);
         }
-
-        db.insertOrThrow(DatabaseHelper.TABLE_MEDICATION, null, values);
-
         add_medicine_history(db, json, add.name, add.time, src);
 
         // Notifying of new message
@@ -150,6 +166,9 @@ public class PatientDAO {
         }
         stmt.execute();
         add_medicine_history(db, json, edit.name, edit.time, src);
+
+        EventBus.getDefault().post(new Medicine.EditMedicineNotification(dst, edit.name, edit.dose,
+                edit.dose_time, edit.time));
     }
 
     static void remove_medicine_inner(SQLiteDatabase db, Instruction.RemoveMedicine rm,
@@ -167,6 +186,8 @@ public class PatientDAO {
         }
         stmt.execute();
         add_medicine_history(db, json, rm.name, rm.time, src);
+
+        EventBus.getDefault().post(new Medicine.RemoveMedicineNotification(dst, rm.name));
     }
 
     static void add_medicine_history(SQLiteDatabase db, String json,
@@ -208,18 +229,34 @@ public class PatientDAO {
 
     static void add_activity_inner(SQLiteDatabase db, Instruction.AddActivity add,
                                    Integer src, Integer dst, String json) {
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.ACTIVITY_NAME, add.name);
-        values.put(DatabaseHelper.ACTIVITY_DESC, add.goal);
-        values.put(DatabaseHelper.ACTIVITY_TIME, add.activity_time);
-        values.put(DatabaseHelper.ACTIVITY_CREATED_AT, add.time);
-        values.put(DatabaseHelper.ACTIVITY_UPDATED_AT, add.time);
-        if (dst != null) {
-            values.put(DatabaseHelper.ACTIVITY_USER, dst);
+        ContentValues vals = new ContentValues();
+        vals.put(DatabaseHelper.ACTIVITY_DESC, add.goal);
+        vals.put(DatabaseHelper.ACTIVITY_TIME, add.activity_time);
+        vals.put(DatabaseHelper.ACTIVITY_TIME, add.time);
+        vals.put(DatabaseHelper.ACTIVITY_ACTIVE, 1);
+
+        int up = db.update(
+                DatabaseHelper.TABLE_ACTIVITY,
+                vals,
+                DatabaseHelper.ACTIVITY_NAME + " = ? and " +
+                        DatabaseHelper.ACTIVITY_USER + " is " + (dst == null ? "null" : String.valueOf(dst)) + " and " +
+                        DatabaseHelper.ACTIVITY_ACTIVE + " = 0",
+                new String[]{ add.name }
+        );
+
+        if (up <= 0) {
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.ACTIVITY_NAME, add.name);
+            values.put(DatabaseHelper.ACTIVITY_DESC, add.goal);
+            values.put(DatabaseHelper.ACTIVITY_TIME, add.activity_time);
+            values.put(DatabaseHelper.ACTIVITY_CREATED_AT, add.time);
+            values.put(DatabaseHelper.ACTIVITY_UPDATED_AT, add.time);
+            if (dst != null) {
+                values.put(DatabaseHelper.ACTIVITY_USER, dst);
+            }
+
+            db.insertOrThrow(DatabaseHelper.TABLE_ACTIVITY, null, values);
         }
-
-        db.insertOrThrow(DatabaseHelper.TABLE_ACTIVITY, null, values);
-
         add_activity_history(db, json, add.name, add.time, src);
 
         // Notifying of new message
@@ -252,6 +289,9 @@ public class PatientDAO {
         }
         stmt.execute();
         add_activity_history(db, json, edit.name, edit.time, src);
+
+        EventBus.getDefault().post(new Activity.EditActivityNotification(dst, edit.name, edit.goal,
+                edit.activity_time, edit.time));
     }
 
     static void remove_activity_inner(SQLiteDatabase db, Instruction.RemoveActivity rm,
@@ -269,6 +309,8 @@ public class PatientDAO {
         }
         stmt.execute();
         add_activity_history(db, json, rm.name, rm.time, src);
+
+        EventBus.getDefault().post(new Activity.RemoveActivityNotification(dst, rm.name));
     }
 
     static void add_activity_history(SQLiteDatabase db, String json,

@@ -45,4 +45,12 @@
     <string name="act_list_patient">My activities</string>
     <string name="act_list_caregiver">Activities</string>
     <string name="no_goal">No goal</string>
+    <string name="med_modify">%1$s prescription was modified for %2$s</string>
+    <string name="med_remove">%1$s prescription was removed for %2$s</string>
+    <string name="remove_med">Remove medicine</string>
+    <string name="remove_act">Remove activity</string>
+    <string name="act_modify">%1$s activity was modified for %2$s</string>
+    <string name="act_remove">%1$s activity was removed for %2$s</string>
+    <string name="med_add_err">Cannot add this medicine. Is it already defined?</string>
+    <string name="act_add_err">Cannot add this activity. Is it already defined?</string>
 </resources>

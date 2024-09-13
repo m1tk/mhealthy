@@ -118,15 +118,15 @@ public class CaregiverDAO {
                     break;
                 case AddActivity:
                     Instruction.AddActivity adda = (Instruction.AddActivity)op.instruction;
-                    PatientDAO.add_activity_inner(db, adda, op.caregiver, patient, json);
+                    PatientDAO.add_activity_inner(db, adda, patient, patient, json);
                     break;
                 case EditActivity:
                     Instruction.EditActivity edita = (Instruction.EditActivity)op.instruction;
-                    PatientDAO.edit_activity_inner(db, edita, op.caregiver, patient, json);
+                    PatientDAO.edit_activity_inner(db, edita, patient, patient, json);
                     break;
                 case RemoveActivity:
                     Instruction.RemoveActivity rma = (Instruction.RemoveActivity)op.instruction;
-                    PatientDAO.remove_activity_inner(db, rma, op.caregiver, patient, json);
+                    PatientDAO.remove_activity_inner(db, rma, patient, patient, json);
                     break;
                 default:
                     // This should be unreachable

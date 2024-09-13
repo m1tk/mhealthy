@@ -4,7 +4,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteConstraintException;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -21,7 +23,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import fr.android.mhealthy.R;
+import fr.android.mhealthy.model.Activity;
 import fr.android.mhealthy.model.Instruction;
+import fr.android.mhealthy.model.Medicine;
 import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.storage.CaregiverDAO;
@@ -57,18 +61,36 @@ public class ActivityActionActivity extends AppCompatActivity {
 
         act_name.setOnItemClickListener((parent, view, position, id) -> {
             activity_id = String.valueOf(position);
-            act_goal.setEnabled(false);
             act_goal.setText("");
         });
 
         TextView tvActTitle = findViewById(R.id.tvActTitle);
         MaterialButton btnAddAct = findViewById(R.id.btnAddAct);
+        MaterialButton btnRemoveAct = findViewById(R.id.btnRemoveAct);
         if (intent.getBooleanExtra("add", false)) {
             tvActTitle.setText(getString(R.string.add_act));
             btnAddAct.setText(getString(R.string.add_act));
+            act_name.setEnabled(true);
+            act_goal.setEnabled(false);
+            btnRemoveAct.setVisibility(View.GONE);
         } else {
+            Activity act = (Activity) intent.getSerializableExtra("activity");
             tvActTitle.setText(getString(R.string.edit_act));
             btnAddAct.setText(getString(R.string.edit_act));
+            act_name.setEnabled(false);
+            act_goal.setEnabled(false);
+            activity_id = act.name;
+            String name_i = act.name;
+            try {
+                name_i = options[Integer.parseInt(act.name)];
+            } catch (NumberFormatException e) {}
+            act_name.setText(name_i);
+            act_goal.setText(act.goal);
+            try {
+                tp.setHour(Integer.parseInt(act.time.split(":")[0]));
+                tp.setMinute(Integer.parseInt(act.time.split(":")[1]));
+            } catch (NumberFormatException e) {}
+            btnRemoveAct.setVisibility(View.VISIBLE);
         }
 
         btnAddAct.setOnClickListener(v -> {
@@ -79,19 +101,46 @@ public class ActivityActionActivity extends AppCompatActivity {
             int hour   = tp.getHour();
             int minute = tp.getMinute();
             String time = String.format("%02d:%02d", hour, minute);
+            Instruction ins;
             if (intent.getBooleanExtra("add", false)) {
-                add_activity(
-                        activity_id,
-                        act_goal.getText().toString(),
-                        time
+                Instruction.AddActivity add = new Instruction.AddActivity();
+                add.activity_time = time;
+                add.name = activity_id;
+                add.goal = act_goal.getText().toString();
+                add.time = System.currentTimeMillis() / 1000;
+                ins = new Instruction(
+                        Instruction.InstructionType.AddActivity,
+                        add,
+                        session.id,
+                        0
                 );
             } else {
-                edit_activity(
-                        activity_id,
-                        act_goal.getText().toString(),
-                        time
+                Instruction.EditActivity edit = new Instruction.EditActivity();
+                edit.activity_time = time;
+                edit.name = activity_id;
+                edit.goal = act_goal.getText().toString();
+                edit.time = System.currentTimeMillis() / 1000;
+                ins = new Instruction(
+                        Instruction.InstructionType.EditActivity,
+                        edit,
+                        session.id,
+                        0
                 );
             }
+            activity_operation(ins, act_name.getText().toString());
+        });
+
+        btnRemoveAct.setOnClickListener(v -> {
+            Instruction.RemoveActivity rm = new Instruction.RemoveActivity();
+            rm.name = activity_id;
+            rm.time = System.currentTimeMillis() / 1000;
+            Instruction ins = new Instruction(
+                    Instruction.InstructionType.RemoveActivity,
+                    rm,
+                    session.id,
+                    0
+            );
+            activity_operation(ins, act_name.getText().toString());
         });
     }
 
@@ -106,24 +155,13 @@ public class ActivityActionActivity extends AppCompatActivity {
         return ctx.getResources().getStringArray(id);
     }
 
-    private void add_activity(String name, String goal, String time) {
+    private void activity_operation(Instruction ins, String name) {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setMessage(getString(R.string.pending))
                 .setCancelable(false)
                 .create();
         dialog.show();
         new Thread(() -> {
-            Instruction.AddActivity add = new Instruction.AddActivity();
-            add.activity_time = time;
-            add.name = name;
-            add.goal = goal;
-            add.time = System.currentTimeMillis() / 1000;
-            Instruction ins = new Instruction(
-                    Instruction.InstructionType.AddActivity,
-                    add,
-                    session.id,
-                    0
-            );
             try {
                 JsonObject op = ins.to_server_json_format(new Gson(), patient.id);
                 db.instruction_operation(
@@ -133,10 +171,16 @@ public class ActivityActionActivity extends AppCompatActivity {
                         patient.id
                 );
             } catch (Exception e) {
+                String err_msg;
+                if (e instanceof SQLiteConstraintException) {
+                    err_msg = getString(R.string.act_add_err);
+                } else {
+                    err_msg = e.toString();
+                }
                 runOnUiThread(() -> {
                     dialog.dismiss();
                     AlertDialog err = new AlertDialog.Builder(this)
-                            .setMessage(e.toString())
+                            .setMessage(err_msg)
                             .create();
                     err.show();
                 });
@@ -144,19 +188,25 @@ public class ActivityActionActivity extends AppCompatActivity {
             }
             runOnUiThread(() -> {
                 dialog.dismiss();
-                try {
-                    add.name = get_options(getApplicationContext())[Integer.parseInt(add.name)];
-                } catch (NumberFormatException e) {}
+                int str_show_id;
+                switch (ins.type) {
+                    case AddActivity:
+                        str_show_id = R.string.med_assigned_patient;
+                        break;
+                    case EditActivity:
+                        str_show_id = R.string.act_modify;
+                        break;
+                    default:
+                        str_show_id = R.string.act_remove;
+                        break;
+                }
                 Toast.makeText(
                         this,
-                        getString(R.string.med_assigned_patient, name, patient.name),
+                        getString(str_show_id, name, patient.name),
                         Toast.LENGTH_LONG
                 ).show();
                 finish();
             });
         }).start();
-    }
-
-    private void edit_activity(String name, String goal, String time) {
     }
 }

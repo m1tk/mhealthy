@@ -65,7 +65,15 @@ public class ActivityManagerActivity extends AppCompatActivity {
                 new PatientDAO(getApplicationContext(), session),
                 patient,
                 v -> {
-                    return;
+                    // TODO: PUT THIS IN ADEQUATE LOCATION
+                    if (session.account_type.equals("caregiver")) {
+                        Patient p = (Patient) intent.getSerializableExtra("patient");
+                        Intent intent1 = new Intent(this, ActivityActionActivity.class);
+                        intent1.putExtra("session", session);
+                        intent1.putExtra("patient", p);
+                        intent1.putExtra("activity", v);
+                        startActivity(intent1);
+                    }
                 });
         act_view.setLayoutManager(new LinearLayoutManager(this));
         act_view.setAdapter(adapter);
@@ -73,9 +81,25 @@ public class ActivityManagerActivity extends AppCompatActivity {
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-    public void new_medicine_event(Activity.AddActivityNotification p) {
+    public void new_activity_event(Activity.AddActivityNotification p) {
         if (patient.equals(p.patient)) {
-            adapter.insert(p.act);
+            adapter.insert(act_view, p.act);
+            act_view.smoothScrollToPosition(0);
+        }
+    }
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+    public void edit_activity_event(Activity.EditActivityNotification p) {
+        if (patient.equals(p.patient)) {
+            adapter.edit(p);
+            act_view.smoothScrollToPosition(0);
+        }
+    }
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+    public void edit_activity_event(Activity.RemoveActivityNotification p) {
+        if (patient.equals(p.patient)) {
+            adapter.remove(act_view, p);
             act_view.smoothScrollToPosition(0);
         }
     }

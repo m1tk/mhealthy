@@ -18,7 +18,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.adapter.MedicineRecycler;
-import fr.android.mhealthy.model.Instruction;
 import fr.android.mhealthy.model.Medicine;
 import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
@@ -35,8 +34,6 @@ public class MedicationManagerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_medicine_manager);
 
         patient = null;
-
-        EventBus.getDefault().register(this);
 
         Intent intent   = getIntent();
         Session session = (Session) intent.getSerializableExtra("session");
@@ -66,17 +63,43 @@ public class MedicationManagerActivity extends AppCompatActivity {
                 new PatientDAO(getApplicationContext(), session),
                 patient,
                 v -> {
-                    return;
+                    // TODO: FOR NOW THIS ACTIVATES EDIT ACTION
+                    if (session.account_type.equals("caregiver")) {
+                        Patient p = (Patient) intent.getSerializableExtra("patient");
+                        Intent intent1 = new Intent(this, MedicationActionActivity.class);
+                        intent1.putExtra("session", session);
+                        intent1.putExtra("patient", p);
+                        intent1.putExtra("medicine", v);
+                        startActivity(intent1);
+                    }
                 });
         medicine_view.setLayoutManager(new LinearLayoutManager(this));
         medicine_view.setAdapter(adapter);
+
+        EventBus.getDefault().register(this);
     }
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void new_medicine_event(Medicine.AddMedicineNotification p) {
         if (patient.equals(p.patient)) {
-            adapter.insert(p.med);
+            adapter.insert(medicine_view, p.med);
+            medicine_view.smoothScrollToPosition(0);
+        }
+    }
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+    public void edit_medicine_event(Medicine.EditMedicineNotification p) {
+        if (patient.equals(p.patient)) {
+            adapter.edit(p);
+            medicine_view.smoothScrollToPosition(0);
+        }
+    }
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+    public void remove_medicine_event(Medicine.RemoveMedicineNotification p) {
+        if (patient.equals(p.patient)) {
+            adapter.remove(medicine_view, p);
             medicine_view.smoothScrollToPosition(0);
         }
     }

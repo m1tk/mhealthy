@@ -53,6 +53,13 @@ public class ActivityRecycler extends RecyclerView.Adapter<ActivityHolder> {
             });
             mListener.onItemClick(p);
         });
+        if (!p.active) {
+            ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
+            params.height = 0;
+            params.width = 0;
+            holder.itemView.setLayoutParams(params);
+            holder.itemView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -60,8 +67,18 @@ public class ActivityRecycler extends RecyclerView.Adapter<ActivityHolder> {
         return acts.size();
     }
 
-    public void insert(Activity p) {
-        // Skipping if patient already in list
+    public void insert(RecyclerView recyclerView, Activity p) {
+        // If element is activated again we just show it
+        int pos = find_pos(p.name);
+        RecyclerView.ViewHolder view;
+        if (pos != -1 && (view = recyclerView.findViewHolderForAdapterPosition(pos)) != null) {
+            ViewGroup.LayoutParams params = view.itemView.getLayoutParams();
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            view.itemView.setLayoutParams(params);
+            view.itemView.setVisibility(View.VISIBLE);
+            return;
+        }
         if (acts.stream().anyMatch(e -> e.name.equals(p.name))) {
             return;
         }
@@ -71,5 +88,42 @@ public class ActivityRecycler extends RecyclerView.Adapter<ActivityHolder> {
         }
         acts.add(position, p);
         notifyItemInserted(position);
+    }
+
+    public void edit(Activity.EditActivityNotification p) {
+        int count = 0;
+        for (Activity act : acts) {
+            if (act.name.equals(p.name)) {
+                act.goal = p.goal;
+                act.time = p.time;
+                act.updated_at = p.updated_at;
+                notifyItemChanged(count);
+                break;
+            }
+            count += 1;
+        }
+    }
+
+    public int find_pos(String name) {
+        int count = 0;
+        for (Activity p : acts) {
+            if (p.name.equals(name)) {
+                return count;
+            }
+            count += 1;
+        }
+        return -1;
+    }
+
+    public void remove(RecyclerView recyclerView, Activity.RemoveActivityNotification p) {
+        int pos = find_pos(p.name);
+        RecyclerView.ViewHolder view;
+        if (pos != -1 && (view = recyclerView.findViewHolderForAdapterPosition(pos)) != null) {
+            ViewGroup.LayoutParams params = view.itemView.getLayoutParams();
+            params.height = 0;
+            params.width = 0;
+            view.itemView.setLayoutParams(params);
+            view.itemView.setVisibility(View.GONE);
+        }
     }
 }

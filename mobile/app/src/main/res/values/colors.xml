@@ -13,6 +13,8 @@
     <!-- Text color for better contrast -->
     <color name="text_color">#FFFFFF</color>
 
+    <color name="delete_color">#F83021</color>
+
     <!-- Additional color resources if needed -->
     <color name="card_background_color">#272727</color>
     <color name="button_background_color">#333333</color>

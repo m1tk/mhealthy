@@ -44,4 +44,12 @@
     <string name="act_list_patient">Mes activités</string>
     <string name="act_list_caregiver">Activités</string>
     <string name="no_goal">Pas d\'objectif</string>
+    <string name="med_modify">La prescription de %1$s a été modifiée pour %2$s</string>
+    <string name="med_remove">La prescription de $1$s a été retirée pour %2$s</string>
+    <string name="remove_med">Retirer la medicine</string>
+    <string name="remove_act">Retirer l\'activité</string>
+    <string name="act_modify">L\'activité \'%1$s\' a été modifiée pour %2$s</string>
+    <string name="act_remove">L\'activité \'%1$s\' a été retirée pour %2$s</string>
+    <string name="med_add_err">Impossible d\'ajouter ce médicament. Est-il déjà défini ?</string>
+    <string name="act_add_err">Impossible d\'ajouter cette activité. Est-elle déjà définie ?</string>
 </resources>

@@ -46,6 +46,13 @@ public class MedicineRecycler extends RecyclerView.Adapter<MedicineHolder> {
             });
             mListener.onItemClick(p);
         });
+        if (!p.active) {
+            ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
+            params.height = 0;
+            params.width = 0;
+            holder.itemView.setLayoutParams(params);
+            holder.itemView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -53,9 +60,16 @@ public class MedicineRecycler extends RecyclerView.Adapter<MedicineHolder> {
         return meds.size();
     }
 
-    public void insert(Medicine p) {
-        // Skipping if patient already in list
-        if (meds.stream().anyMatch(e -> e.name.equals(p.name))) {
+    public void insert(RecyclerView recyclerView, Medicine p) {
+        // If element is activated again we just show it
+        int pos = find_pos(p.name);
+        RecyclerView.ViewHolder view;
+        if (pos != -1 && (view = recyclerView.findViewHolderForAdapterPosition(pos)) != null) {
+            ViewGroup.LayoutParams params = view.itemView.getLayoutParams();
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            view.itemView.setLayoutParams(params);
+            view.itemView.setVisibility(View.VISIBLE);
             return;
         }
         int position = 0;
@@ -64,5 +78,42 @@ public class MedicineRecycler extends RecyclerView.Adapter<MedicineHolder> {
         }
         meds.add(position, p);
         notifyItemInserted(position);
+    }
+
+    public void edit(Medicine.EditMedicineNotification edit) {
+        int count = 0;
+        for (Medicine p : meds) {
+            if (p.name.equals(edit.name)) {
+                p.dose = edit.dose;
+                p.time = edit.time;
+                p.updated_at = edit.updated_at;
+                notifyItemChanged(count);
+                break;
+            }
+            count += 1;
+        }
+    }
+
+    public int find_pos(String name) {
+        int count = 0;
+        for (Medicine p : meds) {
+            if (p.name.equals(name)) {
+                return count;
+            }
+            count += 1;
+        }
+        return -1;
+    }
+
+    public void remove(RecyclerView recyclerView, Medicine.RemoveMedicineNotification p) {
+        int pos = find_pos(p.name);
+        RecyclerView.ViewHolder view;
+        if (pos != -1 && (view = recyclerView.findViewHolderForAdapterPosition(pos)) != null) {
+            ViewGroup.LayoutParams params = view.itemView.getLayoutParams();
+            params.height = 0;
+            params.width = 0;
+            view.itemView.setLayoutParams(params);
+            view.itemView.setVisibility(View.GONE);
+        }
     }
 }
