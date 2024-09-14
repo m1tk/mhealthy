@@ -53,4 +53,6 @@
     <string name="med_add_err">Impossible d\'ajouter ce médicament. Est-il déjà défini ?</string>
     <string name="act_add_err">Impossible d\'ajouter cette activité. Est-elle déjà définie ?</string>
     <string name="caregiver_area">Zone soignant</string>
+    <string name="new_patient_title">Nouveau patient</string>
+    <string name="new_patient">%1$s est a été assigné à vous</string>
 </resources>

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
 
+import fr.android.mhealthy.R;
 import fr.android.mhealthy.api.ApiService;
 import fr.android.mhealthy.api.CaregiverEventsReq;
 import fr.android.mhealthy.api.HttpClient;
@@ -149,6 +150,11 @@ public class CaregiverEvents {
                     inst.new_patient.name,
                     inst.time,
                     inst.new_patient.phone
+            ));
+            EventBus.getDefault().post(new EventHandlerBackground.NewNotificationTask(
+                    R.string.new_patient_title,
+                    R.string.new_patient,
+                    inst.new_patient.name
             ));
         } else if (ins.type == Instruction.InstructionType.AddMedicine ||
                 ins.type == Instruction.InstructionType.EditMedicine ||

@@ -4,7 +4,11 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -15,15 +19,18 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.api.SSE;
@@ -32,7 +39,7 @@ import fr.android.mhealthy.model.Session;
 
 public class EventHandlerBackground extends Service {
     private static final String CHANNEL_ID = "EventHandler";
-    private static boolean isServiceRunning = false;
+    private static final AtomicBoolean running = new AtomicBoolean(false);
     private final Semaphore mutex = new Semaphore(1, true);
     private ConnectivityManager connectivityManager;
     private ConnectivityManager.NetworkCallback networkCallback;
@@ -44,7 +51,6 @@ public class EventHandlerBackground extends Service {
         super.onCreate();
         createNotificationChannel();
         EventBus.getDefault().register(this);
-        isServiceRunning = true;
     }
 
     private void createNotificationChannel() {
@@ -67,6 +73,9 @@ public class EventHandlerBackground extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (!running.compareAndSet(false, true)) {
+            return START_NOT_STICKY;
+        }
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("mhealty")
                 .setContentText("Fetching latest info")
@@ -131,11 +140,11 @@ public class EventHandlerBackground extends Service {
     public void onDestroy() {
         super.onDestroy();
         connectivityManager.unregisterNetworkCallback(networkCallback);
-        isServiceRunning = false;
+        running.set(false);
     }
 
     public static boolean isServiceRunning() {
-        return isServiceRunning;
+        return running.get();
     }
 
     private void start_tasks(Session s) {
@@ -184,5 +193,39 @@ public class EventHandlerBackground extends Service {
         stop_tasks();
         Log.d("ForegroundTask", "All tasks stopped, exiting.");
         stopSelf();
+    }
+
+    public static class NewNotificationTask {
+        public int title;
+        public int id;
+        public String[] args;
+        public NewNotificationTask(int title, int id, String... args) {
+            this.title = title;
+            this.id = id;
+            this.args = args;
+        }
+    }
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    public void new_notification_event(NewNotificationTask n) {
+        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String lang = p.getString("language_preference", "en");
+        Locale loc  = new Locale(lang);
+
+        Resources resources = getResources();
+        Configuration configuration = new Configuration(resources.getConfiguration());
+        configuration.setLocale(loc);
+        Resources localizedResources = createConfigurationContext(configuration).getResources();
+        String tit_str = localizedResources.getString(n.title);
+        String string = localizedResources.getString(n.id, (Object[])n.args);
+
+        Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setContentTitle(tit_str)
+                .setContentText(string)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .build();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(0, notification);
     }
 }

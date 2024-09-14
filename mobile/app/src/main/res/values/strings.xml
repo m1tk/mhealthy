@@ -54,4 +54,6 @@
     <string name="med_add_err">Cannot add this medicine. Is it already defined?</string>
     <string name="act_add_err">Cannot add this activity. Is it already defined?</string>
     <string name="caregiver_area">Caregiver area</string>
+    <string name="new_patient_title">New patient</string>
+    <string name="new_patient">%1$s has been assigned to you</string>
 </resources>
