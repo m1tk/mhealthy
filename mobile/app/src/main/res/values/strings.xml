@@ -56,4 +56,6 @@
     <string name="caregiver_area">Caregiver area</string>
     <string name="new_patient_title">New patient</string>
     <string name="new_patient">%1$s has been assigned to you</string>
+    <string name="new_caregiver_title">New caregiver</string>
+    <string name="new_caregiver">%1$s is your new caregiver, don\'t hesitate to contact him for all future issues!</string>
 </resources>

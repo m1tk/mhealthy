@@ -55,4 +55,6 @@
     <string name="caregiver_area">Zone soignant</string>
     <string name="new_patient_title">Nouveau patient</string>
     <string name="new_patient">%1$s est a été assigné à vous</string>
+    <string name="new_caregiver_title">Nouveau soigant</string>
+    <string name="new_caregiver">%1$s est votre nouvel aidant, n\'hésitez pas à les contacter pour tous les problèmes futurs !</string>
 </resources>
