@@ -52,4 +52,5 @@
     <string name="act_remove">L\'activité \'%1$s\' a été retirée pour %2$s</string>
     <string name="med_add_err">Impossible d\'ajouter ce médicament. Est-il déjà défini ?</string>
     <string name="act_add_err">Impossible d\'ajouter cette activité. Est-elle déjà définie ?</string>
+    <string name="caregiver_area">Zone soignant</string>
 </resources>

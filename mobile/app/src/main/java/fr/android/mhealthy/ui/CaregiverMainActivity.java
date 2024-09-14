@@ -2,11 +2,12 @@ package fr.android.mhealthy.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.PopupMenu;
-import android.widget.TextView;
+import android.view.Menu;
+import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,22 +35,11 @@ public class CaregiverMainActivity extends AppCompatActivity {
         Intent intent   = getIntent();
         Session session = (Session) intent.getSerializableExtra("session");
 
-        TextView welcome = findViewById(R.id.tvWelcome);
-        welcome.setText(getString(R.string.welcome, session.name));
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         EventBus.getDefault().register(this);
 
-        TextView im = findViewById(R.id.menu_button);
-        PopupMenu menu = new PopupMenu(this, im);
-        menu.getMenuInflater()
-                .inflate(R.menu.caregiver_menu, menu.getMenu());
-        menu.setOnMenuItemClickListener(v -> {
-            MenuUtils.onClickMenuItem(this, v.getItemId());
-            return true;
-        });
-        im.setOnClickListener(v -> {
-            menu.show();
-        });
 
         patient_view = findViewById(R.id.patient_view);
         adapter = new PatientRecycler(
@@ -62,6 +52,17 @@ public class CaregiverMainActivity extends AppCompatActivity {
                 });
         patient_view.setLayoutManager(new LinearLayoutManager(this));
         patient_view.setAdapter(adapter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.caregiver_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        MenuUtils.onClickMenuItem(this, item.getItemId());
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -53,4 +53,5 @@
     <string name="act_remove">%1$s activity was removed for %2$s</string>
     <string name="med_add_err">Cannot add this medicine. Is it already defined?</string>
     <string name="act_add_err">Cannot add this activity. Is it already defined?</string>
+    <string name="caregiver_area">Caregiver area</string>
 </resources>
