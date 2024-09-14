@@ -42,7 +42,6 @@ public class ActivityManagerActivity extends AppCompatActivity {
 
         patient = null;
 
-        EventBus.getDefault().register(this);
 
         Intent intent   = getIntent();
         Session session = (Session) intent.getSerializableExtra("session");
@@ -93,6 +92,30 @@ public class ActivityManagerActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        EventBus.getDefault().register(this);
+        new Thread(() -> {
+            adapter.load_data(patient);
+            runOnUiThread(() -> {
+                adapter.notifyDataSetChanged();
+            });
+        }).start();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        EventBus.getDefault().unregister(this);
     }
 
     @SuppressWarnings("unused")

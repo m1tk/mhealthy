@@ -14,16 +14,22 @@ import fr.android.mhealthy.model.Medicine;
 import fr.android.mhealthy.storage.PatientDAO;
 
 public class MedicineRecycler extends RecyclerView.Adapter<MedicineHolder> {
-    private final List<Medicine> meds;
+    private List<Medicine> meds;
     private OnItemClickListener mListener;
+    PatientDAO access;
 
     public interface OnItemClickListener {
         void onItemClick(Medicine m);
     }
 
     public MedicineRecycler(PatientDAO access, Integer patient, OnItemClickListener listener) {
-        this.meds = access.get_all_meds(patient);
+        this.meds = List.of();
         this.mListener = listener;
+        this.access = access;
+    }
+
+    public void load_data(Integer patient) {
+        this.meds = access.get_all_meds(patient);
     }
 
     @NonNull

@@ -21,7 +21,6 @@ import fr.android.mhealthy.adapter.PatientRecycler;
 import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.storage.CaregiverDAO;
-import fr.android.mhealthy.utils.SettingsUtils;
 
 public class CaregiverMainActivity extends AppCompatActivity {
     RecyclerView patient_view;
@@ -37,9 +36,6 @@ public class CaregiverMainActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        EventBus.getDefault().register(this);
-
 
         patient_view = findViewById(R.id.patient_view);
         adapter = new PatientRecycler(
@@ -66,14 +62,33 @@ public class CaregiverMainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        EventBus.getDefault().register(this);
+        new Thread(() -> {
+            adapter.load_data();
+            runOnUiThread(() -> {
+                adapter.notifyDataSetChanged();
+            });
+        }).start();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        EventBus.getDefault().unregister(this);
+    }
+
     @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void new_patient_event(Patient p) {
         adapter.insert(p);
+        patient_view.smoothScrollToPosition(0);
     }
 }

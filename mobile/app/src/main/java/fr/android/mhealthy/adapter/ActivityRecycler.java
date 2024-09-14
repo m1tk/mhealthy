@@ -17,17 +17,22 @@ import fr.android.mhealthy.storage.PatientDAO;
 import fr.android.mhealthy.ui.ActivityActionActivity;
 
 public class ActivityRecycler extends RecyclerView.Adapter<ActivityHolder> {
-    private final List<Activity> acts;
+    private List<Activity> acts;
     private OnItemClickListener mListener;
+    PatientDAO access;
 
     public interface OnItemClickListener {
         void onItemClick(Activity m);
     }
 
     public ActivityRecycler(PatientDAO access, Integer patient, OnItemClickListener listener) {
-        this.acts = access.get_all_activities(patient);
-        Log.d("Instruction", String.valueOf(this.acts.size()));
+        this.acts = List.of();
         this.mListener = listener;
+        this.access = access;
+    }
+
+    public void load_data(Integer patient) {
+        this.acts = access.get_all_activities(patient);
     }
 
     @NonNull
