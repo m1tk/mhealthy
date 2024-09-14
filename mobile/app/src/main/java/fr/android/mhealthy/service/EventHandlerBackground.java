@@ -5,10 +5,15 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import org.greenrobot.eventbus.EventBus;
@@ -18,6 +23,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.api.SSE;
@@ -27,6 +33,9 @@ import fr.android.mhealthy.model.Session;
 public class EventHandlerBackground extends Service {
     private static final String CHANNEL_ID = "EventHandler";
     private static boolean isServiceRunning = false;
+    private final Semaphore mutex = new Semaphore(1, true);
+    private ConnectivityManager connectivityManager;
+    private ConnectivityManager.NetworkCallback networkCallback;
 
     static ConcurrentHashMap<Thread, Optional<SSE>> tasks = new ConcurrentHashMap<>();
 
@@ -76,6 +85,60 @@ public class EventHandlerBackground extends Service {
         if (s == null) {
             return START_NOT_STICKY;
         }
+
+        networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(@NonNull Network network) {
+                super.onAvailable(network);
+                try {
+                    mutex.acquire();
+                } catch (InterruptedException e) {
+                    return;
+                }
+                Log.d("ForegroundTask", "Starting background tasks.");
+                start_tasks(s);
+                mutex.release();
+            }
+
+            @Override
+            public void onLost(@NonNull Network network) {
+                super.onLost(network);
+                try {
+                    mutex.acquire();
+                } catch (InterruptedException e) {
+                    return;
+                }
+                Log.d("ForegroundTask", "Stopping background tasks due to no network activity");
+                stop_tasks();
+                mutex.release();
+            }
+        };
+
+        NetworkRequest networkRequest = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                .build();
+
+        connectivityManager = getSystemService(ConnectivityManager.class);
+        connectivityManager.registerNetworkCallback(networkRequest, networkCallback);
+
+        // If the service is killed, restart it with the last intent
+        return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        connectivityManager.unregisterNetworkCallback(networkCallback);
+        isServiceRunning = false;
+    }
+
+    public static boolean isServiceRunning() {
+        return isServiceRunning;
+    }
+
+    private void start_tasks(Session s) {
         new Thread(() -> {
             if (s.account_type.equals("caregiver")) {
                 new CaregiverEvents(getApplicationContext(), s);
@@ -87,33 +150,9 @@ public class EventHandlerBackground extends Service {
         new Thread(() -> {
             new TransactionHandler(getApplicationContext(), s);
         }).start();
-
-        // If the service is killed, restart it with the last intent
-        return START_STICKY;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        isServiceRunning = false;
-    }
-
-    public static boolean isServiceRunning() {
-        return isServiceRunning;
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.POSTING)
-    public void pending_transaction(PendingTransactionNotification p) {
-        if (TransactionHandler.update_id.get() < p.id) {
-            TransactionHandler.update_id.set(p.id);
-        }
-    }
-
-    public static class StopForegroundTask {}
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void pending_transaction(StopForegroundTask s) {
+    private void stop_tasks() {
         tasks.forEach((t, sse) -> {
             t.interrupt();
             if (sse.isPresent()) {
@@ -128,6 +167,21 @@ public class EventHandlerBackground extends Service {
             } catch (Exception e) {}
         }
         tasks.clear();
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.POSTING)
+    public void pending_transaction(PendingTransactionNotification p) {
+        if (TransactionHandler.update_id.get() < p.id) {
+            TransactionHandler.update_id.set(p.id);
+        }
+    }
+
+    public static class StopForegroundTask {}
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void stop_tasks_event(StopForegroundTask s) {
+        stop_tasks();
         Log.d("ForegroundTask", "All tasks stopped, exiting.");
         stopSelf();
     }
