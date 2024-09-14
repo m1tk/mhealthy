@@ -75,6 +75,8 @@ public class ActivityRecycler extends RecyclerView.Adapter<ActivityHolder> {
         int pos = find_pos(p.name);
         RecyclerView.ViewHolder view;
         if (pos != -1 && (view = recyclerView.findViewHolderForAdapterPosition(pos)) != null) {
+            acts.set(pos, p);
+            notifyItemChanged(pos);
             ViewGroup.LayoutParams params = view.itemView.getLayoutParams();
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             params.width = ViewGroup.LayoutParams.MATCH_PARENT;

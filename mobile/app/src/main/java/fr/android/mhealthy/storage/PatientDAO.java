@@ -232,7 +232,7 @@ public class PatientDAO {
         ContentValues vals = new ContentValues();
         vals.put(DatabaseHelper.ACTIVITY_DESC, add.goal);
         vals.put(DatabaseHelper.ACTIVITY_TIME, add.activity_time);
-        vals.put(DatabaseHelper.ACTIVITY_TIME, add.time);
+        vals.put(DatabaseHelper.ACTIVITY_UPDATED_AT, add.time);
         vals.put(DatabaseHelper.ACTIVITY_ACTIVE, 1);
 
         int up = db.update(

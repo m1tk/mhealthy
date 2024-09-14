@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -150,10 +151,28 @@ public class CaregiverDAO {
     }
 
     private boolean instruction_exists(SQLiteDatabase db, Instruction op, int patient) {
-        Cursor cursor = db.rawQuery("SELECT 1 from " + DatabaseHelper.TABLE_MEDICATION_HISTORY +
-                        " WHERE " + DatabaseHelper.HISTORY_USER + " = ? and " +
-                        DatabaseHelper.HISTORY_UPDATE_TIME + " = ? and " +
-                        DatabaseHelper.HISTORY_DATA + " like '%\"" + op.get_type() + "\"%'",
+        String table;
+        String user;
+        String up_time;
+        String data;
+        if (op.type == Instruction.InstructionType.AddMedicine ||
+                op.type == Instruction.InstructionType.EditMedicine ||
+                op.type == Instruction.InstructionType.RemoveMedicine) {
+            table = DatabaseHelper.TABLE_MEDICATION_HISTORY;
+            user = DatabaseHelper.HISTORY_USER;
+            up_time = DatabaseHelper.HISTORY_UPDATE_TIME;
+            data = DatabaseHelper.HISTORY_DATA;
+        } else {
+            table = DatabaseHelper.TABLE_ACTIVITY_HISTORY;
+            user = DatabaseHelper.ACTIVITY_HISTORY_USER;
+            up_time = DatabaseHelper.ACTIVITY_HISTORY_UPDATE_TIME;
+            data = DatabaseHelper.ACTIVITY_HISTORY_DATA;
+        }
+
+        Cursor cursor = db.rawQuery("SELECT 1 from " + table +
+                        " WHERE " + user + " = ? and " +
+                        up_time + " = ? and " +
+                        data + " like '%\"" + op.get_type() + "\"%'",
                 new String[]{ String.valueOf(patient), String.valueOf(op.get_time()) });
         if (cursor == null) {
             return false;
