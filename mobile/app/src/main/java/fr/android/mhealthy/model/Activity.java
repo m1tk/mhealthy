@@ -1,6 +1,11 @@
 package fr.android.mhealthy.model;
 
+import android.view.LayoutInflater;
+import android.view.View;
+
 import java.io.Serializable;
+
+import fr.android.mhealthy.R;
 
 public class Activity implements Serializable {
     public String name;
@@ -26,6 +31,8 @@ public class Activity implements Serializable {
         public String goal;
         public String time;
         public long updated_at;
+
+
 
         public EditActivityNotification(Integer patient, String name, String goal, String time,
                                         long updated_at) {

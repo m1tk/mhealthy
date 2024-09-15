@@ -57,6 +57,8 @@ public class ActivityActionActivity extends AppCompatActivity {
         MaterialAutoCompleteTextView act_name = findViewById(R.id.etActName);
         act_name.setAdapter(actadapter);
 
+
+
         TextInputEditText act_goal = findViewById(R.id.etActGoal);
 
         act_name.setOnItemClickListener((parent, view, position, id) -> {

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    app:cardElevation="2dp"
-    app:cardCornerRadius="8dp">
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -14,39 +15,39 @@
         android:padding="16dp">
 
         <TextView
-            android:id="@+id/activity_name"
+            android:id="@+id/patient_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="18sp"
-            android:textColor="?attr/colorOnSurface"
             android:textStyle="bold"
+            android:textColor="?attr/text_color"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/activity_time"
-            app:layout_constraintWidth_percent="0.7" />
-
-        <TextView
-            android:id="@+id/activity_time"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:gravity="end"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintWidth_percent="0.3" />
+            tools:text="John Doe"/>
 
         <TextView
-            android:id="@+id/activity_goal"
+            android:id="@+id/patient_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="?attr/textColorSecondary"
+            android:layout_marginTop="4dp"
+            app:layout_constraintTop_toBottomOf="@id/patient_name"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="ID: 12345"/>
+
+        <TextView
+            android:id="@+id/patient_info"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textColor="?attr/textColorSecondary"
             android:layout_marginTop="4dp"
-            app:layout_constraintTop_toBottomOf="@id/activity_name"
+            app:layout_constraintTop_toBottomOf="@id/patient_id"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Last Visit: 2023-09-15"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-</com.google.android.material.card.MaterialCardView>
+</androidx.cardview.widget.CardView>

@@ -52,4 +52,15 @@
     <string name="act_remove">L\'activité \'%1$s\' a été retirée pour %2$s</string>
     <string name="med_add_err">Impossible d\'ajouter ce médicament. Est-il déjà défini ?</string>
     <string name="act_add_err">Impossible d\'ajouter cette activité. Est-elle déjà définie ?</string>
+    <string name="welcome_message">Welcome, Dr. %s</string>
+    <string name="sick_list">sick List</string>
+    <string name="sel_act_content_description">Select activity</string>
+    <string name="add_activity">Add Activity</string>
+    <string name="about">About</string>
+    <string name="med_title">Medication Title</string>
+    <string name="medication_reminder">Medication Reminder</string>
+    <string name="set_reminder">Set Reminder</string>
+    <string name="no_reminder_set">No reminder set</string>
+
+
 </resources>

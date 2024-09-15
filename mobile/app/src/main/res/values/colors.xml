@@ -6,6 +6,7 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+    <color name="background_color1">#F5F5F5</color>
 
     <color name="primary_light">#000000</color>
     <color name="primary_dark">#ffffff</color>
@@ -14,10 +15,22 @@
 
     <color name="delete_color">#F83021</color>
 
+    <color name="gray_background">#F0F0F0</color> <!-- Light gray -->
+    <color name="black">#000000</color> <!-- Black -->
+
     <!-- Additional color resources if needed -->
     <color name="card_background_color">#272727</color>
     <color name="button_background_color">#333333</color>
     <color name="button_text_color">#FFFFFF</color>
 
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#757575</color>
+
+
+<!--    <color name="primary_text1">#212121</color>-->
+<!--    <color name="secondary_text2">#757575</color>-->
+<!--    <color name="colorPrimary3">#6200EE</color>-->
+    <color name="status_active">#4CAF50</color>
+    <color name="alarm_background">#FF2C3E50</color>
 
 </resources>

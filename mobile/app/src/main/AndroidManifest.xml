@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
     <application
         android:allowBackup="true"
@@ -21,7 +23,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MHealthy"
         tools:targetApi="31">
-
+        <activity
+            android:name=".ui.MedicationReminderActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.AlarmActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.QRScanActivity"
             android:screenOrientation="fullSensor"
@@ -35,31 +42,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.PatientMainActivity"
             android:exported="false" />
-
         <activity
             android:name=".ui.CaregiverMainActivity"
             android:exported="false" />
-
-        <activity android:name=".ui.MedicationActionActivity"
+        <activity
+            android:name=".ui.MedicationActionActivity"
             android:exported="false" />
-
-        <activity android:name=".ui.MedicationManagerActivity"
+        <activity
+            android:name=".ui.MedicationManagerActivity"
             android:exported="false" />
-
-        <activity android:name=".ui.ActivityActionActivity"
+        <activity
+            android:name=".ui.ActivityActionActivity"
             android:exported="false" />
-
-        <activity android:name=".ui.ActivityManagerActivity"
+        <activity
+            android:name=".ui.ActivityManagerActivity"
             android:exported="false" />
-
-        <activity android:name=".ui.SettingsActivity"
+        <activity
+            android:name=".ui.SettingsActivity"
             android:configChanges="locale|orientation" />
 
-        <service android:name=".service.EventHandlerBackground"
+        <service
+            android:name=".service.EventHandlerBackground"
             android:foregroundServiceType="remoteMessaging" />
     </application>
 

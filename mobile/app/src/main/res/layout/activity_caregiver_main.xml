@@ -8,52 +8,83 @@
     android:layout_height="match_parent"
     tools:context=".ui.PatientMainActivity">
 
+    <!-- Menu button -->
     <TextView
         android:id="@+id/menu_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="☰"
         android:textStyle="bold"
-        android:textColor="?attr/text_color"
-        android:background="@android:color/transparent"
+        android:textColor="#333333"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:textSize="34sp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="15dp"
+        android:padding="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Welcome message -->
     <TextView
         android:id="@+id/tvWelcome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="?attr/text_color"
+        android:textColor="#333333"
         android:layout_marginTop="48dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/patient_list"/>
+        tools:text="Welcome, Dr. Smith"/>
 
+    <!-- Medication title -->
+    <TextView
+        android:id="@+id/medTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/med_title"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        android:background="#e0e0e0"
+        app:layout_constraintTop_toBottomOf="@id/tvWelcome"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Patient list -->
     <TextView
         android:id="@+id/patient_list"
         android:text="@string/patient_list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="?attr/text_color"
-        app:layout_constraintTop_toBottomOf="@+id/tvWelcome"
+        android:textColor="#333333"
+        android:layout_marginTop="24dp"
+        android:padding="8dp"
+        android:background="#e0e0e0"
+        app:layout_constraintTop_toBottomOf="@+id/medTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/patient_view"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="#B0BEC5"
+        android:elevation="2dp"
         app:layout_constraintTop_toBottomOf="@id/patient_list"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-    </androidx.recyclerview.widget.RecyclerView>
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:listitem="@layout/item_patient"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

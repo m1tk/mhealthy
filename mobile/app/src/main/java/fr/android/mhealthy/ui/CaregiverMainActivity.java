@@ -35,7 +35,8 @@ public class CaregiverMainActivity extends AppCompatActivity {
         Session session = (Session) intent.getSerializableExtra("session");
 
         TextView welcome = findViewById(R.id.tvWelcome);
-        welcome.setText(getString(R.string.welcome, session.name));
+        welcome.setText(getString(R.string.welcome_message, session.name));
+//        welcome.setText(getString(R.string.welcome, session.name));
 
         EventBus.getDefault().register(this);
 

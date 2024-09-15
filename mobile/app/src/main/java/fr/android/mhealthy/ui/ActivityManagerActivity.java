@@ -33,6 +33,7 @@ public class ActivityManagerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manager_activity);
 
+
         patient = null;
 
         EventBus.getDefault().register(this);
