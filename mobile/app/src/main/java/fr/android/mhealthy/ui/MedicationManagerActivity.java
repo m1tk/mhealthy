@@ -71,14 +71,17 @@ public class MedicationManagerActivity extends AppCompatActivity {
                 patient,
                 v -> {
                     // TODO: FOR NOW THIS ACTIVATES EDIT ACTION
-                    if (session.account_type.equals("caregiver")) {
+                    /*if (session.account_type.equals("caregiver")) {
                         Patient p = (Patient) intent.getSerializableExtra("patient");
                         Intent intent1 = new Intent(this, MedicationActionActivity.class);
                         intent1.putExtra("session", session);
                         intent1.putExtra("patient", p);
                         intent1.putExtra("medicine", v);
                         startActivity(intent1);
-                    }
+                    }*/
+                    Intent intent1 = new Intent(this, MedicineActivity.class);
+                    intent1.putExtra("medicine", v);
+                    startActivity(intent1);
                 });
         medicine_view.setLayoutManager(new LinearLayoutManager(this));
         medicine_view.setAdapter(adapter);

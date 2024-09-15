@@ -36,6 +36,7 @@ public class CaregiverMainActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         patient_view = findViewById(R.id.patient_view);
         adapter = new PatientRecycler(

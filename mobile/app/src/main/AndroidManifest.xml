@@ -58,6 +58,9 @@
         <activity android:name=".ui.ActivityManagerActivity"
             android:exported="false" />
 
+        <activity android:name=".ui.MedicineActivity"
+            android:exported="false" />
+
         <activity android:name=".ui.SettingsActivity"
             android:configChanges="locale|orientation" />
 
