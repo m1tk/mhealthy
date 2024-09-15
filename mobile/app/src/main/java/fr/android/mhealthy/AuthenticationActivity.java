@@ -80,7 +80,7 @@ public class AuthenticationActivity extends AppCompatActivity {
             integrator.setRequestCode(QR_SCAN_REQUEST_CODE);
             integrator.setPrompt(getString(R.string.scan_qr));
             integrator.setCaptureActivity(QRScanActivity.class);
-            integrator.setOrientationLocked(false);
+            integrator.setOrientationLocked(true);
             integrator.initiateScan();
         });
     }

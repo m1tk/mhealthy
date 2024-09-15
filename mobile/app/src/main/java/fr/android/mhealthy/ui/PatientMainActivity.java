@@ -28,11 +28,15 @@ package fr.android.mhealthy.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.model.Patient;
@@ -40,31 +44,26 @@ import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.utils.MenuUtils;
 
 public class PatientMainActivity extends AppCompatActivity {
+    Session session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_patient_main);
 
-        TextView im = findViewById(R.id.menu_button);
-        PopupMenu menu = new PopupMenu(this, im);
-        menu.getMenuInflater()
-                .inflate(R.menu.patient_menu, menu.getMenu());
-        menu.setOnMenuItemClickListener(v -> {
-            MenuUtils.onClickMenuItem(this, v.getItemId());
-            return true;
-        });
-        im.setOnClickListener(v -> {
-            menu.show();
-        });
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        Intent intent   = getIntent();
-        Session session = (Session) intent.getSerializableExtra("session");
+        Intent intent = getIntent();
+        session       = (Session) intent.getSerializableExtra("session");
 
         if (session.account_type.equals("patient")) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             TextView welcome = findViewById(R.id.tvWelcome);
             welcome.setText(getString(R.string.welcome, session.name));
         } else {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             Patient p = (Patient) intent.getSerializableExtra("patient");
             TextView welcome = findViewById(R.id.tvWelcome);
             welcome.setText(getString(R.string.caregiver_patient_main, p.name));
@@ -86,5 +85,23 @@ public class PatientMainActivity extends AppCompatActivity {
             intent1.putExtra("patient", p);
             startActivity(intent1);
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (session.account_type.equals("patient")) {
+            getMenuInflater().inflate(R.menu.patient_menu, menu);
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        } else {
+            MenuUtils.onClickMenuItem(this, item.getItemId());
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

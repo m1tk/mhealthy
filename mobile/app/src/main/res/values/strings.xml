@@ -53,4 +53,21 @@
     <string name="act_remove">%1$s activity was removed for %2$s</string>
     <string name="med_add_err">Cannot add this medicine. Is it already defined?</string>
     <string name="act_add_err">Cannot add this activity. Is it already defined?</string>
+    <string name="caregiver_area">Caregiver area</string>
+    <string name="new_patient_title">New patient</string>
+    <string name="new_patient">%1$s has been assigned to you</string>
+    <string name="new_caregiver_title">New caregiver</string>
+    <string name="new_caregiver">%1$s is your new caregiver, don\'t hesitate to contact him for all future issues!</string>
+    <string name="med_taken">I did take my medicine</string>
+    <string name="med_taken_notice">Your medication usage details have been recorded!</string>
+    <string name="new_patient_hist">%1$s is now your newly assigned patient</string>
+    <string name="new_caregiver_hist">%1$s is now your newly assigned caregiver</string>
+    <string name="new_med_hist">Medicine is now assigned</string>
+    <string name="edit_med_hist">Medicine prescription was modified, new dose is %1$s and time is %2$s</string>
+    <string name="remove_med_hist">Medicine is no longer assigned</string>
+    <string name="new_act_hist">Activity is now assigned</string>
+    <string name="edit_act_hist_goal">Activity was modified, new goal is %1$s and time is %2$s</string>
+    <string name="edit_act_hist">Activity was modified, new time is %1$s</string>
+    <string name="remove_act_hist">Activity removed</string>
+    <string name="med_taken_hist">Medicine was taken on %1$s</string>
 </resources>

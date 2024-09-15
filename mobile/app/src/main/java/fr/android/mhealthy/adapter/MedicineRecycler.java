@@ -14,16 +14,22 @@ import fr.android.mhealthy.model.Medicine;
 import fr.android.mhealthy.storage.PatientDAO;
 
 public class MedicineRecycler extends RecyclerView.Adapter<MedicineHolder> {
-    private final List<Medicine> meds;
+    private List<Medicine> meds;
     private OnItemClickListener mListener;
+    PatientDAO access;
 
     public interface OnItemClickListener {
         void onItemClick(Medicine m);
     }
 
     public MedicineRecycler(PatientDAO access, Integer patient, OnItemClickListener listener) {
-        this.meds = access.get_all_meds(patient);
+        this.meds = List.of();
         this.mListener = listener;
+        this.access = access;
+    }
+
+    public void load_data(Integer patient) {
+        this.meds = access.get_all_meds(patient);
     }
 
     @NonNull
@@ -65,6 +71,8 @@ public class MedicineRecycler extends RecyclerView.Adapter<MedicineHolder> {
         int pos = find_pos(p.name);
         RecyclerView.ViewHolder view;
         if (pos != -1 && (view = recyclerView.findViewHolderForAdapterPosition(pos)) != null) {
+            meds.set(pos, p);
+            notifyItemChanged(pos);
             ViewGroup.LayoutParams params = view.itemView.getLayoutParams();
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             params.width = ViewGroup.LayoutParams.MATCH_PARENT;

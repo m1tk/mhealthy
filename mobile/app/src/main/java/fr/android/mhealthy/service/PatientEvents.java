@@ -7,9 +7,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.IOException;
 import java.util.Optional;
 
+import fr.android.mhealthy.R;
 import fr.android.mhealthy.api.ApiService;
 import fr.android.mhealthy.api.HttpClient;
 import fr.android.mhealthy.api.PatientEventReq;
@@ -87,6 +90,11 @@ public class PatientEvents {
         if (ins.type == Instruction.InstructionType.AddCaregiver) {
             Instruction.AddCaregiver inst = (Instruction.AddCaregiver) ins.instruction;
             pd.new_caregiver(inst, ins.caregiver, ins.id);
+            EventBus.getDefault().post(new EventHandlerBackground.NewNotificationTask(
+                    R.string.new_caregiver_title,
+                    R.string.new_caregiver,
+                    inst.new_caregiver.name
+            ));
         } else if (ins.type == Instruction.InstructionType.AddMedicine ||
                 ins.type == Instruction.InstructionType.EditMedicine ||
                 ins.type == Instruction.InstructionType.RemoveMedicine ||

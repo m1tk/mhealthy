@@ -17,17 +17,22 @@ import fr.android.mhealthy.storage.PatientDAO;
 import fr.android.mhealthy.ui.ActivityActionActivity;
 
 public class ActivityRecycler extends RecyclerView.Adapter<ActivityHolder> {
-    private final List<Activity> acts;
+    private List<Activity> acts;
     private OnItemClickListener mListener;
+    PatientDAO access;
 
     public interface OnItemClickListener {
         void onItemClick(Activity m);
     }
 
     public ActivityRecycler(PatientDAO access, Integer patient, OnItemClickListener listener) {
-        this.acts = access.get_all_activities(patient);
-        Log.d("Instruction", String.valueOf(this.acts.size()));
+        this.acts = List.of();
         this.mListener = listener;
+        this.access = access;
+    }
+
+    public void load_data(Integer patient) {
+        this.acts = access.get_all_activities(patient);
     }
 
     @NonNull
@@ -75,6 +80,8 @@ public class ActivityRecycler extends RecyclerView.Adapter<ActivityHolder> {
         int pos = find_pos(p.name);
         RecyclerView.ViewHolder view;
         if (pos != -1 && (view = recyclerView.findViewHolderForAdapterPosition(pos)) != null) {
+            acts.set(pos, p);
+            notifyItemChanged(pos);
             ViewGroup.LayoutParams params = view.itemView.getLayoutParams();
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             params.width = ViewGroup.LayoutParams.MATCH_PARENT;

@@ -2,11 +2,13 @@ package fr.android.mhealthy.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,6 +34,11 @@ public class MedicationManagerActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_medicine_manager);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         patient = null;
 
@@ -63,20 +70,49 @@ public class MedicationManagerActivity extends AppCompatActivity {
                 new PatientDAO(getApplicationContext(), session),
                 patient,
                 v -> {
-                    // TODO: FOR NOW THIS ACTIVATES EDIT ACTION
+                    Intent intent1 = new Intent(this, MedicineActivity.class);
+                    intent1.putExtra("session", session);
+                    intent1.putExtra("medicine", v);
                     if (session.account_type.equals("caregiver")) {
-                        Patient p = (Patient) intent.getSerializableExtra("patient");
-                        Intent intent1 = new Intent(this, MedicationActionActivity.class);
-                        intent1.putExtra("session", session);
-                        intent1.putExtra("patient", p);
-                        intent1.putExtra("medicine", v);
-                        startActivity(intent1);
+                        intent1.putExtra("patient", intent.getSerializableExtra("patient"));
                     }
+                    startActivity(intent1);
                 });
         medicine_view.setLayoutManager(new LinearLayoutManager(this));
         medicine_view.setAdapter(adapter);
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         EventBus.getDefault().register(this);
+        new Thread(() -> {
+            adapter.load_data(patient);
+            runOnUiThread(() -> {
+                adapter.notifyDataSetChanged();
+            });
+        }).start();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        EventBus.getDefault().unregister(this);
     }
 
     @SuppressWarnings("unused")
