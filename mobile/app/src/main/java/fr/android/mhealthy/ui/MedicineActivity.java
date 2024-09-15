@@ -20,6 +20,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.model.Instruction;
 import fr.android.mhealthy.model.Medicine;
@@ -89,16 +92,16 @@ public class MedicineActivity extends AppCompatActivity {
             try {
                 PatientInfo.MedicineTaken med = new PatientInfo.MedicineTaken();
                 med.time = System.currentTimeMillis() / 1000;
+                med.zoned_time = ZonedDateTime.now().format(DateTimeFormatter.ISO_ZONED_DATE_TIME);
                 PatientInfo info = new PatientInfo(
                         PatientInfo.PatientInfoType.MedicineTaken,
                         med,
                         name,
                         0
                 );
-                JsonObject op = info.to_server_json_format(new Gson());
                 pdb.add_info(
                         info,
-                        op.get("data").getAsJsonObject().toString(),
+                        info.to_store_json_format(new Gson()).toString(),
                         name,
                         med.time
                 );

@@ -17,10 +17,12 @@ public class PatientInfo {
 
     public static class MedicineTaken {
         public long time;
+        public String zoned_time;
     }
 
     public static class ActivityFinished {
         public long time;
+        public String zoned_time;
         public String value;
     }
 
