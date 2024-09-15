@@ -59,4 +59,5 @@
     <string name="new_caregiver_title">New caregiver</string>
     <string name="new_caregiver">%1$s is your new caregiver, don\'t hesitate to contact him for all future issues!</string>
     <string name="med_taken">I did take my medicine</string>
+    <string name="med_taken_notice">Your medication usage details have been recorded!</string>
 </resources>

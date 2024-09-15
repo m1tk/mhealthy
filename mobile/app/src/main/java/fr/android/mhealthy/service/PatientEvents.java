@@ -91,8 +91,8 @@ public class PatientEvents {
             Instruction.AddCaregiver inst = (Instruction.AddCaregiver) ins.instruction;
             pd.new_caregiver(inst, ins.caregiver, ins.id);
             EventBus.getDefault().post(new EventHandlerBackground.NewNotificationTask(
-                    R.string.new_caregiver,
                     R.string.new_caregiver_title,
+                    R.string.new_caregiver,
                     inst.new_caregiver.name
             ));
         } else if (ins.type == Instruction.InstructionType.AddMedicine ||

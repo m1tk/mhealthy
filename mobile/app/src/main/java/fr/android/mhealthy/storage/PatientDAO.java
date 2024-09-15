@@ -7,6 +7,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
+import com.google.gson.Gson;
+
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import java.util.List;
 import fr.android.mhealthy.model.Activity;
 import fr.android.mhealthy.model.Instruction;
 import fr.android.mhealthy.model.Medicine;
+import fr.android.mhealthy.model.PatientInfo;
 import fr.android.mhealthy.model.Session;
 
 public class PatientDAO {
@@ -348,5 +351,29 @@ public class PatientDAO {
         }
         cursor.close();
         return acts;
+    }
+
+    public void add_info(PatientInfo op, String json, String name, long time) {
+        SQLiteDatabase db = sdb.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            if (op.type == PatientInfo.PatientInfoType.MedicineTaken) {
+                add_medicine_history(db, json, name, time, null);
+            } else {
+                add_activity_history(db, json, name, time, null);
+            }
+            PendingTransactionDAO.insert(
+                    db,
+                    "patient_info",
+                    op.to_server_json_format(new Gson()).toString()
+            );
+            db.setTransactionSuccessful();
+            db.endTransaction();
+            db.close();
+        } catch (Exception e) {
+            db.endTransaction();
+            db.close();
+            throw e;
+        }
     }
 }

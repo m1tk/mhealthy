@@ -125,10 +125,6 @@ public class Instruction {
         this.time = ins.get("time").getAsLong();
     }
 
-    public Instruction(Gson p, String ins, int caregiver, int id) {
-        this(p, JsonParser.parseString(ins).getAsJsonObject(), caregiver, id);
-    }
-
     /// This is used for internal usage only and should not be sent to server
     public Instruction(InstructionType type, Object ins, int caregiver, int id) {
         this.type = type;

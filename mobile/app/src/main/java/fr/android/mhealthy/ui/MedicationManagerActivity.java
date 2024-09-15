@@ -70,17 +70,12 @@ public class MedicationManagerActivity extends AppCompatActivity {
                 new PatientDAO(getApplicationContext(), session),
                 patient,
                 v -> {
-                    // TODO: FOR NOW THIS ACTIVATES EDIT ACTION
-                    /*if (session.account_type.equals("caregiver")) {
-                        Patient p = (Patient) intent.getSerializableExtra("patient");
-                        Intent intent1 = new Intent(this, MedicationActionActivity.class);
-                        intent1.putExtra("session", session);
-                        intent1.putExtra("patient", p);
-                        intent1.putExtra("medicine", v);
-                        startActivity(intent1);
-                    }*/
                     Intent intent1 = new Intent(this, MedicineActivity.class);
+                    intent1.putExtra("session", session);
                     intent1.putExtra("medicine", v);
+                    if (session.account_type.equals("caregiver")) {
+                        intent1.putExtra("patient", intent.getSerializableExtra("patient"));
+                    }
                     startActivity(intent1);
                 });
         medicine_view.setLayoutManager(new LinearLayoutManager(this));

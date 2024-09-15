@@ -21,6 +21,7 @@ import fr.android.mhealthy.api.SSE;
 import fr.android.mhealthy.api.SSEdata;
 import fr.android.mhealthy.model.Instruction;
 import fr.android.mhealthy.model.Patient;
+import fr.android.mhealthy.model.PatientInfo;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.storage.CaregiverDAO;
 import fr.android.mhealthy.storage.LastIdDAO;
@@ -115,7 +116,11 @@ public class CaregiverEvents {
         while (true) {
             try {
                 SSEdata data = sse.read_next();
-                handle_instruction_data(cd, data, patient, last);
+                if (data.event.equals("patient_info")) {
+                    handle_patient_info_data(cd, data, patient, last);
+                } else {
+                    handle_instruction_data(cd, data, patient, last);
+                }
             } catch (Exception e) {
                 break;
             }
@@ -125,6 +130,26 @@ public class CaregiverEvents {
         } catch (IOException e) {
             // Omit exception here
         }
+    }
+
+    void handle_patient_info_data(CaregiverDAO cd, SSEdata data, int patient, LastId last) {
+        PatientInfo info;
+        JsonObject ons;
+        String name;
+        Log.d("PatientInfo", data.data);
+        try {
+            JsonObject obj = JsonParser.parseString(data.data).getAsJsonObject();
+            int id = obj.get("id").getAsInt();
+            ons = obj.get("info").getAsJsonObject();
+            name = ons.get("name").getAsString();
+            info = new PatientInfo(p, ons, id);
+        } catch (Exception e) {
+            // If it is unreadable, sadly we just skip for now
+            return;
+        }
+
+        cd.add_patient_info(info, info.to_store_json_format(p).toString(), name, info.get_time(), patient);
+        last.last_patient_info = info.id;
     }
 
     void handle_instruction_data(CaregiverDAO cd, SSEdata data, int patient, LastId last) {

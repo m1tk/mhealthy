@@ -13,6 +13,7 @@ import java.util.List;
 
 import fr.android.mhealthy.model.Instruction;
 import fr.android.mhealthy.model.Patient;
+import fr.android.mhealthy.model.PatientInfo;
 import fr.android.mhealthy.model.PendingTransactionNotification;
 import fr.android.mhealthy.model.Session;
 
@@ -96,7 +97,7 @@ public class CaregiverDAO {
         long pending = 0;
         db.beginTransaction();
         try {
-            if (instruction_exists(db, op, patient)) {
+            if (history_exists(db, op, patient)) {
                 update_last_instruction_id(db, patient, op.id);
                 db.setTransactionSuccessful();
                 db.endTransaction();
@@ -149,14 +150,39 @@ public class CaregiverDAO {
         }
     }
 
-    private boolean instruction_exists(SQLiteDatabase db, Instruction op, int patient) {
+    private boolean history_exists(SQLiteDatabase db, Object op, int patient) {
         String table;
         String user;
         String up_time;
         String data;
-        if (op.type == Instruction.InstructionType.AddMedicine ||
-                op.type == Instruction.InstructionType.EditMedicine ||
-                op.type == Instruction.InstructionType.RemoveMedicine) {
+
+        String type;
+        long time;
+        boolean is_med;
+
+        if (op instanceof Instruction) {
+            Instruction ins = (Instruction) op;
+            if (ins.type == Instruction.InstructionType.AddMedicine ||
+                    ins.type == Instruction.InstructionType.EditMedicine ||
+                    ins.type == Instruction.InstructionType.RemoveMedicine) {
+                is_med = true;
+            } else {
+                is_med = false;
+            }
+            type = ins.get_type();
+            time = ins.get_time();
+        } else {
+            PatientInfo info = (PatientInfo) op;
+            if (info.type == PatientInfo.PatientInfoType.MedicineTaken) {
+                is_med = true;
+            } else {
+                is_med = false;
+            }
+            type = info.get_type();
+            time = info.get_time();
+        }
+
+        if (is_med) {
             table = DatabaseHelper.TABLE_MEDICATION_HISTORY;
             user = DatabaseHelper.HISTORY_USER;
             up_time = DatabaseHelper.HISTORY_UPDATE_TIME;
@@ -171,13 +197,40 @@ public class CaregiverDAO {
         Cursor cursor = db.rawQuery("SELECT 1 from " + table +
                         " WHERE " + user + " = ? and " +
                         up_time + " = ? and " +
-                        data + " like '%\"" + op.get_type() + "\"%'",
-                new String[]{ String.valueOf(patient), String.valueOf(op.get_time()) });
+                        data + " like '%\"" + type + "\"%'",
+                new String[]{ String.valueOf(patient), String.valueOf(time) });
         if (cursor == null) {
             return false;
         }
         boolean exists = cursor.getCount() > 0;
         cursor.close();
         return exists;
+    }
+
+    public void add_patient_info(PatientInfo op, String json,
+                              String name, long time, Integer patient) {
+        SQLiteDatabase db = sdb.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            if (history_exists(db, op, patient)) {
+                update_last_patient_info_id(db, patient, op.id);
+                db.setTransactionSuccessful();
+                db.endTransaction();
+                db.close();
+                return;
+            }
+            if (op.type == PatientInfo.PatientInfoType.MedicineTaken) {
+                PatientDAO.add_medicine_history(db, json, name, time, patient);
+            } else {
+                PatientDAO.add_activity_history(db, json, name, time, patient);
+            }
+            db.setTransactionSuccessful();
+            db.endTransaction();
+            db.close();
+        } catch (Exception e) {
+            db.endTransaction();
+            db.close();
+            throw e;
+        }
     }
 }
