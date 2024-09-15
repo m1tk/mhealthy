@@ -21,33 +21,53 @@
             android:textColor="?attr/text_color"/>
     </androidx.appcompat.widget.Toolbar>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardActivities"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:layout_marginHorizontal="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        android:backgroundTint="@color/done_color"
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnMedTaken"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:fillViewport="true">
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/med_taken"
-            android:textSize="18sp"
-            android:padding="16dp"
-            android:textColor="@android:color/white"
-            app:iconTint="@android:color/white"
-            app:icon="@drawable/ic_medication"
-            app:iconGravity="textStart"
-            app:iconPadding="8dp"
-            style="@style/Widget.MaterialComponents.Button.TextButton"/>
-    </com.google.android.material.card.MaterialCardView>
+            android:orientation="vertical">
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardActivities"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:layout_marginHorizontal="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:backgroundTint="@color/done_color">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMedTaken"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/med_taken"
+                    android:textSize="18sp"
+                    android:padding="16dp"
+                    android:textColor="@android:color/white"
+                    app:iconTint="@android:color/white"
+                    app:icon="@drawable/ic_medication"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"/>
+            </com.google.android.material.card.MaterialCardView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/history_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginTop="20dp"
+                android:layout_weight="1">
+            </androidx.recyclerview.widget.RecyclerView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/edit_act_fab"

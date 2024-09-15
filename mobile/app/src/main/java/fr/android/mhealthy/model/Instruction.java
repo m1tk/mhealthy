@@ -1,8 +1,12 @@
 package fr.android.mhealthy.model;
 
+import android.content.Context;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import fr.android.mhealthy.R;
 
 public class Instruction {
     public InstructionType type;
@@ -182,5 +186,35 @@ public class Instruction {
         o.add("data", to_store_json_format(p));
         o.addProperty("patient", patient);
         return o;
+    }
+
+    public String get_action_string(Context ctx) {
+        switch (this.type) {
+            case AddPatient:
+                return ctx.getString(R.string.new_patient_hist, ((AddPatient)instruction).new_patient);
+            case AddCaregiver:
+                return ctx.getString(R.string.new_caregiver_hist, ((AddCaregiver)instruction).new_caregiver.name);
+            case AddMedicine:
+                return ctx.getString(R.string.new_med_hist);
+            case EditMedicine:
+                return ctx.getString(R.string.edit_med_hist,
+                        ((EditMedicine)instruction).dose, ((EditMedicine)instruction).dose_time);
+            case RemoveMedicine:
+                return ctx.getString(R.string.remove_med_hist);
+            case AddActivity:
+                return ctx.getString(R.string.new_act_hist);
+            case EditActivity:
+                EditActivity e = (EditActivity) instruction;
+                if (e.goal.isEmpty()) {
+                    return ctx.getString(R.string.edit_act_hist_goal, e.goal, e.activity_time);
+                } else {
+                    return ctx.getString(R.string.edit_act_hist, e.activity_time);
+                }
+            case RemoveActivity:
+                return ctx.getString(R.string.remove_act_hist);
+            default:
+                // This should not happen
+                throw new InstantiationError("Unknown instruction type");
+        }
     }
 }

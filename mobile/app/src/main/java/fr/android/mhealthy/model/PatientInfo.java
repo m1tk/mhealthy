@@ -1,7 +1,11 @@
 package fr.android.mhealthy.model;
 
+import android.content.Context;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
+import fr.android.mhealthy.R;
 
 public class PatientInfo {
     public Object info;
@@ -27,6 +31,10 @@ public class PatientInfo {
     }
 
     public PatientInfo(Gson p, JsonObject ins, int id) {
+        this(p, ins, ins.get("name").getAsString(), id);
+    }
+
+    public PatientInfo(Gson p, JsonObject ins, String name, int id) {
         switch (ins.get("type").getAsString()) {
             case "medicine_taken":
                 this.type = PatientInfoType.MedicineTaken;
@@ -39,7 +47,7 @@ public class PatientInfo {
             default:
                 throw new InstantiationError("Unknown instruction type");
         }
-        this.name = ins.get("name").getAsString();
+        this.name = name;
         this.id = id;
         this.time = ins.get("time").getAsLong();
     }
@@ -86,5 +94,17 @@ public class PatientInfo {
         o.add("data", to_store_json_format(p));
         o.getAsJsonObject("data").addProperty("name", this.name);
         return o;
+    }
+
+    public String get_action_string(Context ctx) {
+        switch (this.type) {
+            case MedicineTaken:
+                return ctx.getString(R.string.med_taken_hist, ((MedicineTaken)info).zoned_time);
+            case ActivityFinished:
+                return "";
+            default:
+                // This should not happen
+                throw new InstantiationError("Unknown instruction type");
+        }
     }
 }

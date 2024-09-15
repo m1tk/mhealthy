@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -375,5 +376,55 @@ public class PatientDAO {
             db.close();
             throw e;
         }
+    }
+
+    @SuppressLint("Range")
+    public List<Object> get_all_history(Integer user, String name, boolean is_med) {
+        SQLiteDatabase db = sdb.getReadableDatabase();
+        List<Object> hist = new ArrayList<>();
+
+        String table;
+        String idt;
+        String namet;
+        String usert;
+        String data;
+        if (is_med) {
+            table = DatabaseHelper.TABLE_MEDICATION_HISTORY;
+            idt = DatabaseHelper.HISTORY_ID;
+            namet = DatabaseHelper.HISTORY_MEDICATION;
+            usert = DatabaseHelper.HISTORY_USER;
+            data = DatabaseHelper.HISTORY_DATA;
+        } else {
+            table = DatabaseHelper.TABLE_ACTIVITY_HISTORY;
+            idt = DatabaseHelper.ACTIVITY_HISTORY_ID;
+            namet = DatabaseHelper.ACTIVITY_HISTORY_NAME;
+            usert = DatabaseHelper.ACTIVITY_HISTORY_USER;
+            data = DatabaseHelper.ACTIVITY_HISTORY_DATA;
+        }
+
+        Cursor cursor = db.rawQuery("SELECT " + data + " FROM " + table + " WHERE " +
+                usert + " is " + (user == null ? "null" : String.valueOf(user)) + " AND " +
+                namet + " = ? ORDER BY " + idt + " DESC",
+                new String[]{ name });
+
+        Gson p = new Gson();
+        if (cursor.moveToFirst()) {
+            do {
+                String val = cursor.getString(cursor.getColumnIndex(data));
+                Object obj;
+                try {
+                    obj = new Instruction(p, JsonParser.parseString(val).getAsJsonObject(), 0, 0);
+                } catch (InstantiationError e) {
+                    try {
+                        obj = new PatientInfo(p, JsonParser.parseString(val).getAsJsonObject(), name, 0);
+                    } catch (InstantiationError en) {
+                        continue;
+                    }
+                }
+                hist.add(obj);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return hist;
     }
 }

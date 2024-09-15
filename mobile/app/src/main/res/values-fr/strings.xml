@@ -59,4 +59,14 @@
     <string name="new_caregiver">%1$s est votre nouvel aidant, n\'hésitez pas à les contacter pour tous les problèmes futurs !</string>
     <string name="med_taken">J\'ai pris mon médicament</string>
     <string name="med_taken_notice">Vos détails d\'utilisation du médicament ont été enregistrés !</string>
+    <string name="new_patient_hist">%1$s est maintenant votre patient nouvellement assigné</string>
+    <string name="new_caregiver_hist">%1$s est maintenant votre soignant nouvellement assigné</string>
+    <string name="new_med_hist">Le médicament est maintenant assigné</string>
+    <string name="edit_med_hist">L\'ordonnance de médicament a été modifiée, la nouvelle dose est %1$s et temps est %2$s</string>
+    <string name="remove_med_hist">Le médicament n\'est plus assigné</string>
+    <string name="new_act_hist">L\'activité est maintenant assigné</string>
+    <string name="edit_act_hist_goal">L\'activité a été modifiée, la nouvelle objectif est %1$s et l\'horaire est %2$s</string>
+    <string name="edit_act_hist">L\'activité a été modifiée, le nouvel horaire est %1$s</string>
+    <string name="remove_act_hist">Activité retirée</string>
+    <string name="med_taken_hist">Le médicament a été pris le %1$s</string>
 </resources>
