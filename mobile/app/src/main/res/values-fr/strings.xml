@@ -69,4 +69,6 @@
     <string name="edit_act_hist">L\'activité a été modifiée, le nouvel horaire est %1$s</string>
     <string name="remove_act_hist">Activité retirée</string>
     <string name="med_taken_hist">Le médicament a été pris le %1$s</string>
+    <string name="assigned">Assigné</string>
+    <string name="not_assigned">Plus assigné</string>
 </resources>

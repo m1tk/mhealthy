@@ -75,4 +75,6 @@ dependencies {
     implementation("net.gotev:cookie-store-okhttp:1.5.0")
 
     implementation("org.greenrobot:eventbus:3.2.0")
+
+    implementation("io.getstream:avatarview-coil:1.0.7")
 }

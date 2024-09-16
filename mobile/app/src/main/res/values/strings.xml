@@ -70,4 +70,7 @@
     <string name="edit_act_hist">Activity was modified, new time is %1$s</string>
     <string name="remove_act_hist">Activity removed</string>
     <string name="med_taken_hist">Medicine was taken on %1$s</string>
+    <string name="assigned">Assigned</string>
+    <string name="not_assigned">No longer assigned</string>
+    <string name="ID" translatable="false">ID: %1$s</string>
 </resources>

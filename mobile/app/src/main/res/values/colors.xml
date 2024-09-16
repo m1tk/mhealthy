@@ -13,6 +13,8 @@
     <color name="med_color">#43B51F</color>
     <color name="done_color">#80C783</color>
 
+    <color name="status_active">#4CAF50</color>
+
     <color name="delete_color">#F83021</color>
 
     <!-- Additional color resources if needed -->
