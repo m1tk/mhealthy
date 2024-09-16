@@ -20,6 +20,7 @@ import fr.android.mhealthy.model.History;
 import fr.android.mhealthy.model.Instruction;
 import fr.android.mhealthy.model.Medicine;
 import fr.android.mhealthy.model.PatientInfo;
+import fr.android.mhealthy.model.PendingTransactionNotification;
 import fr.android.mhealthy.model.Session;
 
 public class PatientDAO {
@@ -366,6 +367,7 @@ public class PatientDAO {
     }
 
     public void add_info(PatientInfo op, String json, String name, long time) {
+        long pending;
         SQLiteDatabase db = sdb.getWritableDatabase();
         db.beginTransaction();
         try {
@@ -374,7 +376,7 @@ public class PatientDAO {
             } else {
                 add_activity_history(db, op, json, name, time, null);
             }
-            PendingTransactionDAO.insert(
+            pending = PendingTransactionDAO.insert(
                     db,
                     "patient_info",
                     op.to_server_json_format(new Gson()).toString()
@@ -386,6 +388,9 @@ public class PatientDAO {
             db.endTransaction();
             db.close();
             throw e;
+        }
+        if (pending != 0) {
+            EventBus.getDefault().post(new PendingTransactionNotification(pending));
         }
     }
 
@@ -414,7 +419,7 @@ public class PatientDAO {
         }
 
         Cursor cursor = db.rawQuery("SELECT " + data + " FROM " + table + " WHERE " +
-                usert + " is " + (user == null ? "null" : String.valueOf(user)) + " AND " +
+                (user == null ? "" : usert + " is " + user + " AND ") +
                 namet + " = ? ORDER BY " + idt + " DESC",
                 new String[]{ name });
 
