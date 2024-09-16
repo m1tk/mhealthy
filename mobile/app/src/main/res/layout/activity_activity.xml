@@ -13,7 +13,7 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat"
         app:layout_constraintTop_toTopOf="parent">
         <TextView
-            android:id="@+id/tvMedTitle"
+            android:id="@+id/tvActTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="24sp"
@@ -45,27 +45,27 @@
                     android:orientation="vertical"
                     android:padding="16dp">
                     <TextView
-                        android:id="@+id/medicine_name"
+                        android:id="@+id/activity_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Fentanyl"
+                        android:text="Running"
                         android:textSize="22sp"
                         android:textStyle="bold"
                         android:textAlignment="center"
                         android:layout_marginBottom="10dp" />
 
                     <TextView
-                        android:id="@+id/medicine_dose"
+                        android:id="@+id/activity_goal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Dose: 15ml"
+                        android:text="Goal: No goal"
                         android:textSize="20sp"
                         android:layout_marginBottom="10dp" />
 
                     <TextView
-                        android:id="@+id/medicine_time"
+                        android:id="@+id/activity_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="20:00"
@@ -91,15 +91,15 @@
                 android:backgroundTint="@color/done_color">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnMedTaken"
+                    android:id="@+id/btnActFinished"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/med_taken"
+                    android:text="@string/act_finished"
                     android:textSize="18sp"
                     android:padding="16dp"
                     android:textColor="@android:color/white"
                     app:iconTint="@android:color/white"
-                    app:icon="@drawable/ic_medication"
+                    app:icon="@drawable/ic_activities"
                     app:iconGravity="textStart"
                     app:iconPadding="8dp"
                     style="@style/Widget.MaterialComponents.Button.TextButton"/>

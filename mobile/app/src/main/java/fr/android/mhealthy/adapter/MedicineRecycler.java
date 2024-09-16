@@ -52,8 +52,13 @@ public class MedicineRecycler extends RecyclerView.Adapter<MedicineHolder> {
             });
             mListener.onItemClick(p);
         });
-        if (!p.active) {
-            ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
+        ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
+        if (p.active) {
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            holder.itemView.setLayoutParams(params);
+            holder.itemView.setVisibility(View.VISIBLE);
+        } else {
             params.height = 0;
             params.width = 0;
             holder.itemView.setLayoutParams(params);
@@ -66,18 +71,12 @@ public class MedicineRecycler extends RecyclerView.Adapter<MedicineHolder> {
         return meds.size();
     }
 
-    public void insert(RecyclerView recyclerView, Medicine p) {
+    public void insert(Medicine p) {
         // If element is activated again we just show it
         int pos = find_pos(p.name);
-        RecyclerView.ViewHolder view;
-        if (pos != -1 && (view = recyclerView.findViewHolderForAdapterPosition(pos)) != null) {
+        if (pos != -1) {
             meds.set(pos, p);
             notifyItemChanged(pos);
-            ViewGroup.LayoutParams params = view.itemView.getLayoutParams();
-            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            view.itemView.setLayoutParams(params);
-            view.itemView.setVisibility(View.VISIBLE);
             return;
         }
         int position = 0;

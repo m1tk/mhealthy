@@ -74,15 +74,13 @@ public class ActivityManagerActivity extends AppCompatActivity {
                 new PatientDAO(getApplicationContext(), session),
                 patient,
                 v -> {
-                    // TODO: PUT THIS IN ADEQUATE LOCATION
+                    Intent intent1 = new Intent(this, ActivityActivity.class);
+                    intent1.putExtra("session", session);
+                    intent1.putExtra("activity", v);
                     if (session.account_type.equals("caregiver")) {
-                        Patient p = (Patient) intent.getSerializableExtra("patient");
-                        Intent intent1 = new Intent(this, ActivityActionActivity.class);
-                        intent1.putExtra("session", session);
-                        intent1.putExtra("patient", p);
-                        intent1.putExtra("activity", v);
-                        startActivity(intent1);
+                        intent1.putExtra("patient", intent.getSerializableExtra("patient"));
                     }
+                    startActivity(intent1);
                 });
         act_view.setLayoutManager(new LinearLayoutManager(this));
         act_view.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.spacing)));
@@ -126,7 +124,7 @@ public class ActivityManagerActivity extends AppCompatActivity {
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void new_activity_event(Activity.AddActivityNotification p) {
         if (Objects.equals(patient, p.patient)) {
-            adapter.insert(act_view, p.act);
+            adapter.insert(p.act);
             act_view.smoothScrollToPosition(0);
         }
     }
@@ -140,7 +138,7 @@ public class ActivityManagerActivity extends AppCompatActivity {
     }
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-    public void edit_activity_event(Activity.RemoveActivityNotification p) {
+    public void remove_activity_event(Activity.RemoveActivityNotification p) {
         if (Objects.equals(patient, p.patient)) {
             adapter.remove(act_view, p);
             act_view.smoothScrollToPosition(0);

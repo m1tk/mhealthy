@@ -75,4 +75,12 @@
     <string name="ID" translatable="false">ID: %1$s</string>
     <string name="dose">Dose: %1$s</string>
     <string name="history">History</string>
+    <string name="act_finished">I did complete the activity</string>
+    <string name="goal">Goal: %1$s</string>
+    <string name="act_finished_notice">Your activity details have been recorded!</string>
+    <string name="continue_dial">Continue</string>
+    <string name="cancel_dial">Cancel</string>
+    <string name="act_result_title">Activity result</string>
+    <string name="act_result">Please input the result of the activity</string>
+    <string name="act_finished_hist">Activity finished with result %1$s on %2$s</string>
 </resources>

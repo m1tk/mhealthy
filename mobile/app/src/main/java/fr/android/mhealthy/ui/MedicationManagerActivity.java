@@ -123,7 +123,7 @@ public class MedicationManagerActivity extends AppCompatActivity {
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void new_medicine_event(Medicine.AddMedicineNotification p) {
         if (Objects.equals(patient, p.patient)) {
-            adapter.insert(medicine_view, p.med);
+            adapter.insert(p.med);
             medicine_view.smoothScrollToPosition(0);
         }
     }

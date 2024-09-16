@@ -1,5 +1,6 @@
 package fr.android.mhealthy.ui;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.sqlite.SQLiteConstraintException;
@@ -91,6 +92,10 @@ public class MedicationActionActivity extends AppCompatActivity {
                         session.id,
                         0
                 );
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("dose", edit.dose);
+                returnIntent.putExtra("time", edit.dose_time);
+                setResult(Activity.RESULT_OK, returnIntent);
             }
             medicine_operation(ins, med_name.getText().toString());
         });
