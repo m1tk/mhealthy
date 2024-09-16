@@ -1,8 +1,10 @@
 package fr.android.mhealthy.service;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -132,6 +134,10 @@ public class EventHandlerBackground extends Service {
         connectivityManager = getSystemService(ConnectivityManager.class);
         connectivityManager.registerNetworkCallback(networkRequest, networkCallback);
 
+        if (s.account_type.equals("patient")) {
+            start_alarm_notifications();
+        }
+
         // If the service is killed, restart it with the last intent
         return START_STICKY;
     }
@@ -159,6 +165,16 @@ public class EventHandlerBackground extends Service {
         new Thread(() -> {
             new TransactionHandler(getApplicationContext(), s);
         }).start();
+    }
+
+    void start_alarm_notifications() {
+        // TODO: we should schedule correctly here
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        long triggerTime = System.currentTimeMillis() + 5000;
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
     }
 
     private void stop_tasks() {

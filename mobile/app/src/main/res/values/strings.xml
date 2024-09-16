@@ -83,4 +83,6 @@
     <string name="act_result_title">Activity result</string>
     <string name="act_result">Please input the result of the activity</string>
     <string name="act_finished_hist">Activity finished with result %1$s on %2$s</string>
+    <string name="dismiss_alarm">Stop alarm</string>
+    <string name="dnd">Please allow Do Not Disturb access for the alarm to work properly</string>
 </resources>

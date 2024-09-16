@@ -58,8 +58,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         }
         Session s = manager.get_logged_session();
         if (s != null) {
-            spawn_event_handler_service(s);
-            navigateToMain(s);
+            start(s);
         }
 
         etIdToken = findViewById(R.id.etIdToken);
@@ -110,6 +109,16 @@ public class AuthenticationActivity extends AppCompatActivity {
         }
     }
 
+    public void start(Session session) {
+        if (session.account_type.equals("patient")
+            && !SettingsUtils.requestPermissions(this)) {
+            finish();
+            return;
+        }
+        spawn_event_handler_service(session);
+        navigateToMain(session);
+    }
+
     public void spawn_event_handler_service(Session session) {
         if (!EventHandlerBackground.isServiceRunning()) {
             Intent intent = new Intent(this, EventHandlerBackground.class);
@@ -152,8 +161,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                     }
                     runOnUiThread(() -> {
                         dialog.dismiss();
-                        spawn_event_handler_service(s);
-                        navigateToMain(s);
+                        start(s);
                     });
                 }
             } catch (Exception e) {
