@@ -37,6 +37,11 @@ public class MedicineActivity extends AppCompatActivity {
     HistoryRecycler adapter;
     PatientDAO pdb;
     Integer p;
+
+    TextView name;
+    TextView dose;
+    TextView time;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +58,14 @@ public class MedicineActivity extends AppCompatActivity {
 
         TextView med_name = findViewById(R.id.tvMedTitle);
         med_name.setText(medicine.name);
+
+        name = findViewById(R.id.medicine_name);
+        dose = findViewById(R.id.medicine_dose);
+        time = findViewById(R.id.medicine_time);
+
+        name.setText(medicine.name);
+        dose.setText(getString(R.string.dose, medicine.dose));
+        time.setText(medicine.time);
 
         MaterialButton btnMedTaken = findViewById(R.id.btnMedTaken);
         FloatingActionButton edit   = findViewById(R.id.edit_act_fab);

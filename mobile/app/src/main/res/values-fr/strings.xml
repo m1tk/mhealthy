@@ -71,4 +71,6 @@
     <string name="med_taken_hist">Le médicament a été pris le %1$s</string>
     <string name="assigned">Assigné</string>
     <string name="not_assigned">Plus assigné</string>
+    <string name="dose">Dose: %1$s</string>
+    <string name="history">Histoire</string>
 </resources>

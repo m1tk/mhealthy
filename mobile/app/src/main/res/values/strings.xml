@@ -73,4 +73,6 @@
     <string name="assigned">Assigned</string>
     <string name="not_assigned">No longer assigned</string>
     <string name="ID" translatable="false">ID: %1$s</string>
+    <string name="dose">Dose: %1$s</string>
+    <string name="history">History</string>
 </resources>
