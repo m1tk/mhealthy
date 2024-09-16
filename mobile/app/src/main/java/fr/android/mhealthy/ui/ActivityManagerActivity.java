@@ -18,6 +18,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.Objects;
+
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.adapter.ActivityRecycler;
 import fr.android.mhealthy.model.Activity;
@@ -123,7 +125,7 @@ public class ActivityManagerActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void new_activity_event(Activity.AddActivityNotification p) {
-        if (patient.equals(p.patient)) {
+        if (Objects.equals(patient, p.patient)) {
             adapter.insert(act_view, p.act);
             act_view.smoothScrollToPosition(0);
         }
@@ -131,7 +133,7 @@ public class ActivityManagerActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void edit_activity_event(Activity.EditActivityNotification p) {
-        if (patient.equals(p.patient)) {
+        if (Objects.equals(patient, p.patient)) {
             adapter.edit(p);
             act_view.smoothScrollToPosition(0);
         }
@@ -139,7 +141,7 @@ public class ActivityManagerActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void edit_activity_event(Activity.RemoveActivityNotification p) {
-        if (patient.equals(p.patient)) {
+        if (Objects.equals(patient, p.patient)) {
             adapter.remove(act_view, p);
             act_view.smoothScrollToPosition(0);
         }

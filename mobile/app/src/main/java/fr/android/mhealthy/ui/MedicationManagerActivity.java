@@ -18,6 +18,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.Objects;
+
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.adapter.MedicineRecycler;
 import fr.android.mhealthy.model.Medicine;
@@ -120,7 +122,7 @@ public class MedicationManagerActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void new_medicine_event(Medicine.AddMedicineNotification p) {
-        if (patient.equals(p.patient)) {
+        if (Objects.equals(patient, p.patient)) {
             adapter.insert(medicine_view, p.med);
             medicine_view.smoothScrollToPosition(0);
         }
@@ -128,7 +130,7 @@ public class MedicationManagerActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void edit_medicine_event(Medicine.EditMedicineNotification p) {
-        if (patient.equals(p.patient)) {
+        if (Objects.equals(patient, p.patient)) {
             adapter.edit(p);
             medicine_view.smoothScrollToPosition(0);
         }
@@ -136,7 +138,7 @@ public class MedicationManagerActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void remove_medicine_event(Medicine.RemoveMedicineNotification p) {
-        if (patient.equals(p.patient)) {
+        if (Objects.equals(patient, p.patient)) {
             adapter.remove(medicine_view, p);
             medicine_view.smoothScrollToPosition(0);
         }

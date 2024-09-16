@@ -19,24 +19,31 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.adapter.HistoryRecycler;
 import fr.android.mhealthy.adapter.MedicineRecycler;
+import fr.android.mhealthy.model.History;
 import fr.android.mhealthy.model.Medicine;
 import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.PatientInfo;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.storage.PatientDAO;
+import fr.android.mhealthy.utils.SpaceItemDecoration;
 
 public class MedicineActivity extends AppCompatActivity {
     RecyclerView history_view;
     HistoryRecycler adapter;
     PatientDAO pdb;
     Integer p;
+
+    Medicine medicine;
 
     TextView name;
     TextView dose;
@@ -54,7 +61,7 @@ public class MedicineActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Session session = (Session) intent.getSerializableExtra("session");
-        Medicine medicine = (Medicine) intent.getSerializableExtra("medicine");
+        medicine = (Medicine) intent.getSerializableExtra("medicine");
 
         TextView med_name = findViewById(R.id.tvMedTitle);
         med_name.setText(medicine.name);
@@ -99,6 +106,7 @@ public class MedicineActivity extends AppCompatActivity {
                 p
         );
         history_view.setLayoutManager(new LinearLayoutManager(this));
+        history_view.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.spacing)));
         history_view.setAdapter(adapter);
     }
 
@@ -114,13 +122,43 @@ public class MedicineActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //EventBus.getDefault().register(this);
+        EventBus.getDefault().register(this);
         new Thread(() -> {
             adapter.load_data(p);
             runOnUiThread(() -> {
                 adapter.notifyDataSetChanged();
             });
         }).start();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+    public void edit_medicine_event(Medicine.EditMedicineNotification n) {
+        if (Objects.equals(n.patient, p) && n.name.equals(medicine.name)) {
+            dose.setText(getString(R.string.dose, n.dose));
+            time.setText(n.time);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
+    public void new_history(History n) {
+        if (Objects.equals(n.patient, p) && n.type == History.HistoryType.Medicine
+                && n.name.equals(medicine.name)) {
+            adapter.insert(n.info);
+        }
     }
 
     private void medicine_taken(String name) {
