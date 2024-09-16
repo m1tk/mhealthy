@@ -24,6 +24,7 @@ import fr.android.mhealthy.model.Medicine;
 import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.storage.PatientDAO;
+import fr.android.mhealthy.utils.SpaceItemDecoration;
 
 public class MedicationManagerActivity extends AppCompatActivity {
     RecyclerView medicine_view;
@@ -79,6 +80,7 @@ public class MedicationManagerActivity extends AppCompatActivity {
                     startActivity(intent1);
                 });
         medicine_view.setLayoutManager(new LinearLayoutManager(this));
+        medicine_view.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.spacing)));
         medicine_view.setAdapter(adapter);
     }
 
