@@ -1,10 +1,8 @@
 package fr.android.mhealthy.service;
 
-import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -45,6 +43,7 @@ public class EventHandlerBackground extends Service {
     private final Semaphore mutex = new Semaphore(1, true);
     private ConnectivityManager connectivityManager;
     private ConnectivityManager.NetworkCallback networkCallback;
+    private Session s;
 
     static ConcurrentHashMap<Thread, Optional<SSE>> tasks = new ConcurrentHashMap<>();
 
@@ -92,7 +91,7 @@ public class EventHandlerBackground extends Service {
         } catch (IOException e) {
             return START_NOT_STICKY;
         }
-        Session s = m.get_logged_session();
+        s = m.get_logged_session();
         if (s == null) {
             return START_NOT_STICKY;
         }
@@ -135,7 +134,7 @@ public class EventHandlerBackground extends Service {
         connectivityManager.registerNetworkCallback(networkRequest, networkCallback);
 
         if (s.account_type.equals("patient")) {
-            start_alarm_notifications();
+            PatientAlarmScheduler.schedule(getApplicationContext(), s);
         }
 
         // If the service is killed, restart it with the last intent
@@ -167,16 +166,6 @@ public class EventHandlerBackground extends Service {
         }).start();
     }
 
-    void start_alarm_notifications() {
-        // TODO: we should schedule correctly here
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        long triggerTime = System.currentTimeMillis() + 5000;
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
-    }
-
     private void stop_tasks() {
         tasks.forEach((t, sse) -> {
             t.interrupt();
@@ -192,6 +181,21 @@ public class EventHandlerBackground extends Service {
             } catch (Exception e) {}
         }
         tasks.clear();
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void alarm_update(PatientAlarmScheduler.Updated updated) {
+        if (s != null) {
+            PatientAlarmScheduler.schedule(getApplicationContext(), s);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void alarm_update(PatientAlarmScheduler.Reschedule re) {
+        if (s != null) {
+            PatientAlarmScheduler.reschedule(getApplicationContext(), re.key);
+        }
     }
 
     @SuppressWarnings("unused")

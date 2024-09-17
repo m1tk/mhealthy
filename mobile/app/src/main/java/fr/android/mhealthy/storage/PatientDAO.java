@@ -22,6 +22,7 @@ import fr.android.mhealthy.model.Medicine;
 import fr.android.mhealthy.model.PatientInfo;
 import fr.android.mhealthy.model.PendingTransactionNotification;
 import fr.android.mhealthy.model.Session;
+import fr.android.mhealthy.service.PatientAlarmScheduler;
 
 public class PatientDAO {
     public DatabaseHelper sdb;
@@ -108,6 +109,7 @@ public class PatientDAO {
             db.close();
             throw e;
         }
+        EventBus.getDefault().post(new PatientAlarmScheduler.Updated());
     }
 
     static void add_medicine_inner(SQLiteDatabase db, Instruction ins,
