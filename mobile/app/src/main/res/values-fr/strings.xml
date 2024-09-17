@@ -83,4 +83,6 @@
     <string name="act_finished_hist">L\'activité s\'est terminée avec le résultat %1$s dans %2$s</string>
     <string name="dismiss_alarm">Arreter l\'alarme</string>
     <string name="dnd">Veuillez autoriser l\'accès au mode Ne pas déranger pour que l\'alarme fonctionne correctement</string>
+    <string name="show_del">Afficher non assigné</string>
+    <string name="hide_del">Cacher non assigné</string>
 </resources>

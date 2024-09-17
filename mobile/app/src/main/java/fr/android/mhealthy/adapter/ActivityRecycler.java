@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class ActivityRecycler extends RecyclerView.Adapter<ActivityHolder> {
     private List<Activity> acts;
     private OnItemClickListener mListener;
     PatientDAO access;
+    public boolean show_hidden;
 
     public interface OnItemClickListener {
         void onItemClick(Activity m);
@@ -29,6 +31,7 @@ public class ActivityRecycler extends RecyclerView.Adapter<ActivityHolder> {
         this.acts = List.of();
         this.mListener = listener;
         this.access = access;
+        show_hidden = false;
     }
 
     public void load_data(Integer patient) {
@@ -54,7 +57,16 @@ public class ActivityRecycler extends RecyclerView.Adapter<ActivityHolder> {
         }
         holder.name.setText(name);
         holder.goal.setText(p.goal.isEmpty() ? holder.name.getContext().getString(R.string.no_goal) : p.goal);
-        holder.time.setText(p.time);
+        Context ctx = holder.itemView.getContext();
+        if (show_hidden && !p.active) {
+            holder.time.setText(ctx.getString(R.string.not_assigned));
+            holder.time.setBackground(ContextCompat.getDrawable(ctx, R.drawable.status_background_deleted));
+            holder.time.setTextColor(ContextCompat.getColor(ctx, R.color.delete_color));
+        } else {
+            holder.time.setText(p.time);
+            holder.time.setBackground(ContextCompat.getDrawable(ctx, R.drawable.status_background));
+            holder.time.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.status_active));
+        }
         holder.itemView.setOnClickListener(v -> {
             v.animate().scaleX(0.95f).scaleY(0.95f).setDuration(100).withEndAction(() -> {
                 v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
@@ -62,7 +74,7 @@ public class ActivityRecycler extends RecyclerView.Adapter<ActivityHolder> {
             mListener.onItemClick(p);
         });
         ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
-        if (p.active) {
+        if (p.active || show_hidden) {
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             params.width = ViewGroup.LayoutParams.MATCH_PARENT;
             holder.itemView.setLayoutParams(params);

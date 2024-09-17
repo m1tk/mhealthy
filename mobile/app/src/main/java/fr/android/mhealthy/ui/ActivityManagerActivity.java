@@ -2,6 +2,7 @@ package fr.android.mhealthy.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,6 +44,7 @@ public class ActivityManagerActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toolbar.setOverflowIcon(ContextCompat.getDrawable(this, R.drawable.baseline_sort_24));
 
         patient = null;
 
@@ -74,6 +77,9 @@ public class ActivityManagerActivity extends AppCompatActivity {
                 new PatientDAO(getApplicationContext(), session),
                 patient,
                 v -> {
+                    if (!v.active) {
+                        return;
+                    }
                     Intent intent1 = new Intent(this, ActivityActivity.class);
                     intent1.putExtra("session", session);
                     intent1.putExtra("activity", v);
@@ -88,10 +94,26 @@ public class ActivityManagerActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.sort_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
+        } else if (item.getItemId() == R.id.show_deleted) {
+            if (!adapter.show_hidden) {
+                adapter.show_hidden = true;
+                adapter.notifyDataSetChanged();
+            }
+        } else if (item.getItemId() == R.id.hide_deleted) {
+            if (adapter.show_hidden) {
+                adapter.show_hidden = false;
+                adapter.notifyDataSetChanged();
+            }
         }
         return super.onOptionsItemSelected(item);
     }
