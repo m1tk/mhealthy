@@ -87,4 +87,5 @@
     <string name="dnd">Please allow Do Not Disturb access for the alarm to work properly</string>
     <string name="show_del">Show unassigned</string>
     <string name="hide_del">Hide unassigned</string>
+    <string name="overlay">Please allow overlay permission</string>
 </resources>

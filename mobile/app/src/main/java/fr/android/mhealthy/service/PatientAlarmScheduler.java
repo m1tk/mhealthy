@@ -171,7 +171,12 @@ public class PatientAlarmScheduler {
         intent.putExtra("medicine", key.type == EventType.Medicine);
         intent.putExtra("name", key.name);
         intent.putExtra("desc", val.description);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, val.requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                ctx,
+                val.requestCode,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
