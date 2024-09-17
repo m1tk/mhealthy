@@ -39,6 +39,11 @@ public class SettingsUtils {
                 Arrays.asList(act.getResources().getStringArray(R.array.language_values)).contains(default_lang_sys)
                         ? default_lang_sys : "en"
         );
+        if (!p.contains("language_preference")) {
+            SharedPreferences.Editor editor = p.edit();
+            editor.putString("language_preference", lang);
+            editor.apply();
+        }
         if (!act.getResources().getConfiguration()
                 .getLocales().get(0).getLanguage().equals(lang)) {
             change_lang(act, lang);
