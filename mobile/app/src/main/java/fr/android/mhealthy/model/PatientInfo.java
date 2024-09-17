@@ -101,7 +101,8 @@ public class PatientInfo {
             case MedicineTaken:
                 return ctx.getString(R.string.med_taken_hist, ((MedicineTaken)info).zoned_time);
             case ActivityFinished:
-                return "";
+                ActivityFinished act = (ActivityFinished) info;
+                return ctx.getString(R.string.act_finished_hist, act.value, act.zoned_time);
             default:
                 // This should not happen
                 throw new InstantiationError("Unknown instruction type");

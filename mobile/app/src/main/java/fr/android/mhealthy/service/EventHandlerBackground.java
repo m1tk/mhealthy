@@ -43,6 +43,7 @@ public class EventHandlerBackground extends Service {
     private final Semaphore mutex = new Semaphore(1, true);
     private ConnectivityManager connectivityManager;
     private ConnectivityManager.NetworkCallback networkCallback;
+    private Session s;
 
     static ConcurrentHashMap<Thread, Optional<SSE>> tasks = new ConcurrentHashMap<>();
 
@@ -90,7 +91,7 @@ public class EventHandlerBackground extends Service {
         } catch (IOException e) {
             return START_NOT_STICKY;
         }
-        Session s = m.get_logged_session();
+        s = m.get_logged_session();
         if (s == null) {
             return START_NOT_STICKY;
         }
@@ -131,6 +132,10 @@ public class EventHandlerBackground extends Service {
 
         connectivityManager = getSystemService(ConnectivityManager.class);
         connectivityManager.registerNetworkCallback(networkRequest, networkCallback);
+
+        if (s.account_type.equals("patient")) {
+            PatientAlarmScheduler.schedule(getApplicationContext(), s);
+        }
 
         // If the service is killed, restart it with the last intent
         return START_STICKY;
@@ -176,6 +181,21 @@ public class EventHandlerBackground extends Service {
             } catch (Exception e) {}
         }
         tasks.clear();
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void alarm_update(PatientAlarmScheduler.Updated updated) {
+        if (s != null) {
+            PatientAlarmScheduler.schedule(getApplicationContext(), s);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void alarm_update(PatientAlarmScheduler.Reschedule re) {
+        if (s != null) {
+            PatientAlarmScheduler.reschedule(getApplicationContext(), re.key);
+        }
     }
 
     @SuppressWarnings("unused")

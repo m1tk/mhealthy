@@ -13,8 +13,8 @@ import java.time.ZoneId;
 import java.util.List;
 
 import fr.android.mhealthy.R;
+import fr.android.mhealthy.model.History;
 import fr.android.mhealthy.model.Instruction;
-import fr.android.mhealthy.model.Medicine;
 import fr.android.mhealthy.model.PatientInfo;
 import fr.android.mhealthy.storage.PatientDAO;
 
@@ -23,10 +23,6 @@ public class HistoryRecycler extends RecyclerView.Adapter<HistoryHolder> {
     PatientDAO access;
     private String name;
     private boolean is_med;
-
-    public interface OnItemClickListener {
-        void onItemClick(Medicine m);
-    }
 
     public HistoryRecycler(PatientDAO access, String name, boolean is_med, Integer patient) {
         this.hist = List.of();
@@ -71,6 +67,8 @@ public class HistoryRecycler extends RecyclerView.Adapter<HistoryHolder> {
         return hist.size();
     }
 
-    public void insert(RecyclerView recyclerView, Object p) {
+    public void insert(Object p) {
+        hist.add(0, p);
+        notifyItemInserted(0);
     }
 }

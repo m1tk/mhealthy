@@ -16,10 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.android.mhealthy.model.Activity;
+import fr.android.mhealthy.model.History;
 import fr.android.mhealthy.model.Instruction;
 import fr.android.mhealthy.model.Medicine;
 import fr.android.mhealthy.model.PatientInfo;
+import fr.android.mhealthy.model.PendingTransactionNotification;
 import fr.android.mhealthy.model.Session;
+import fr.android.mhealthy.service.PatientAlarmScheduler;
 
 public class PatientDAO {
     public DatabaseHelper sdb;
@@ -71,27 +74,27 @@ public class PatientDAO {
             switch (op.type) {
                 case AddMedicine:
                     Instruction.AddMedicine add = (Instruction.AddMedicine)op.instruction;
-                    add_medicine_inner(db, add, op.caregiver, null, json);
+                    add_medicine_inner(db, op, add, op.caregiver, null, json);
                     break;
                 case EditMedicine:
                     Instruction.EditMedicine edit = (Instruction.EditMedicine)op.instruction;
-                    edit_medicine_inner(db, edit, op.caregiver, null, json);
+                    edit_medicine_inner(db, op, edit, op.caregiver, null, json);
                     break;
                 case RemoveMedicine:
                     Instruction.RemoveMedicine rm = (Instruction.RemoveMedicine)op.instruction;
-                    remove_medicine_inner(db, rm, op.caregiver, null, json);
+                    remove_medicine_inner(db, op, rm, op.caregiver, null, json);
                     break;
                 case AddActivity:
                     Instruction.AddActivity adda = (Instruction.AddActivity)op.instruction;
-                    add_activity_inner(db, adda, op.caregiver, null, json);
+                    add_activity_inner(db, op, adda, op.caregiver, null, json);
                     break;
                 case EditActivity:
                     Instruction.EditActivity edita = (Instruction.EditActivity)op.instruction;
-                    edit_activity_inner(db, edita, op.caregiver, null, json);
+                    edit_activity_inner(db, op, edita, op.caregiver, null, json);
                     break;
                 case RemoveActivity:
                     Instruction.RemoveActivity rma = (Instruction.RemoveActivity)op.instruction;
-                    remove_activity_inner(db, rma, op.caregiver, null, json);
+                    remove_activity_inner(db, op, rma, op.caregiver, null, json);
                     break;
                 default:
                     // This should be unreachable
@@ -106,10 +109,12 @@ public class PatientDAO {
             db.close();
             throw e;
         }
+        EventBus.getDefault().post(new PatientAlarmScheduler.Updated());
     }
 
-    static void add_medicine_inner(SQLiteDatabase db, Instruction.AddMedicine add,
-                            Integer src, Integer dst, String json) {
+    static void add_medicine_inner(SQLiteDatabase db, Instruction ins,
+                                   Instruction.AddMedicine add,
+                                   Integer src, Integer dst, String json) {
         ContentValues vals = new ContentValues();
         vals.put(DatabaseHelper.MEDICATION_DOSE, add.dose);
         vals.put(DatabaseHelper.MEDICATION_TIME, add.dose_time);
@@ -138,7 +143,7 @@ public class PatientDAO {
 
             db.insertOrThrow(DatabaseHelper.TABLE_MEDICATION, null, values);
         }
-        add_medicine_history(db, json, add.name, add.time, src);
+        add_medicine_history(db, ins, json, add.name, add.time, src);
 
         // Notifying of new message
         Medicine med = new Medicine();
@@ -151,8 +156,9 @@ public class PatientDAO {
         EventBus.getDefault().post(new Medicine.AddMedicineNotification(dst, med));
     }
 
-    static void edit_medicine_inner(SQLiteDatabase db, Instruction.EditMedicine edit,
-                             Integer src, Integer dst, String json) {
+    static void edit_medicine_inner(SQLiteDatabase db, Instruction ins,
+                                    Instruction.EditMedicine edit,
+                                    Integer src, Integer dst, String json) {
         SQLiteStatement stmt = db.compileStatement("update "+ DatabaseHelper.TABLE_MEDICATION +
                 " set " + DatabaseHelper.MEDICATION_DOSE + " = ?, " +
                 DatabaseHelper.MEDICATION_TIME + " = ?, " +
@@ -169,14 +175,15 @@ public class PatientDAO {
             stmt.bindNull(5);
         }
         stmt.execute();
-        add_medicine_history(db, json, edit.name, edit.time, src);
+        add_medicine_history(db, ins, json, edit.name, edit.time, src);
 
         EventBus.getDefault().post(new Medicine.EditMedicineNotification(dst, edit.name, edit.dose,
                 edit.dose_time, edit.time));
     }
 
-    static void remove_medicine_inner(SQLiteDatabase db, Instruction.RemoveMedicine rm,
-                               Integer src, Integer dst, String json) {
+    static void remove_medicine_inner(SQLiteDatabase db, Instruction ins,
+                                      Instruction.RemoveMedicine rm,
+                                      Integer src, Integer dst, String json) {
         SQLiteStatement stmt = db.compileStatement("update "+ DatabaseHelper.TABLE_MEDICATION +
                 " set " + DatabaseHelper.MEDICATION_ACTIVE + " = ? where " +
                 DatabaseHelper.MEDICATION_NAME + " = ? and " +
@@ -189,12 +196,12 @@ public class PatientDAO {
             stmt.bindNull(3);
         }
         stmt.execute();
-        add_medicine_history(db, json, rm.name, rm.time, src);
+        add_medicine_history(db, ins, json, rm.name, rm.time, src);
 
         EventBus.getDefault().post(new Medicine.RemoveMedicineNotification(dst, rm.name));
     }
 
-    static void add_medicine_history(SQLiteDatabase db, String json,
+    static void add_medicine_history(SQLiteDatabase db, Object ins, String json,
                               String name, long time, Integer patient) {
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.HISTORY_MEDICATION, name);
@@ -204,6 +211,8 @@ public class PatientDAO {
             values.put(DatabaseHelper.HISTORY_USER, patient);
         }
         db.insertOrThrow(DatabaseHelper.TABLE_MEDICATION_HISTORY, null, values);
+
+        EventBus.getDefault().post(new History(History.HistoryType.Medicine, ins, name, patient));
     }
 
     @SuppressLint("Range")
@@ -231,7 +240,8 @@ public class PatientDAO {
         return meds;
     }
 
-    static void add_activity_inner(SQLiteDatabase db, Instruction.AddActivity add,
+    static void add_activity_inner(SQLiteDatabase db, Instruction ins,
+                                   Instruction.AddActivity add,
                                    Integer src, Integer dst, String json) {
         ContentValues vals = new ContentValues();
         vals.put(DatabaseHelper.ACTIVITY_DESC, add.goal);
@@ -261,7 +271,7 @@ public class PatientDAO {
 
             db.insertOrThrow(DatabaseHelper.TABLE_ACTIVITY, null, values);
         }
-        add_activity_history(db, json, add.name, add.time, src);
+        add_activity_history(db, ins, json, add.name, add.time, src);
 
         // Notifying of new message
         Activity act = new Activity();
@@ -274,7 +284,8 @@ public class PatientDAO {
         EventBus.getDefault().post(new Activity.AddActivityNotification(dst, act));
     }
 
-    static void edit_activity_inner(SQLiteDatabase db, Instruction.EditActivity edit,
+    static void edit_activity_inner(SQLiteDatabase db, Instruction ins,
+                                    Instruction.EditActivity edit,
                                     Integer src, Integer dst, String json) {
         SQLiteStatement stmt = db.compileStatement("update "+ DatabaseHelper.TABLE_ACTIVITY +
                 " set " + DatabaseHelper.ACTIVITY_DESC + " = ?, " +
@@ -292,13 +303,14 @@ public class PatientDAO {
             stmt.bindNull(5);
         }
         stmt.execute();
-        add_activity_history(db, json, edit.name, edit.time, src);
+        add_activity_history(db, ins, json, edit.name, edit.time, src);
 
         EventBus.getDefault().post(new Activity.EditActivityNotification(dst, edit.name, edit.goal,
                 edit.activity_time, edit.time));
     }
 
-    static void remove_activity_inner(SQLiteDatabase db, Instruction.RemoveActivity rm,
+    static void remove_activity_inner(SQLiteDatabase db, Instruction ins,
+                                      Instruction.RemoveActivity rm,
                                       Integer src, Integer dst, String json) {
         SQLiteStatement stmt = db.compileStatement("update "+ DatabaseHelper.TABLE_ACTIVITY +
                 " set " + DatabaseHelper.ACTIVITY_ACTIVE + " = ? where " +
@@ -312,12 +324,12 @@ public class PatientDAO {
             stmt.bindNull(3);
         }
         stmt.execute();
-        add_activity_history(db, json, rm.name, rm.time, src);
+        add_activity_history(db, ins, json, rm.name, rm.time, src);
 
         EventBus.getDefault().post(new Activity.RemoveActivityNotification(dst, rm.name));
     }
 
-    static void add_activity_history(SQLiteDatabase db, String json,
+    static void add_activity_history(SQLiteDatabase db, Object ins, String json,
                                      String name, long time, Integer patient) {
         ContentValues values = new ContentValues();
         values.put(DatabaseHelper.ACTIVITY_HISTORY_NAME, name);
@@ -327,6 +339,8 @@ public class PatientDAO {
             values.put(DatabaseHelper.ACTIVITY_HISTORY_USER, patient);
         }
         db.insertOrThrow(DatabaseHelper.TABLE_ACTIVITY_HISTORY, null, values);
+
+        EventBus.getDefault().post(new History(History.HistoryType.Activity, ins, name, patient));
     }
 
     @SuppressLint("Range")
@@ -355,15 +369,16 @@ public class PatientDAO {
     }
 
     public void add_info(PatientInfo op, String json, String name, long time) {
+        long pending;
         SQLiteDatabase db = sdb.getWritableDatabase();
         db.beginTransaction();
         try {
             if (op.type == PatientInfo.PatientInfoType.MedicineTaken) {
-                add_medicine_history(db, json, name, time, null);
+                add_medicine_history(db, op, json, name, time, null);
             } else {
-                add_activity_history(db, json, name, time, null);
+                add_activity_history(db, op, json, name, time, null);
             }
-            PendingTransactionDAO.insert(
+            pending = PendingTransactionDAO.insert(
                     db,
                     "patient_info",
                     op.to_server_json_format(new Gson()).toString()
@@ -375,6 +390,9 @@ public class PatientDAO {
             db.endTransaction();
             db.close();
             throw e;
+        }
+        if (pending != 0) {
+            EventBus.getDefault().post(new PendingTransactionNotification(pending));
         }
     }
 
@@ -403,7 +421,7 @@ public class PatientDAO {
         }
 
         Cursor cursor = db.rawQuery("SELECT " + data + " FROM " + table + " WHERE " +
-                usert + " is " + (user == null ? "null" : String.valueOf(user)) + " AND " +
+                (user == null ? "" : usert + " is " + user + " AND ") +
                 namet + " = ? ORDER BY " + idt + " DESC",
                 new String[]{ name });
 

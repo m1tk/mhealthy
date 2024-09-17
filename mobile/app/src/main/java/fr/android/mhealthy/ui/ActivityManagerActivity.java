@@ -2,6 +2,7 @@ package fr.android.mhealthy.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,12 +20,15 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.Objects;
+
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.adapter.ActivityRecycler;
 import fr.android.mhealthy.model.Activity;
 import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.storage.PatientDAO;
+import fr.android.mhealthy.utils.SpaceItemDecoration;
 
 public class ActivityManagerActivity extends AppCompatActivity {
     RecyclerView act_view;
@@ -39,6 +44,7 @@ public class ActivityManagerActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toolbar.setOverflowIcon(ContextCompat.getDrawable(this, R.drawable.baseline_sort_24));
 
         patient = null;
 
@@ -71,18 +77,26 @@ public class ActivityManagerActivity extends AppCompatActivity {
                 new PatientDAO(getApplicationContext(), session),
                 patient,
                 v -> {
-                    // TODO: PUT THIS IN ADEQUATE LOCATION
-                    if (session.account_type.equals("caregiver")) {
-                        Patient p = (Patient) intent.getSerializableExtra("patient");
-                        Intent intent1 = new Intent(this, ActivityActionActivity.class);
-                        intent1.putExtra("session", session);
-                        intent1.putExtra("patient", p);
-                        intent1.putExtra("activity", v);
-                        startActivity(intent1);
+                    if (!v.active) {
+                        return;
                     }
+                    Intent intent1 = new Intent(this, ActivityActivity.class);
+                    intent1.putExtra("session", session);
+                    intent1.putExtra("activity", v);
+                    if (session.account_type.equals("caregiver")) {
+                        intent1.putExtra("patient", intent.getSerializableExtra("patient"));
+                    }
+                    startActivity(intent1);
                 });
         act_view.setLayoutManager(new LinearLayoutManager(this));
+        act_view.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.spacing)));
         act_view.setAdapter(adapter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.sort_menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -90,6 +104,16 @@ public class ActivityManagerActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
+        } else if (item.getItemId() == R.id.show_deleted) {
+            if (!adapter.show_hidden) {
+                adapter.show_hidden = true;
+                adapter.notifyDataSetChanged();
+            }
+        } else if (item.getItemId() == R.id.hide_deleted) {
+            if (adapter.show_hidden) {
+                adapter.show_hidden = false;
+                adapter.notifyDataSetChanged();
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -121,23 +145,23 @@ public class ActivityManagerActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void new_activity_event(Activity.AddActivityNotification p) {
-        if (patient.equals(p.patient)) {
-            adapter.insert(act_view, p.act);
+        if (Objects.equals(patient, p.patient)) {
+            adapter.insert(p.act);
             act_view.smoothScrollToPosition(0);
         }
     }
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void edit_activity_event(Activity.EditActivityNotification p) {
-        if (patient.equals(p.patient)) {
+        if (Objects.equals(patient, p.patient)) {
             adapter.edit(p);
             act_view.smoothScrollToPosition(0);
         }
     }
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-    public void edit_activity_event(Activity.RemoveActivityNotification p) {
-        if (patient.equals(p.patient)) {
+    public void remove_activity_event(Activity.RemoveActivityNotification p) {
+        if (Objects.equals(patient, p.patient)) {
             adapter.remove(act_view, p);
             act_view.smoothScrollToPosition(0);
         }

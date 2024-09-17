@@ -133,6 +133,10 @@ public class ActivityActionActivity extends AppCompatActivity {
                         session.id,
                         0
                 );
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("goal", edit.goal);
+                returnIntent.putExtra("time", edit.activity_time);
+                setResult(android.app.Activity.RESULT_OK, returnIntent);
             }
             activity_operation(ins, act_name.getText().toString());
         });

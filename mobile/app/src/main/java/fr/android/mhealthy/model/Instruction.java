@@ -206,9 +206,9 @@ public class Instruction {
             case EditActivity:
                 EditActivity e = (EditActivity) instruction;
                 if (e.goal.isEmpty()) {
-                    return ctx.getString(R.string.edit_act_hist_goal, e.goal, e.activity_time);
-                } else {
                     return ctx.getString(R.string.edit_act_hist, e.activity_time);
+                } else {
+                    return ctx.getString(R.string.edit_act_hist_goal, e.goal, e.activity_time);
                 }
             case RemoveActivity:
                 return ctx.getString(R.string.remove_act_hist);

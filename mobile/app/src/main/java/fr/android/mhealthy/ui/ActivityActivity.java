@@ -1,11 +1,12 @@
 package fr.android.mhealthy.ui;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,31 +32,31 @@ import java.util.Objects;
 
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.adapter.HistoryRecycler;
-import fr.android.mhealthy.adapter.MedicineRecycler;
+import fr.android.mhealthy.model.Activity;
 import fr.android.mhealthy.model.History;
-import fr.android.mhealthy.model.Medicine;
 import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.PatientInfo;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.storage.PatientDAO;
 import fr.android.mhealthy.utils.SpaceItemDecoration;
 
-public class MedicineActivity extends AppCompatActivity {
+public class ActivityActivity extends AppCompatActivity {
     RecyclerView history_view;
     HistoryRecycler adapter;
     PatientDAO pdb;
     Integer p;
 
-    Medicine medicine;
+    Activity activity;
+    String name_str;
 
     TextView name;
-    TextView dose;
+    TextView goal;
     TextView time;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_medicine);
+        setContentView(R.layout.activity_activity);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -64,53 +65,61 @@ public class MedicineActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Session session = (Session) intent.getSerializableExtra("session");
-        medicine = (Medicine) intent.getSerializableExtra("medicine");
+        activity = (Activity) intent.getSerializableExtra("activity");
 
-        TextView med_name = findViewById(R.id.tvMedTitle);
-        med_name.setText(medicine.name);
+        try {
+            name_str = ActivityActionActivity.get_options(getApplicationContext())[Integer.parseInt(activity.name)];
+        } catch (NumberFormatException e) {
+            name_str = activity.name;
+        }
 
-        name = findViewById(R.id.medicine_name);
-        dose = findViewById(R.id.medicine_dose);
-        time = findViewById(R.id.medicine_time);
+        TextView act_name = findViewById(R.id.tvActTitle);
+        act_name.setText(name_str);
 
-        name.setText(medicine.name);
-        dose.setText(getString(R.string.dose, medicine.dose));
-        time.setText(medicine.time);
+        name = findViewById(R.id.activity_name);
+        goal = findViewById(R.id.activity_goal);
+        time = findViewById(R.id.activity_time);
+
+        name.setText(name_str);
+        goal.setText(activity.goal.isEmpty() ? getString(R.string.no_goal)
+                                             : getString(R.string.goal, activity.goal));
+        time.setText(activity.time);
 
         ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
+                    if (result.getResultCode() == android.app.Activity.RESULT_OK) {
                         Intent data = result.getData();
                         if (data != null) {
-                            medicine.dose = data.getStringExtra("dose");
-                            medicine.time = data.getStringExtra("time");
-                            dose.setText(getString(R.string.dose, medicine.dose));
-                            time.setText(medicine.time);
+                            activity.goal = data.getStringExtra("goal");
+                            activity.time = data.getStringExtra("time");
+                            goal.setText(activity.goal.isEmpty() ? getString(R.string.no_goal)
+                                    : getString(R.string.goal, activity.goal));
+                            time.setText(activity.time);
                         }
                     }
                 }
         );
 
-        MaterialButton btnMedTaken = findViewById(R.id.btnMedTaken);
+        MaterialButton btnActFinished = findViewById(R.id.btnActFinished);
         FloatingActionButton edit   = findViewById(R.id.edit_act_fab);
         if (session.account_type.equals("caregiver")) {
             edit.setVisibility(View.VISIBLE);
-            btnMedTaken.setVisibility(View.GONE);
+            btnActFinished.setVisibility(View.GONE);
             edit.setOnClickListener(v -> {
                 Patient p = (Patient) intent.getSerializableExtra("patient");
-                Intent intent1 = new Intent(this, MedicationActionActivity.class);
+                Intent intent1 = new Intent(this, ActivityActionActivity.class);
                 intent1.putExtra("session", session);
                 intent1.putExtra("patient", p);
-                intent1.putExtra("medicine", medicine);
+                intent1.putExtra("activity", activity);
                 activityResultLauncher.launch(intent1);
             });
         } else {
             pdb = new PatientDAO(getApplicationContext(), session);
             edit.setVisibility(View.GONE);
-            btnMedTaken.setVisibility(View.VISIBLE);
-            btnMedTaken.setOnClickListener(v -> {
-                medicine_taken(medicine.name);
+            btnActFinished.setVisibility(View.VISIBLE);
+            btnActFinished.setOnClickListener(v -> {
+                activity_finished(activity.name);
             });
         }
 
@@ -119,8 +128,8 @@ public class MedicineActivity extends AppCompatActivity {
         history_view = findViewById(R.id.history_view);
         adapter = new HistoryRecycler(
                 new PatientDAO(getApplicationContext(), session),
-                medicine.name,
-                true,
+                activity.name,
+                false,
                 p
         );
         history_view.setLayoutManager(new LinearLayoutManager(this));
@@ -163,9 +172,10 @@ public class MedicineActivity extends AppCompatActivity {
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
-    public void edit_medicine_event(Medicine.EditMedicineNotification n) {
-        if (Objects.equals(n.patient, p) && n.name.equals(medicine.name)) {
-            dose.setText(getString(R.string.dose, n.dose));
+    public void edit_activity_event(Activity.EditActivityNotification n) {
+        if (Objects.equals(n.patient, p) && n.name.equals(activity.name)) {
+            goal.setText(n.name.isEmpty() ? getString(R.string.no_goal)
+                    : getString(R.string.goal, n.goal));
             time.setText(n.time);
         }
     }
@@ -173,13 +183,35 @@ public class MedicineActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void new_history(History n) {
-        if (Objects.equals(n.patient, p) && n.type == History.HistoryType.Medicine
-                && n.name.equals(medicine.name)) {
+        if (Objects.equals(n.patient, p) && n.type == History.HistoryType.Activity
+                && n.name.equals(activity.name)) {
             adapter.insert(n.info);
         }
     }
 
-    private void medicine_taken(String name) {
+    private void activity_finished(String name) {
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.act_result_title))
+                .setMessage(getString(R.string.act_result))
+                .setView(input)
+                .setPositiveButton(getString(R.string.continue_dial), (dialogInterface, i) -> {
+                    if (input.getText().toString().isEmpty()) {
+                        return;
+                    }
+                    dialogInterface.dismiss();
+                    activity_finished_inner(name, input.getText().toString());
+                })
+                .setNegativeButton(getString(R.string.cancel_dial), (dialogInterface, i) -> {
+                    dialogInterface.dismiss();
+                })
+                .create();
+        dialog.show();
+    }
+
+    private void activity_finished_inner(String name, String value) {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setMessage(getString(R.string.pending))
                 .setCancelable(false)
@@ -187,12 +219,13 @@ public class MedicineActivity extends AppCompatActivity {
         dialog.show();
         new Thread(() -> {
             try {
-                PatientInfo.MedicineTaken med = new PatientInfo.MedicineTaken();
-                med.time = System.currentTimeMillis() / 1000;
-                med.zoned_time = ZonedDateTime.now().format(DateTimeFormatter.ISO_ZONED_DATE_TIME);
+                PatientInfo.ActivityFinished act = new PatientInfo.ActivityFinished();
+                act.time = System.currentTimeMillis() / 1000;
+                act.zoned_time = ZonedDateTime.now().format(DateTimeFormatter.ISO_ZONED_DATE_TIME);
+                act.value = value;
                 PatientInfo info = new PatientInfo(
-                        PatientInfo.PatientInfoType.MedicineTaken,
-                        med,
+                        PatientInfo.PatientInfoType.ActivityFinished,
+                        act,
                         name,
                         0
                 );
@@ -200,7 +233,7 @@ public class MedicineActivity extends AppCompatActivity {
                         info,
                         info.to_store_json_format(new Gson()).toString(),
                         name,
-                        med.time
+                        act.time
                 );
             } catch (Exception e) {
                 runOnUiThread(() -> {
@@ -215,7 +248,7 @@ public class MedicineActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 dialog.dismiss();
                 Toast.makeText(
-                        this, getString(R.string.med_taken_notice), Toast.LENGTH_LONG
+                        this, getString(R.string.act_finished_notice), Toast.LENGTH_LONG
                 ).show();
             });
         }).start();

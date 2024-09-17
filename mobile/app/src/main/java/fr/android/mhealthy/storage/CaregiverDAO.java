@@ -107,27 +107,27 @@ public class CaregiverDAO {
             switch (op.type) {
                 case AddMedicine:
                     Instruction.AddMedicine add = (Instruction.AddMedicine)op.instruction;
-                    PatientDAO.add_medicine_inner(db, add, patient, patient, json);
+                    PatientDAO.add_medicine_inner(db, op, add, patient, patient, json);
                     break;
                 case EditMedicine:
                     Instruction.EditMedicine edit = (Instruction.EditMedicine)op.instruction;
-                    PatientDAO.edit_medicine_inner(db, edit, patient, patient, json);
+                    PatientDAO.edit_medicine_inner(db, op, edit, patient, patient, json);
                     break;
                 case RemoveMedicine:
                     Instruction.RemoveMedicine rm = (Instruction.RemoveMedicine)op.instruction;
-                    PatientDAO.remove_medicine_inner(db, rm, patient, patient, json);
+                    PatientDAO.remove_medicine_inner(db, op, rm, patient, patient, json);
                     break;
                 case AddActivity:
                     Instruction.AddActivity adda = (Instruction.AddActivity)op.instruction;
-                    PatientDAO.add_activity_inner(db, adda, patient, patient, json);
+                    PatientDAO.add_activity_inner(db, op, adda, patient, patient, json);
                     break;
                 case EditActivity:
                     Instruction.EditActivity edita = (Instruction.EditActivity)op.instruction;
-                    PatientDAO.edit_activity_inner(db, edita, patient, patient, json);
+                    PatientDAO.edit_activity_inner(db, op, edita, patient, patient, json);
                     break;
                 case RemoveActivity:
                     Instruction.RemoveActivity rma = (Instruction.RemoveActivity)op.instruction;
-                    PatientDAO.remove_activity_inner(db, rma, patient, patient, json);
+                    PatientDAO.remove_activity_inner(db, op, rma, patient, patient, json);
                     break;
                 default:
                     // This should be unreachable
@@ -220,9 +220,9 @@ public class CaregiverDAO {
                 return;
             }
             if (op.type == PatientInfo.PatientInfoType.MedicineTaken) {
-                PatientDAO.add_medicine_history(db, json, name, time, patient);
+                PatientDAO.add_medicine_history(db, op, json, name, time, patient);
             } else {
-                PatientDAO.add_activity_history(db, json, name, time, patient);
+                PatientDAO.add_activity_history(db, op, json, name, time, patient);
             }
             db.setTransactionSuccessful();
             db.endTransaction();

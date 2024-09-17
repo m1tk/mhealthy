@@ -2,6 +2,7 @@ package fr.android.mhealthy.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,12 +20,15 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.Objects;
+
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.adapter.MedicineRecycler;
 import fr.android.mhealthy.model.Medicine;
 import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.storage.PatientDAO;
+import fr.android.mhealthy.utils.SpaceItemDecoration;
 
 public class MedicationManagerActivity extends AppCompatActivity {
     RecyclerView medicine_view;
@@ -39,6 +44,7 @@ public class MedicationManagerActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toolbar.setOverflowIcon(ContextCompat.getDrawable(this, R.drawable.baseline_sort_24));
 
         patient = null;
 
@@ -70,6 +76,9 @@ public class MedicationManagerActivity extends AppCompatActivity {
                 new PatientDAO(getApplicationContext(), session),
                 patient,
                 v -> {
+                    if (!v.active) {
+                        return;
+                    }
                     Intent intent1 = new Intent(this, MedicineActivity.class);
                     intent1.putExtra("session", session);
                     intent1.putExtra("medicine", v);
@@ -79,7 +88,14 @@ public class MedicationManagerActivity extends AppCompatActivity {
                     startActivity(intent1);
                 });
         medicine_view.setLayoutManager(new LinearLayoutManager(this));
+        medicine_view.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.spacing)));
         medicine_view.setAdapter(adapter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.sort_menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -87,6 +103,16 @@ public class MedicationManagerActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
+        } else if (item.getItemId() == R.id.show_deleted) {
+            if (!adapter.show_hidden) {
+                adapter.show_hidden = true;
+                adapter.notifyDataSetChanged();
+            }
+        } else if (item.getItemId() == R.id.hide_deleted) {
+            if (adapter.show_hidden) {
+                adapter.show_hidden = false;
+                adapter.notifyDataSetChanged();
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -118,15 +144,15 @@ public class MedicationManagerActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void new_medicine_event(Medicine.AddMedicineNotification p) {
-        if (patient.equals(p.patient)) {
-            adapter.insert(medicine_view, p.med);
+        if (Objects.equals(patient, p.patient)) {
+            adapter.insert(p.med);
             medicine_view.smoothScrollToPosition(0);
         }
     }
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void edit_medicine_event(Medicine.EditMedicineNotification p) {
-        if (patient.equals(p.patient)) {
+        if (Objects.equals(patient, p.patient)) {
             adapter.edit(p);
             medicine_view.smoothScrollToPosition(0);
         }
@@ -134,7 +160,7 @@ public class MedicationManagerActivity extends AppCompatActivity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN_ORDERED)
     public void remove_medicine_event(Medicine.RemoveMedicineNotification p) {
-        if (patient.equals(p.patient)) {
+        if (Objects.equals(patient, p.patient)) {
             adapter.remove(medicine_view, p);
             medicine_view.smoothScrollToPosition(0);
         }

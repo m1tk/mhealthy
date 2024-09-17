@@ -1,14 +1,23 @@
 package fr.android.mhealthy.utils;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import java.util.Arrays;
@@ -69,5 +78,26 @@ public class SettingsUtils {
                 })
                 .create();
         dialog.show();
+    }
+
+    public static boolean hasDndPermission(Activity context) {
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        return notificationManager.isNotificationPolicyAccessGranted();
+    }
+
+    public static boolean requestPermissions(Activity context) {
+        if (!hasDndPermission(context)) {
+            Toast.makeText(context, R.string.dnd, Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+            context.startActivity(intent);
+            return false;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && ContextCompat.checkSelfPermission(context, Manifest.permission.SCHEDULE_EXACT_ALARM) != PackageManager.PERMISSION_GRANTED) {
+            // Request the permission if it's not granted
+            ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.SCHEDULE_EXACT_ALARM}, 123);
+            return false;
+        }
+        return true;
     }
 }

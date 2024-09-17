@@ -21,6 +21,7 @@ import fr.android.mhealthy.adapter.PatientRecycler;
 import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.storage.CaregiverDAO;
+import fr.android.mhealthy.utils.SpaceItemDecoration;
 
 public class CaregiverMainActivity extends AppCompatActivity {
     RecyclerView patient_view;
@@ -48,6 +49,7 @@ public class CaregiverMainActivity extends AppCompatActivity {
                     startActivity(i);
                 });
         patient_view.setLayoutManager(new LinearLayoutManager(this));
+        patient_view.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.spacing)));
         patient_view.setAdapter(adapter);
     }
 

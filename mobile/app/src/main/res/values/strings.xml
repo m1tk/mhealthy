@@ -70,4 +70,21 @@
     <string name="edit_act_hist">Activity was modified, new time is %1$s</string>
     <string name="remove_act_hist">Activity removed</string>
     <string name="med_taken_hist">Medicine was taken on %1$s</string>
+    <string name="assigned">Assigned</string>
+    <string name="not_assigned">Unassigned</string>
+    <string name="ID" translatable="false">ID: %1$s</string>
+    <string name="dose">Dose: %1$s</string>
+    <string name="history">History</string>
+    <string name="act_finished">I did complete the activity</string>
+    <string name="goal">Goal: %1$s</string>
+    <string name="act_finished_notice">Your activity details have been recorded!</string>
+    <string name="continue_dial">Continue</string>
+    <string name="cancel_dial">Cancel</string>
+    <string name="act_result_title">Activity result</string>
+    <string name="act_result">Please input the result of the activity</string>
+    <string name="act_finished_hist">Activity finished with result %1$s on %2$s</string>
+    <string name="dismiss_alarm">Stop alarm</string>
+    <string name="dnd">Please allow Do Not Disturb access for the alarm to work properly</string>
+    <string name="show_del">Show unassigned</string>
+    <string name="hide_del">Hide unassigned</string>
 </resources>
