@@ -56,23 +56,31 @@ async def get_instructions(pool: Pool, cse: ColumnCryptor,
         async with con.transaction():
             async for row in con.cursor('''
 select id, caregiver, instruction, enc_nonce from caregiver_instruction
-where patient = $1 and id > $2;
+where patient = $1 and id > $2 order by id asc;
                 ''',
                 patient,
                 start
                 ):
                 inst = json.loads(cse.decrypt(row["instruction"], row["enc_nonce"]))
-                if "type" in inst and inst["type"] == "assign_caregiver":
-                    if caregiver == inst["new_caregiver"]["id"]:
-                        del inst["new_caregiver"]
-                    else:
-                        del inst["new_patient"]
+                if "type" in inst:
+                    if inst["type"] == "assign_caregiver":
+                        if caregiver == inst["new_caregiver"]["id"]:
+                            del inst["new_caregiver"]
+                        else:
+                            del inst["new_patient"]
+                    elif inst["type"] == "unassign_caregiver" and caregiver == inst["id"]:
+                        del inst["id"]
 
                 yield Instruction(
                     instruction=inst,
                     id=row["id"],
                     caregiver=row["caregiver"]
                 )
+
+                if "type" in inst and inst["type"] == "unassign_caregiver" and "id" not in inst:
+                    if not await con.fetchval("select exists(select 1 from assigned where caregiver = $1 and patient = $2);", caregiver, patient):
+                        yield None
+                        break
 
 async def get_assigned(pool: Pool, caregiver: int):
     async with pool.acquire() as con:
@@ -142,3 +150,26 @@ values ($1, $2, $3, $4, $5);
         True
     )
     return True
+
+async def unassign_caregiver(pool: Pool, cse: ColumnCryptor, patient: int, caregiver: int):
+    async with pool.acquire() as con:
+        async with con.transaction():
+            await con.execute("delete from assigned where caregiver = $1 and patient = $2", caregiver, patient)
+
+            instruction = {
+                "type": "unassign_caregiver",
+                "time": int(datetime.now(timezone.utc).timestamp()),
+                "id": caregiver
+            }
+
+            nonce = cse.gen_nonce()
+            await con.execute('''
+        insert into caregiver_instruction (caregiver, patient, instruction, enc_nonce, is_assign)
+        values ($1, $2, $3, $4, $5);
+                ''',
+                caregiver,
+                patient,
+                cse.encrypt(json.dumps(instruction).encode(), nonce),
+                nonce,
+                True
+            )

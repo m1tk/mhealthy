@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any, Dict
 from aiostream import stream
 from asyncpg import UniqueViolationError
@@ -10,7 +11,7 @@ import json
 from db import caregiver
 from lang import Lang
 from models.account import AccountType
-from services import heartbeat
+from services import heartbeat, heartbeat_inter
 from services.account import authenticate
 
 class AddInstruction(BaseModel):
@@ -63,9 +64,10 @@ async def events(request: Request, req: CareGiverEventsReq):
     if not assigned:
         raise HTTPException(status_code=401, detail=trans.t("not_assigned"))
 
-    return StreamingResponse(stream.merge(caregiver_events_iter(request, req), heartbeat()), media_type="text/event-stream")
+    stop = asyncio.Event()
+    return StreamingResponse(stream.merge(caregiver_events_iter(request, req, stop), heartbeat_inter(stop)), media_type="text/event-stream")
 
-async def caregiver_events_iter(request: Request, req: CareGiverEventsReq):
+async def caregiver_events_iter(request: Request, req: CareGiverEventsReq, stop: asyncio.Event):
     async with (
             request.app.state.listener.subscribe(channel="instruction_{}".format(req.patient)) as s1,
             request.app.state.listener.subscribe(channel="patient_info_{}".format(req.patient)) as s2
@@ -81,6 +83,9 @@ async def caregiver_events_iter(request: Request, req: CareGiverEventsReq):
                     req.patient,
                     req.last_instruction
                     ):
+                    if row is None:
+                        stop.set()
+                        return
                     yield "event:instruction\ndata:{}\n\n".format(row.model_dump_json())
                     req.last_instruction = row.id
                 read_ins = False
