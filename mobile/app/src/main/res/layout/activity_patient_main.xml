@@ -78,6 +78,60 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"/>
     </com.google.android.material.card.MaterialCardView>
 
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardChat"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:layout_constraintTop_toBottomOf="@id/cardMedication"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnChat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/contact_caregiver"
+            android:textSize="18sp"
+            android:padding="16dp"
+            app:icon="@drawable/baseline_chat_24"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardEmergency"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="@color/emergency"
+        app:strokeColor="@color/emergency"
+        app:cardElevation="4dp"
+        app:layout_constraintTop_toBottomOf="@id/cardChat"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEmergency"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/emergency"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:padding="16dp"
+            app:icon="@drawable/baseline_phone_24"
+            app:iconTint="@android:color/white"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+    </com.google.android.material.card.MaterialCardView>
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSwitchToCaregiver"
         android:layout_width="wrap_content"

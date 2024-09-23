@@ -90,12 +90,20 @@ public class SettingsUtils {
         return notificationManager.isNotificationPolicyAccessGranted();
     }
 
+    public static boolean hasCallPermission(Activity context) {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED;
+    }
+
     public static boolean requestPermissions(Activity context) {
         if (!hasDndPermission(context)) {
             Toast.makeText(context, R.string.dnd, Toast.LENGTH_LONG).show();
             Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
             context.startActivity(intent);
             return false;
+        }
+
+        if (hasCallPermission(context)) {
+            ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.CALL_PHONE}, 124);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && ContextCompat.checkSelfPermission(context, Manifest.permission.SCHEDULE_EXACT_ALARM) != PackageManager.PERMISSION_GRANTED) {
