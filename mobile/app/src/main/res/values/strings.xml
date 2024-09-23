@@ -88,4 +88,7 @@
     <string name="show_del">Show unassigned</string>
     <string name="hide_del">Hide unassigned</string>
     <string name="overlay">Please allow overlay permission</string>
+    <string name="contact_caregiver">Contact caregiver</string>
+    <string name="emergency">Emergency</string>
+    <string name="contact_patient">Contact patient</string>
 </resources>

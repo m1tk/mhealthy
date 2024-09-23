@@ -86,4 +86,7 @@
     <string name="show_del">Afficher non assigné</string>
     <string name="hide_del">Cacher non assigné</string>
     <string name="overlay">Veuillez autoriser la permission d\'affichage superposé</string>
+    <string name="contact_caregiver">Contacter soigant</string>
+    <string name="emergency">Emergence</string>
+    <string name="contact_patient">Contacter patient</string>
 </resources>

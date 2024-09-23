@@ -26,10 +26,15 @@
 
 package fr.android.mhealthy.ui;
 
+import static fr.android.mhealthy.utils.SettingsUtils.hasCallPermission;
+
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -38,13 +43,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.card.MaterialCardView;
+
 import fr.android.mhealthy.R;
+import fr.android.mhealthy.model.Caregiver;
 import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
+import fr.android.mhealthy.storage.PatientDAO;
 import fr.android.mhealthy.utils.MenuUtils;
 
 public class PatientMainActivity extends AppCompatActivity {
     Session session;
+    PatientDAO con;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,15 +68,24 @@ public class PatientMainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         session       = (Session) intent.getSerializableExtra("session");
 
+        con = new PatientDAO(getApplicationContext(), session);
+
+        TextView welcome = findViewById(R.id.tvWelcome);
+        MaterialCardView chatCard = findViewById(R.id.cardChat);
+        MaterialCardView emerCard = findViewById(R.id.cardEmergency);
+        Button chat = findViewById(R.id.btnChat);
+
         if (session.account_type.equals("patient")) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            TextView welcome = findViewById(R.id.tvWelcome);
             welcome.setText(getString(R.string.welcome, session.name));
+            emerCard.setVisibility(View.VISIBLE);
+            chat.setText(getString(R.string.contact_caregiver));
         } else {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             Patient p = (Patient) intent.getSerializableExtra("patient");
-            TextView welcome = findViewById(R.id.tvWelcome);
             welcome.setText(getString(R.string.caregiver_patient_main, p.name));
+            emerCard.setVisibility(View.GONE);
+            chat.setText(getString(R.string.contact_patient));
         }
 
         Button med = findViewById(R.id.btnMedication);
@@ -83,6 +102,45 @@ public class PatientMainActivity extends AppCompatActivity {
             Intent intent1 = new Intent(this, ActivityManagerActivity.class);
             intent1.putExtra("session", session);
             intent1.putExtra("patient", p);
+            startActivity(intent1);
+        });
+
+        chat.setOnClickListener(v -> {
+            String phone;
+            Patient p = (Patient) intent.getSerializableExtra("patient");
+            if (p != null) {
+                phone = p.phone;
+            } else {
+                try {
+                    Caregiver caregiver = con.get_caregiver();
+                    phone = caregiver.phone;
+                } catch (Exception e) {
+                    AlertDialog err = new AlertDialog.Builder(this)
+                            .setMessage(e.toString())
+                            .create();
+                    err.show();
+                    return;
+                }
+            }
+            Uri uri = Uri.parse("https://api.whatsapp.com/send?phone=" + phone);
+            Intent sendIntent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(sendIntent);
+        });
+
+        Button emer = findViewById(R.id.btnEmergency);
+        emer.setOnClickListener(v -> {
+            Caregiver caregiver;
+            try {
+                caregiver = con.get_caregiver();
+            } catch (Exception e) {
+                AlertDialog err = new AlertDialog.Builder(this)
+                        .setMessage(e.toString())
+                        .create();
+                err.show();
+                return;
+            }
+            Intent intent1 = new Intent(hasCallPermission(this) ? Intent.ACTION_CALL : Intent.ACTION_DIAL);
+            intent1.setData(Uri.parse("tel:" + caregiver.phone)); // Replace phoneNumber with the actual number
             startActivity(intent1);
         });
     }

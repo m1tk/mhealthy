@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.android.mhealthy.model.Activity;
+import fr.android.mhealthy.model.Caregiver;
 import fr.android.mhealthy.model.History;
 import fr.android.mhealthy.model.Instruction;
 import fr.android.mhealthy.model.Medicine;
@@ -46,6 +47,27 @@ public class PatientDAO {
             db.close();
             throw e;
         }
+    }
+
+    @SuppressLint("Range")
+    public Caregiver get_caregiver() {
+        SQLiteDatabase db = sdb.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + DatabaseHelper.TABLE_USER + " ORDER BY " +
+                DatabaseHelper.USER_ADDED_DATE +" DESC LIMIT 1", null);
+
+        if (cursor.moveToFirst()) {
+            int id      = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.USER_ID));
+            String name = cursor.getString(cursor.getColumnIndex(DatabaseHelper.USER_NAME));
+            int time    = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.USER_ADDED_DATE));
+            String phone = cursor.getString(cursor.getColumnIndex(DatabaseHelper.USER_PHONE));
+            cursor.close();
+            db.close();
+            return new Caregiver(id, name, time, phone);
+        }
+        cursor.close();
+        db.close();
+        return null;
     }
 
     static void new_caregiver_inner(SQLiteDatabase db, Instruction.AddCaregiver add_caregiver,
