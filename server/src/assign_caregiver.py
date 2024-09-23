@@ -7,7 +7,7 @@ from db.caregiver import assign_caregiver_to_patient, unassign_caregiver
 from db.column_cryptor import ColumnCryptor
 
 async def main():
-    parser = argparse.ArgumentParser(description='Unassign patient from caregiver')
+    parser = argparse.ArgumentParser(description='Assign caregiver to patient')
 
     parser.add_argument('patient', type=int, help='Patient id')
     parser.add_argument('caregiver', type=int, help='Caregiver id')
