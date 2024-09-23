@@ -73,18 +73,19 @@ public class PatientMainActivity extends AppCompatActivity {
         TextView welcome = findViewById(R.id.tvWelcome);
         MaterialCardView chatCard = findViewById(R.id.cardChat);
         MaterialCardView emerCard = findViewById(R.id.cardEmergency);
+        Button chat = findViewById(R.id.btnChat);
 
         if (session.account_type.equals("patient")) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             welcome.setText(getString(R.string.welcome, session.name));
-            chatCard.setVisibility(View.VISIBLE);
             emerCard.setVisibility(View.VISIBLE);
+            chat.setText(getString(R.string.contact_caregiver));
         } else {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             Patient p = (Patient) intent.getSerializableExtra("patient");
             welcome.setText(getString(R.string.caregiver_patient_main, p.name));
-            chatCard.setVisibility(View.GONE);
             emerCard.setVisibility(View.GONE);
+            chat.setText(getString(R.string.contact_patient));
         }
 
         Button med = findViewById(R.id.btnMedication);
@@ -104,19 +105,24 @@ public class PatientMainActivity extends AppCompatActivity {
             startActivity(intent1);
         });
 
-        Button chat = findViewById(R.id.btnChat);
         chat.setOnClickListener(v -> {
-            Caregiver caregiver;
-            try {
-                caregiver = con.get_caregiver();
-            } catch (Exception e) {
-                AlertDialog err = new AlertDialog.Builder(this)
-                        .setMessage(e.toString())
-                        .create();
-                err.show();
-                return;
+            String phone;
+            Patient p = (Patient) intent.getSerializableExtra("patient");
+            if (p != null) {
+                phone = p.phone;
+            } else {
+                try {
+                    Caregiver caregiver = con.get_caregiver();
+                    phone = caregiver.phone;
+                } catch (Exception e) {
+                    AlertDialog err = new AlertDialog.Builder(this)
+                            .setMessage(e.toString())
+                            .create();
+                    err.show();
+                    return;
+                }
             }
-            Uri uri = Uri.parse("https://api.whatsapp.com/send?phone=" + caregiver.phone);
+            Uri uri = Uri.parse("https://api.whatsapp.com/send?phone=" + phone);
             Intent sendIntent = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(sendIntent);
         });
