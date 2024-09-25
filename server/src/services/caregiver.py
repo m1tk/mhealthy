@@ -172,17 +172,14 @@ async def assigned_events(request: Request):
 
 async def assigned_events_iter(request: Request):
     async with request.app.state.listener.subscribe(channel="assigned_{}".format(request.state.session.uid)) as subscriber:
-        patients = []
         async for patient_id in caregiver.get_assigned(
             request.app.state.db,
             request.state.session.uid,
             ):
             yield "event:assigned\ndata:{}\n\n".format(patient_id)
-            patients.append(patient_id)
 
         while True:
             async for event in subscriber:
                 patient_id = event.message
-                if patient_id not in patients:
-                    yield "event:assigned\ndata:{}\n\n".format(patient_id)
+                yield "event:assigned\ndata:{}\n\n".format(patient_id)
 
