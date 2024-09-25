@@ -129,7 +129,7 @@ public class ActivityActivity extends AppCompatActivity {
         adapter = new HistoryRecycler(
                 new PatientDAO(getApplicationContext(), session),
                 activity.name,
-                false,
+                History.HistoryType.Activity,
                 p
         );
         history_view.setLayoutManager(new LinearLayoutManager(this));

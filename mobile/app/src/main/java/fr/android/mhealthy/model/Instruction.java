@@ -208,10 +208,10 @@ public class Instruction {
     public String get_action_string(Context ctx) {
         switch (this.type) {
             case AddPatient:
-                return ctx.getString(R.string.new_patient_hist, ((AddPatient)instruction).new_patient);
+                return ctx.getString(R.string.new_patient_hist, ((AddPatient)instruction).new_patient.name);
             case UnassignCaregiver:
                 UnassignCaregiver un = (UnassignCaregiver) instruction;
-                if (un.stop != null && un.stop) {
+                if (un.id == null) {
                     return ctx.getString(R.string.you_unassgined);
                 } else {
                     return ctx.getString(R.string.patient_caregiver_unassigned, "well");

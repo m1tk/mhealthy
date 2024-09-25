@@ -456,33 +456,32 @@ public class PatientDAO {
     }
 
     @SuppressLint("Range")
-    public List<Object> get_all_history(Integer user, String name, boolean is_med) {
+    public List<Object> get_all_history(Integer user, String name, History.HistoryType type) {
         SQLiteDatabase db = sdb.getReadableDatabase();
         List<Object> hist = new ArrayList<>();
 
-        String table;
-        String idt;
-        String namet;
-        String usert;
+        Cursor cursor;
         String data;
-        if (is_med) {
-            table = DatabaseHelper.TABLE_MEDICATION_HISTORY;
-            idt = DatabaseHelper.HISTORY_ID;
-            namet = DatabaseHelper.HISTORY_MEDICATION;
-            usert = DatabaseHelper.HISTORY_USER;
+        if (type == History.HistoryType.Medicine) {
             data = DatabaseHelper.HISTORY_DATA;
-        } else {
-            table = DatabaseHelper.TABLE_ACTIVITY_HISTORY;
-            idt = DatabaseHelper.ACTIVITY_HISTORY_ID;
-            namet = DatabaseHelper.ACTIVITY_HISTORY_NAME;
-            usert = DatabaseHelper.ACTIVITY_HISTORY_USER;
+            cursor = db.rawQuery("SELECT " + data +
+                            " FROM " + DatabaseHelper.TABLE_MEDICATION_HISTORY + " WHERE " +
+                            (user == null ? "" : DatabaseHelper.HISTORY_USER + " is " + user + " AND ") +
+                            DatabaseHelper.HISTORY_MEDICATION + " = ? ORDER BY " + DatabaseHelper.HISTORY_ID + " DESC",
+                    new String[]{ name });
+        } else if (type == History.HistoryType.Activity) {
             data = DatabaseHelper.ACTIVITY_HISTORY_DATA;
+            cursor = db.rawQuery("SELECT " + data +
+                            " FROM " + DatabaseHelper.TABLE_ACTIVITY_HISTORY + " WHERE " +
+                            (user == null ? "" : DatabaseHelper.ACTIVITY_HISTORY_USER + " is " + user + " AND ") +
+                            DatabaseHelper.ACTIVITY_HISTORY_NAME + " = ? ORDER BY " + DatabaseHelper.ACTIVITY_HISTORY_ID + " DESC",
+                    new String[]{ name });
+        } else {
+            data = DatabaseHelper.ASSIGN_HISTORY_DATA;
+            cursor = db.rawQuery("SELECT " + data +
+                        " FROM " + DatabaseHelper.TABLE_ASSIGN_HISTORY +
+                        " ORDER BY " + DatabaseHelper.ASSIGN_HISTORY_ID + " DESC", null);
         }
-
-        Cursor cursor = db.rawQuery("SELECT " + data + " FROM " + table + " WHERE " +
-                (user == null ? "" : usert + " is " + user + " AND ") +
-                namet + " = ? ORDER BY " + idt + " DESC",
-                new String[]{ name });
 
         Gson p = new Gson();
         if (cursor.moveToFirst()) {
