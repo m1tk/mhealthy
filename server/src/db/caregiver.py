@@ -81,7 +81,7 @@ where patient = $1 and id > $2 order by id asc;
                 )
 
                 if "type" in inst and inst["type"] == "unassign_caregiver" and "id" not in inst:
-                    if not :
+                    if not isassigned:
                         yield None
                         break
 
