@@ -26,8 +26,6 @@
 
 package fr.android.mhealthy.ui;
 
-import static fr.android.mhealthy.utils.SettingsUtils.hasCallPermission;
-
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -36,7 +34,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.PopupMenu;
+
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
