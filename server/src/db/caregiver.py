@@ -72,7 +72,7 @@ where patient = $1 and id > $2 order by id asc;
                         del inst["id"]
                         isassigned = await con.fetchval("select exists(select 1 from assigned where caregiver = $1 and patient = $2);", caregiver, patient)
                         if not isassigned:
-                            inst["stop"] = true
+                            inst["stop"] = True
 
                 yield Instruction(
                     instruction=inst,
