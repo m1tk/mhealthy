@@ -32,12 +32,13 @@ public class PatientDAO {
         sdb = new DatabaseHelper(ctx, s);
     }
 
-    public void new_caregiver(Instruction.AddCaregiver add_caregiver,
+    public void new_caregiver(Instruction.AddCaregiver add_caregiver, String json,
                               int by_caregiver, int last_id) {
         SQLiteDatabase db = sdb.getWritableDatabase();
         db.beginTransaction();
         try {
             new_caregiver_inner(db, add_caregiver, by_caregiver);
+            add_assign_history(db, json, add_caregiver.time);
             update_last_id(db, last_id);
             db.setTransactionSuccessful();
             db.endTransaction();
@@ -49,12 +50,46 @@ public class PatientDAO {
         }
     }
 
+    static void add_assign_history(SQLiteDatabase db, String json, long time) {
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.ASSIGN_HISTORY_DATA, json);
+        values.put(DatabaseHelper.ASSIGN_HISTORY_UPDATE_TIME, time);
+        db.insertOrThrow(DatabaseHelper.TABLE_ASSIGN_HISTORY, null, values);
+    }
+
+    public void unassign_caregiver(Instruction.UnassignCaregiver edit, String json, int last_id) {
+        SQLiteDatabase db = sdb.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            unassign_inner(db, edit, json, null);
+            update_last_id(db, last_id);
+            db.setTransactionSuccessful();
+            db.endTransaction();
+            db.close();
+        } catch (Exception e) {
+            db.endTransaction();
+            db.close();
+            throw e;
+        }
+    }
+
+    static void unassign_inner(SQLiteDatabase db, Instruction.UnassignCaregiver edit,
+                               String json, Integer patient) {
+        SQLiteStatement stmt = db.compileStatement("update " + DatabaseHelper.TABLE_USER +
+                " set " + DatabaseHelper.USER_ACTIVE + " = 0 where " +
+                DatabaseHelper.USER_ID + " = ?");
+        stmt.bindLong(1, edit.id != null ? edit.id : patient);
+        stmt.execute();
+        add_assign_history(db, json, edit.time);
+    }
+
     @SuppressLint("Range")
-    public Caregiver get_caregiver() {
+    public List<Caregiver> get_caregivers() {
         SQLiteDatabase db = sdb.getReadableDatabase();
+        List<Caregiver> caregivers = new ArrayList<>();
 
         Cursor cursor = db.rawQuery("SELECT * FROM " + DatabaseHelper.TABLE_USER + " ORDER BY " +
-                DatabaseHelper.USER_ADDED_DATE +" DESC LIMIT 1", null);
+                DatabaseHelper.USER_ADDED_DATE, null);
 
         if (cursor.moveToFirst()) {
             int id      = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.USER_ID));
@@ -64,11 +99,11 @@ public class PatientDAO {
             boolean active = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.USER_ACTIVE)) == 1;
             cursor.close();
             db.close();
-            return new Caregiver(id, name, time, phone, active);
+            caregivers.add(new Caregiver(id, name, time, phone, active));
         }
         cursor.close();
         db.close();
-        return null;
+        return caregivers;
     }
 
     static void new_caregiver_inner(SQLiteDatabase db, Instruction.AddCaregiver add_caregiver,
@@ -78,10 +113,11 @@ public class PatientDAO {
         values.put(DatabaseHelper.USER_NAME, add_caregiver.new_caregiver.name);
         values.put(DatabaseHelper.USER_PHONE, add_caregiver.new_caregiver.phone);
         values.put(DatabaseHelper.USER_ADDED_DATE, add_caregiver.time);
+        values.put(DatabaseHelper.USER_ACTIVE, 1);
         if (by_caregiver != add_caregiver.new_caregiver.id) {
             values.put(DatabaseHelper.USER_ADDED_BY, by_caregiver);
         }
-        db.insertOrThrow(DatabaseHelper.TABLE_USER, null, values);
+        db.insertWithOnConflict(DatabaseHelper.TABLE_USER, null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     private void update_last_id(SQLiteDatabase db, int last_id) {

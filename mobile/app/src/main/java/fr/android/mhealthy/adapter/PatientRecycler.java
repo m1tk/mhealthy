@@ -96,14 +96,33 @@ public class PatientRecycler extends RecyclerView.Adapter<PatientHolder> {
 
     public void insert(Patient p) {
         // Skipping if patient already in list
-        if (patients.stream().anyMatch(e -> e.id == p.id)) {
-            return;
+        int count = 0;
+        for (Patient i : patients) {
+            if (i.id == p.id) {
+                i.active = true;
+                notifyItemChanged(count);
+                return;
+            }
+            count += 1;
         }
+
         int position = 0;
         while (position < patients.size() && patients.get(position).id > p.id) {
             position += 1;
         }
         patients.add(position, p);
         notifyItemInserted(position);
+    }
+
+    public void remove(int id) {
+        int count = 0;
+        for (Patient p : patients) {
+            if (p.id == id) {
+                p.active = false;
+                notifyItemChanged(count);
+                break;
+            }
+            count += 1;
+        }
     }
 }

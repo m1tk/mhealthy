@@ -105,4 +105,15 @@ public class CaregiverMainActivity extends AppCompatActivity {
         adapter.insert(p);
         patient_view.smoothScrollToPosition(0);
     }
+
+    public static class UnassignPatient {
+        public int id;
+        public UnassignPatient(int id) { this.id = id; }
+    }
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void unassign_patient_event(UnassignPatient p) {
+        adapter.remove(p.id);
+        patient_view.smoothScrollToPosition(0);
+    }
 }

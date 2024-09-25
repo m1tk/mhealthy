@@ -89,7 +89,7 @@ public class PatientEvents {
 
         if (ins.type == Instruction.InstructionType.AddCaregiver) {
             Instruction.AddCaregiver inst = (Instruction.AddCaregiver) ins.instruction;
-            pd.new_caregiver(inst, ins.caregiver, ins.id);
+            pd.new_caregiver(inst, ons.toString(), ins.caregiver, ins.id);
             EventBus.getDefault().post(new EventHandlerBackground.NewNotificationTask(
                     R.string.new_caregiver_title,
                     R.string.new_caregiver,
@@ -102,6 +102,9 @@ public class PatientEvents {
                 ins.type == Instruction.InstructionType.EditActivity ||
                 ins.type == Instruction.InstructionType.RemoveActivity) {
             pd.instruction_operation(ins, ons.toString());
+        } else if (ins.type == Instruction.InstructionType.UnassignCaregiver) {
+            Instruction.UnassignCaregiver inst = (Instruction.UnassignCaregiver) ins.instruction;
+            pd.unassign_caregiver(inst, ons.toString(), ins.id);
         }
         last = ins.id;
     }

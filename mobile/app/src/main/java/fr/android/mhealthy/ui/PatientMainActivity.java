@@ -45,6 +45,8 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.card.MaterialCardView;
 
+import java.util.List;
+
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.model.Caregiver;
 import fr.android.mhealthy.model.Patient;
@@ -55,6 +57,8 @@ import fr.android.mhealthy.utils.MenuUtils;
 public class PatientMainActivity extends AppCompatActivity {
     Session session;
     PatientDAO con;
+
+    List<Caregiver> caregivers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +73,7 @@ public class PatientMainActivity extends AppCompatActivity {
         session       = (Session) intent.getSerializableExtra("session");
 
         con = new PatientDAO(getApplicationContext(), session);
+        caregivers = con.get_caregivers();
 
         TextView welcome = findViewById(R.id.tvWelcome);
         MaterialCardView chatCard = findViewById(R.id.cardChat);
@@ -112,8 +117,10 @@ public class PatientMainActivity extends AppCompatActivity {
                 phone = p.phone;
             } else {
                 try {
-                    Caregiver caregiver = con.get_caregiver();
-                    phone = caregiver.phone;
+                    phone = get_caregiver_phone();
+                    if (phone == null) {
+                        return;
+                    }
                 } catch (Exception e) {
                     AlertDialog err = new AlertDialog.Builder(this)
                             .setMessage(e.toString())
@@ -129,9 +136,12 @@ public class PatientMainActivity extends AppCompatActivity {
 
         Button emer = findViewById(R.id.btnEmergency);
         emer.setOnClickListener(v -> {
-            Caregiver caregiver;
+            String phone;
             try {
-                caregiver = con.get_caregiver();
+                phone = get_caregiver_phone();
+                if (phone == null) {
+                    return;
+                }
             } catch (Exception e) {
                 AlertDialog err = new AlertDialog.Builder(this)
                         .setMessage(e.toString())
@@ -140,9 +150,24 @@ public class PatientMainActivity extends AppCompatActivity {
                 return;
             }
             Intent intent1 = new Intent(hasCallPermission(this) ? Intent.ACTION_CALL : Intent.ACTION_DIAL);
-            intent1.setData(Uri.parse("tel:" + caregiver.phone)); // Replace phoneNumber with the actual number
+            intent1.setData(Uri.parse("tel:" + phone)); // Replace phoneNumber with the actual number
             startActivity(intent1);
         });
+    }
+
+    private String get_caregiver_phone() {
+        caregivers = con.get_caregivers();
+        for (Caregiver caregiver : caregivers) {
+            if (caregiver.active) {
+                return caregiver.phone;
+            } else {
+                AlertDialog err = new AlertDialog.Builder(this)
+                        .setMessage(getString(R.string.no_active_caregiver))
+                        .create();
+                err.show();
+            }
+        }
+        return null;
     }
 
     @Override

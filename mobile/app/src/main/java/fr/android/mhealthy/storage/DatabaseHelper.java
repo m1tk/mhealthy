@@ -18,6 +18,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String USER_ADDED_BY = "added_by";
     public static final String USER_ACTIVE = "active";
 
+    public static final String TABLE_ASSIGN_HISTORY = "assign_history";
+    public static final String ASSIGN_HISTORY_ID = "history_id";
+    public static final String ASSIGN_HISTORY_DATA = "data";
+    public static final String ASSIGN_HISTORY_UPDATE_TIME = "update_time";
+
     public static final String TABLE_MEDICATION = "medication";
     public static final String MEDICATION_NAME = "name";
     public static final String MEDICATION_DOSE = "medication_dose";
@@ -83,6 +88,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 USER_ADDED_BY + " INTEGER," +
                 USER_PHONE + " TEXT," +
                 USER_ACTIVE + " INTEGER DEFAULT 1);");
+
+        db.execSQL("CREATE TABLE " + TABLE_ASSIGN_HISTORY + " (" +
+                ASSIGN_HISTORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                ASSIGN_HISTORY_DATA + " TEXT," +
+                ASSIGN_HISTORY_UPDATE_TIME + " INTEGER);");
 
         db.execSQL("CREATE TABLE " + TABLE_MEDICATION + " (" +
                 MEDICATION_NAME + " TEXT," +

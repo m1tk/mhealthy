@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -46,7 +47,7 @@ public class CaregiverDAO {
         );
     }
 
-    public void new_patient(Instruction.AddPatient add, int patient,
+    public void new_patient(Instruction.AddPatient add, String json, int patient,
                             int last_id) {
         SQLiteDatabase db = sdb.getWritableDatabase();
         db.beginTransaction();
@@ -56,8 +57,27 @@ public class CaregiverDAO {
             values.put(DatabaseHelper.USER_NAME, add.new_patient.name);
             values.put(DatabaseHelper.USER_PHONE, add.new_patient.phone);
             values.put(DatabaseHelper.USER_ADDED_DATE, add.time);
+            values.put(DatabaseHelper.USER_ACTIVE, 1);
             values.putNull(DatabaseHelper.USER_ADDED_BY);
-            db.insertOrThrow(DatabaseHelper.TABLE_USER, null, values);
+            db.insertWithOnConflict(DatabaseHelper.TABLE_USER, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+            PatientDAO.add_assign_history(db, json, add.time);
+            update_last_instruction_id(db, patient, last_id);
+            db.setTransactionSuccessful();
+            db.endTransaction();
+            db.close();
+        } catch (Exception e) {
+            db.endTransaction();
+            db.close();
+            throw e;
+        }
+    }
+
+    public void unassign_patient(Instruction.UnassignCaregiver edit, String json, Integer patient,
+                                 int last_id) {
+        SQLiteDatabase db = sdb.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            PatientDAO.unassign_inner(sdb.getWritableDatabase(), edit, json, patient);
             update_last_instruction_id(db, patient, last_id);
             db.setTransactionSuccessful();
             db.endTransaction();

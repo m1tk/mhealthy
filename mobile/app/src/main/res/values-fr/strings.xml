@@ -91,4 +91,7 @@
     <string name="contact_patient">Contacter patient</string>
     <string name="show_del_patient">Afficher les patients non assignés</string>
     <string name="hide_del_patient">Cacher les petients non assignés</string>
+    <string name="patient_caregiver_unassigned">Le soignant %1$s a été désassigné</string>
+    <string name="you_unassgined">Vous avez été désassigné de la prise en charge du patient</string>
+    <string name="no_active_caregiver">Vous n\'avez actuellement pas de soignant</string>
 </resources>
