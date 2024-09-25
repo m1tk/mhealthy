@@ -146,7 +146,7 @@ public class PatientMainActivity extends AppCompatActivity {
                 err.show();
                 return;
             }
-            Intent intent1 = new Intent(hasCallPermission(this) ? Intent.ACTION_CALL : Intent.ACTION_DIAL);
+            Intent intent1 = new Intent(Intent.ACTION_CALL);
             intent1.setData(Uri.parse("tel:" + phone)); // Replace phoneNumber with the actual number
             startActivity(intent1);
         });
