@@ -91,4 +91,6 @@
     <string name="contact_caregiver">Contact caregiver</string>
     <string name="emergency">Emergency</string>
     <string name="contact_patient">Contact patient</string>
+    <string name="show_del_patient">Show unassigned patients</string>
+    <string name="hide_del_patient">Hide unassigned patients</string>
 </resources>

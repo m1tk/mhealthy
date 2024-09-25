@@ -61,6 +61,17 @@ public class CaregiverMainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         MenuUtils.onClickMenuItem(this, item.getItemId());
+        if (item.getItemId() == R.id.show_deleted) {
+            if (!adapter.show_hidden) {
+                adapter.show_hidden = true;
+                adapter.notifyDataSetChanged();
+            }
+        } else if (item.getItemId() == R.id.hide_deleted) {
+            if (adapter.show_hidden) {
+                adapter.show_hidden = false;
+                adapter.notifyDataSetChanged();
+            }
+        }
         return super.onOptionsItemSelected(item);
     }
 

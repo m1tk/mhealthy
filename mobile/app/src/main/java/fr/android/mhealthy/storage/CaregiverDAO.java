@@ -83,7 +83,8 @@ public class CaregiverDAO {
                 String name = cursor.getString(cursor.getColumnIndex(DatabaseHelper.USER_NAME));
                 int time    = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.USER_ADDED_DATE));
                 String phone = cursor.getString(cursor.getColumnIndex(DatabaseHelper.USER_PHONE));
-                Patient patient = new Patient(id, name, time, phone);
+                boolean active = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.USER_ACTIVE)) == 1;
+                Patient patient = new Patient(id, name, time, phone, active);
                 patients.add(patient);
             } while (cursor.moveToNext());
         }

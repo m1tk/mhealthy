@@ -61,9 +61,10 @@ public class PatientDAO {
             String name = cursor.getString(cursor.getColumnIndex(DatabaseHelper.USER_NAME));
             int time    = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.USER_ADDED_DATE));
             String phone = cursor.getString(cursor.getColumnIndex(DatabaseHelper.USER_PHONE));
+            boolean active = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.USER_ACTIVE)) == 1;
             cursor.close();
             db.close();
-            return new Caregiver(id, name, time, phone);
+            return new Caregiver(id, name, time, phone, active);
         }
         cursor.close();
         db.close();

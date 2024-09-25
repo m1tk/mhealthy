@@ -174,7 +174,8 @@ public class CaregiverEvents {
                     inst.new_patient.id,
                     inst.new_patient.name,
                     inst.time,
-                    inst.new_patient.phone
+                    inst.new_patient.phone,
+                    true
             ));
             EventBus.getDefault().post(new EventHandlerBackground.NewNotificationTask(
                     R.string.new_patient_title,
