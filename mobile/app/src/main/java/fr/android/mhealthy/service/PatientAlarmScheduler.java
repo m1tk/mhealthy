@@ -189,9 +189,8 @@ public class PatientAlarmScheduler {
             calendar.add(Calendar.DAY_OF_YEAR, 1);
         }
 
-        alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                calendar.getTimeInMillis(),
+        alarmManager.setAlarmClock(
+                new AlarmManager.AlarmClockInfo(calendar.getTimeInMillis(), pendingIntent),
                 pendingIntent
         );
 

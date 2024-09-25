@@ -32,12 +32,13 @@ public class PatientDAO {
         sdb = new DatabaseHelper(ctx, s);
     }
 
-    public void new_caregiver(Instruction.AddCaregiver add_caregiver,
+    public void new_caregiver(Instruction.AddCaregiver add_caregiver, String json,
                               int by_caregiver, int last_id) {
         SQLiteDatabase db = sdb.getWritableDatabase();
         db.beginTransaction();
         try {
             new_caregiver_inner(db, add_caregiver, by_caregiver);
+            add_assign_history(db, json, add_caregiver.time);
             update_last_id(db, last_id);
             db.setTransactionSuccessful();
             db.endTransaction();
@@ -49,25 +50,60 @@ public class PatientDAO {
         }
     }
 
+    static void add_assign_history(SQLiteDatabase db, String json, long time) {
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.ASSIGN_HISTORY_DATA, json);
+        values.put(DatabaseHelper.ASSIGN_HISTORY_UPDATE_TIME, time);
+        db.insertOrThrow(DatabaseHelper.TABLE_ASSIGN_HISTORY, null, values);
+    }
+
+    public void unassign_caregiver(Instruction.UnassignCaregiver edit, String json, int last_id) {
+        SQLiteDatabase db = sdb.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            unassign_inner(db, edit, json, null);
+            update_last_id(db, last_id);
+            db.setTransactionSuccessful();
+            db.endTransaction();
+            db.close();
+        } catch (Exception e) {
+            db.endTransaction();
+            db.close();
+            throw e;
+        }
+    }
+
+    static void unassign_inner(SQLiteDatabase db, Instruction.UnassignCaregiver edit,
+                               String json, Integer patient) {
+        SQLiteStatement stmt = db.compileStatement("update " + DatabaseHelper.TABLE_USER +
+                " set " + DatabaseHelper.USER_ACTIVE + " = 0 where " +
+                DatabaseHelper.USER_ID + " = ?");
+        stmt.bindLong(1, edit.id != null ? edit.id : patient);
+        stmt.execute();
+        add_assign_history(db, json, edit.time);
+    }
+
     @SuppressLint("Range")
-    public Caregiver get_caregiver() {
+    public List<Caregiver> get_caregivers() {
         SQLiteDatabase db = sdb.getReadableDatabase();
+        List<Caregiver> caregivers = new ArrayList<>();
 
         Cursor cursor = db.rawQuery("SELECT * FROM " + DatabaseHelper.TABLE_USER + " ORDER BY " +
-                DatabaseHelper.USER_ADDED_DATE +" DESC LIMIT 1", null);
+                DatabaseHelper.USER_ADDED_DATE, null);
 
         if (cursor.moveToFirst()) {
             int id      = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.USER_ID));
             String name = cursor.getString(cursor.getColumnIndex(DatabaseHelper.USER_NAME));
             int time    = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.USER_ADDED_DATE));
             String phone = cursor.getString(cursor.getColumnIndex(DatabaseHelper.USER_PHONE));
+            boolean active = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.USER_ACTIVE)) == 1;
             cursor.close();
             db.close();
-            return new Caregiver(id, name, time, phone);
+            caregivers.add(new Caregiver(id, name, time, phone, active));
         }
         cursor.close();
         db.close();
-        return null;
+        return caregivers;
     }
 
     static void new_caregiver_inner(SQLiteDatabase db, Instruction.AddCaregiver add_caregiver,
@@ -77,10 +113,11 @@ public class PatientDAO {
         values.put(DatabaseHelper.USER_NAME, add_caregiver.new_caregiver.name);
         values.put(DatabaseHelper.USER_PHONE, add_caregiver.new_caregiver.phone);
         values.put(DatabaseHelper.USER_ADDED_DATE, add_caregiver.time);
+        values.put(DatabaseHelper.USER_ACTIVE, 1);
         if (by_caregiver != add_caregiver.new_caregiver.id) {
             values.put(DatabaseHelper.USER_ADDED_BY, by_caregiver);
         }
-        db.insertOrThrow(DatabaseHelper.TABLE_USER, null, values);
+        db.insertWithOnConflict(DatabaseHelper.TABLE_USER, null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     private void update_last_id(SQLiteDatabase db, int last_id) {
@@ -419,33 +456,32 @@ public class PatientDAO {
     }
 
     @SuppressLint("Range")
-    public List<Object> get_all_history(Integer user, String name, boolean is_med) {
+    public List<Object> get_all_history(Integer user, String name, History.HistoryType type) {
         SQLiteDatabase db = sdb.getReadableDatabase();
         List<Object> hist = new ArrayList<>();
 
-        String table;
-        String idt;
-        String namet;
-        String usert;
+        Cursor cursor;
         String data;
-        if (is_med) {
-            table = DatabaseHelper.TABLE_MEDICATION_HISTORY;
-            idt = DatabaseHelper.HISTORY_ID;
-            namet = DatabaseHelper.HISTORY_MEDICATION;
-            usert = DatabaseHelper.HISTORY_USER;
+        if (type == History.HistoryType.Medicine) {
             data = DatabaseHelper.HISTORY_DATA;
-        } else {
-            table = DatabaseHelper.TABLE_ACTIVITY_HISTORY;
-            idt = DatabaseHelper.ACTIVITY_HISTORY_ID;
-            namet = DatabaseHelper.ACTIVITY_HISTORY_NAME;
-            usert = DatabaseHelper.ACTIVITY_HISTORY_USER;
+            cursor = db.rawQuery("SELECT " + data +
+                            " FROM " + DatabaseHelper.TABLE_MEDICATION_HISTORY + " WHERE " +
+                            (user == null ? "" : DatabaseHelper.HISTORY_USER + " is " + user + " AND ") +
+                            DatabaseHelper.HISTORY_MEDICATION + " = ? ORDER BY " + DatabaseHelper.HISTORY_ID + " DESC",
+                    new String[]{ name });
+        } else if (type == History.HistoryType.Activity) {
             data = DatabaseHelper.ACTIVITY_HISTORY_DATA;
+            cursor = db.rawQuery("SELECT " + data +
+                            " FROM " + DatabaseHelper.TABLE_ACTIVITY_HISTORY + " WHERE " +
+                            (user == null ? "" : DatabaseHelper.ACTIVITY_HISTORY_USER + " is " + user + " AND ") +
+                            DatabaseHelper.ACTIVITY_HISTORY_NAME + " = ? ORDER BY " + DatabaseHelper.ACTIVITY_HISTORY_ID + " DESC",
+                    new String[]{ name });
+        } else {
+            data = DatabaseHelper.ASSIGN_HISTORY_DATA;
+            cursor = db.rawQuery("SELECT " + data +
+                        " FROM " + DatabaseHelper.TABLE_ASSIGN_HISTORY +
+                        " ORDER BY " + DatabaseHelper.ASSIGN_HISTORY_ID + " DESC", null);
         }
-
-        Cursor cursor = db.rawQuery("SELECT " + data + " FROM " + table + " WHERE " +
-                (user == null ? "" : usert + " is " + user + " AND ") +
-                namet + " = ? ORDER BY " + idt + " DESC",
-                new String[]{ name });
 
         Gson p = new Gson();
         if (cursor.moveToFirst()) {

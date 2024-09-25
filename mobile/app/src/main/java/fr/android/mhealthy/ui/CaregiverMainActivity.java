@@ -27,13 +27,15 @@ public class CaregiverMainActivity extends AppCompatActivity {
     RecyclerView patient_view;
     PatientRecycler adapter;
 
+    Session session;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_caregiver_main);
 
-        Intent intent   = getIntent();
-        Session session = (Session) intent.getSerializableExtra("session");
+        Intent intent = getIntent();
+        session = (Session) intent.getSerializableExtra("session");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -61,6 +63,21 @@ public class CaregiverMainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         MenuUtils.onClickMenuItem(this, item.getItemId());
+        if (item.getItemId() == R.id.show_deleted) {
+            if (!adapter.show_hidden) {
+                adapter.show_hidden = true;
+                adapter.notifyDataSetChanged();
+            }
+        } else if (item.getItemId() == R.id.hide_deleted) {
+            if (adapter.show_hidden) {
+                adapter.show_hidden = false;
+                adapter.notifyDataSetChanged();
+            }
+        } else if (item.getItemId() == R.id.assign_hist) {
+            Intent i = new Intent(this, AssignmentHistoryActivity.class);
+            i.putExtra("session", session);
+            startActivity(i);
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -92,6 +109,17 @@ public class CaregiverMainActivity extends AppCompatActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void new_patient_event(Patient p) {
         adapter.insert(p);
+        patient_view.smoothScrollToPosition(0);
+    }
+
+    public static class UnassignPatient {
+        public int id;
+        public UnassignPatient(int id) { this.id = id; }
+    }
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void unassign_patient_event(UnassignPatient p) {
+        adapter.remove(p.id);
         patient_view.smoothScrollToPosition(0);
     }
 }

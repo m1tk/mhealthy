@@ -89,4 +89,10 @@
     <string name="contact_caregiver">Contacter soigant</string>
     <string name="emergency">Emergence</string>
     <string name="contact_patient">Contacter patient</string>
+    <string name="show_del_patient">Afficher les patients non assignés</string>
+    <string name="hide_del_patient">Cacher les petients non assignés</string>
+    <string name="patient_caregiver_unassigned">Le soignant %1$s a été désassigné</string>
+    <string name="you_unassgined">Vous avez été désassigné de la prise en charge de %1$s</string>
+    <string name="no_active_caregiver">Vous n\'avez actuellement pas de soignant</string>
+    <string name="assign_hist">Historique des assignations</string>
 </resources>

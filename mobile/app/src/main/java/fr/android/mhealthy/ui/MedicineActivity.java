@@ -120,7 +120,7 @@ public class MedicineActivity extends AppCompatActivity {
         adapter = new HistoryRecycler(
                 new PatientDAO(getApplicationContext(), session),
                 medicine.name,
-                true,
+                History.HistoryType.Medicine,
                 p
         );
         history_view.setLayoutManager(new LinearLayoutManager(this));
@@ -142,7 +142,7 @@ public class MedicineActivity extends AppCompatActivity {
         super.onResume();
         EventBus.getDefault().register(this);
         new Thread(() -> {
-            adapter.load_data(p);
+            adapter.load_data(p, null);
             runOnUiThread(() -> {
                 adapter.notifyDataSetChanged();
             });

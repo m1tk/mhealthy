@@ -26,8 +26,6 @@
 
 package fr.android.mhealthy.ui;
 
-import static fr.android.mhealthy.utils.SettingsUtils.hasCallPermission;
-
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -36,7 +34,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.PopupMenu;
+
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -44,6 +42,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.card.MaterialCardView;
+
+import java.util.List;
 
 import fr.android.mhealthy.R;
 import fr.android.mhealthy.model.Caregiver;
@@ -112,8 +112,10 @@ public class PatientMainActivity extends AppCompatActivity {
                 phone = p.phone;
             } else {
                 try {
-                    Caregiver caregiver = con.get_caregiver();
-                    phone = caregiver.phone;
+                    phone = get_caregiver_phone();
+                    if (phone == null) {
+                        return;
+                    }
                 } catch (Exception e) {
                     AlertDialog err = new AlertDialog.Builder(this)
                             .setMessage(e.toString())
@@ -129,9 +131,12 @@ public class PatientMainActivity extends AppCompatActivity {
 
         Button emer = findViewById(R.id.btnEmergency);
         emer.setOnClickListener(v -> {
-            Caregiver caregiver;
+            String phone;
             try {
-                caregiver = con.get_caregiver();
+                phone = get_caregiver_phone();
+                if (phone == null) {
+                    return;
+                }
             } catch (Exception e) {
                 AlertDialog err = new AlertDialog.Builder(this)
                         .setMessage(e.toString())
@@ -139,10 +144,25 @@ public class PatientMainActivity extends AppCompatActivity {
                 err.show();
                 return;
             }
-            Intent intent1 = new Intent(hasCallPermission(this) ? Intent.ACTION_CALL : Intent.ACTION_DIAL);
-            intent1.setData(Uri.parse("tel:" + caregiver.phone)); // Replace phoneNumber with the actual number
+            Intent intent1 = new Intent(Intent.ACTION_CALL);
+            intent1.setData(Uri.parse("tel:" + phone)); // Replace phoneNumber with the actual number
             startActivity(intent1);
         });
+    }
+
+    private String get_caregiver_phone() {
+        List<Caregiver> caregivers = con.get_caregivers();
+        for (Caregiver caregiver : caregivers) {
+            if (caregiver.active) {
+                return caregiver.phone;
+            } else {
+                AlertDialog err = new AlertDialog.Builder(this)
+                        .setMessage(getString(R.string.no_active_caregiver))
+                        .create();
+                err.show();
+            }
+        }
+        return null;
     }
 
     @Override
@@ -157,6 +177,10 @@ public class PatientMainActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
+        } else if (item.getItemId() == R.id.assign_hist) {
+            Intent i = new Intent(this, AssignmentHistoryActivity.class);
+            i.putExtra("session", session);
+            startActivity(i);
         } else {
             MenuUtils.onClickMenuItem(this, item.getItemId());
         }

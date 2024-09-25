@@ -5,6 +5,10 @@ import android.content.Context;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
+import java.util.Optional;
 
 import fr.android.mhealthy.R;
 
@@ -17,6 +21,7 @@ public class Instruction {
 
     public enum InstructionType {
         AddCaregiver,
+        UnassignCaregiver,
         AddPatient,
         AddMedicine,
         EditMedicine,
@@ -46,6 +51,13 @@ public class Instruction {
             public String name;
             public String phone;
         }
+    }
+
+    public static class UnassignCaregiver {
+        public long time;
+        public Integer id;
+        public Boolean stop;
+        public Integer patient;
     }
 
     public static class AddMedicine {
@@ -96,6 +108,10 @@ public class Instruction {
                     this.type = InstructionType.AddCaregiver;
                     this.instruction = p.fromJson(ins.toString(), AddCaregiver.class);
                 }
+                break;
+            case "unassign_caregiver":
+                this.type = InstructionType.UnassignCaregiver;
+                this.instruction = p.fromJson(ins.toString(), UnassignCaregiver.class);
                 break;
             case "add_medicine":
                 this.type = InstructionType.AddMedicine;
@@ -152,6 +168,9 @@ public class Instruction {
             case AddCaregiver:
                 type = "assign_caregiver";
                 break;
+            case UnassignCaregiver:
+                type = "unassign_caregiver";
+                break;
             case AddMedicine:
                 type = "add_medicine";
                 break;
@@ -188,10 +207,30 @@ public class Instruction {
         return o;
     }
 
-    public String get_action_string(Context ctx) {
+    public String get_action_string(Context ctx, List<Caregiver> users) {
         switch (this.type) {
             case AddPatient:
-                return ctx.getString(R.string.new_patient_hist, ((AddPatient)instruction).new_patient);
+                return ctx.getString(R.string.new_patient_hist, ((AddPatient)instruction).new_patient.name);
+            case UnassignCaregiver:
+                UnassignCaregiver un = (UnassignCaregiver) instruction;
+                String name = "Unknown";
+                if (un.id == null) {
+                    for (Caregiver user : users) {
+                        if (user.id == un.patient) {
+                            name = user.name;
+                            break;
+                        }
+                    }
+                    return ctx.getString(R.string.you_unassgined, name);
+                } else {
+                    for (Caregiver user : users) {
+                        if (user.id == un.id) {
+                            name = user.name;
+                            break;
+                        }
+                    }
+                    return ctx.getString(R.string.patient_caregiver_unassigned, name);
+                }
             case AddCaregiver:
                 return ctx.getString(R.string.new_caregiver_hist, ((AddCaregiver)instruction).new_caregiver.name);
             case AddMedicine:

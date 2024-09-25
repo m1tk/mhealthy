@@ -25,6 +25,7 @@ import fr.android.mhealthy.model.PatientInfo;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.storage.CaregiverDAO;
 import fr.android.mhealthy.storage.LastIdDAO;
+import fr.android.mhealthy.ui.CaregiverMainActivity;
 
 public class CaregiverEvents {
     private final Gson p;
@@ -68,6 +69,7 @@ public class CaregiverEvents {
                     }
                     Thread t = new Thread(() -> {
                         event_handler(ctx, s, patient);
+                        tasks.remove(patient);
                     });
                     tasks.add(patient);
                     t.start();
@@ -119,7 +121,9 @@ public class CaregiverEvents {
                 if (data.event.equals("patient_info")) {
                     handle_patient_info_data(cd, data, patient, last);
                 } else {
-                    handle_instruction_data(cd, data, patient, last);
+                    if (handle_instruction_data(cd, data, patient, last)) {
+                        break;
+                    }
                 }
             } catch (Exception e) {
                 break;
@@ -130,6 +134,7 @@ public class CaregiverEvents {
         } catch (IOException e) {
             // Omit exception here
         }
+        EventHandlerBackground.tasks.remove(Thread.currentThread());
     }
 
     void handle_patient_info_data(CaregiverDAO cd, SSEdata data, int patient, LastId last) {
@@ -152,7 +157,7 @@ public class CaregiverEvents {
         last.last_patient_info = info.id;
     }
 
-    void handle_instruction_data(CaregiverDAO cd, SSEdata data, int patient, LastId last) {
+    boolean handle_instruction_data(CaregiverDAO cd, SSEdata data, int patient, LastId last) {
         Instruction ins;
         JsonObject ons;
         Log.d("Instruction", data.data);
@@ -164,17 +169,18 @@ public class CaregiverEvents {
             ins = new Instruction(p, ons, caregiver, id);
         } catch (Exception e) {
             // If it is unreadable, sadly we just skip for now
-            return;
+            return false;
         }
 
         if (ins.type == Instruction.InstructionType.AddPatient) {
             Instruction.AddPatient inst = (Instruction.AddPatient) ins.instruction;
-            cd.new_patient(inst, patient, ins.id);
+            cd.new_patient(inst, ons.toString(), patient, ins.id);
             EventBus.getDefault().post(new Patient(
                     inst.new_patient.id,
                     inst.new_patient.name,
                     inst.time,
-                    inst.new_patient.phone
+                    inst.new_patient.phone,
+                    true
             ));
             EventBus.getDefault().post(new EventHandlerBackground.NewNotificationTask(
                     R.string.new_patient_title,
@@ -188,7 +194,20 @@ public class CaregiverEvents {
                 ins.type == Instruction.InstructionType.EditActivity ||
                 ins.type == Instruction.InstructionType.RemoveActivity) {
             cd.instruction_operation(ins, ons.toString(), null, patient);
+        } else if (ins.type == Instruction.InstructionType.UnassignCaregiver) {
+            // We ignore all notices about other caregivers as it is not supported
+            Instruction.UnassignCaregiver inst = (Instruction.UnassignCaregiver) ins.instruction;
+            inst.patient = patient;
+            ons.addProperty("patient", patient);
+            if (inst.id == null) {
+                cd.unassign_patient(inst, ons.toString(), patient, ins.id);
+                if (inst.stop != null && inst.stop) {
+                    EventBus.getDefault().post(new CaregiverMainActivity.UnassignPatient(patient));
+                    return true;
+                }
+            }
         }
         last.last_instruction = ins.id;
+        return false;
     }
 }
