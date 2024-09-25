@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.util.List;
 
 import fr.android.mhealthy.R;
+import fr.android.mhealthy.model.Caregiver;
 import fr.android.mhealthy.model.History;
 import fr.android.mhealthy.model.Instruction;
 import fr.android.mhealthy.model.PatientInfo;
@@ -24,6 +25,7 @@ public class HistoryRecycler extends RecyclerView.Adapter<HistoryHolder> {
     private String name;
     private History.HistoryType type;
 
+    List<Caregiver> list;
 
     public HistoryRecycler(PatientDAO access, String name, History.HistoryType type, Integer patient) {
         this.hist = List.of();
@@ -32,7 +34,8 @@ public class HistoryRecycler extends RecyclerView.Adapter<HistoryHolder> {
         this.access = access;
     }
 
-    public void load_data(Integer patient) {
+    public void load_data(Integer patient, List<Caregiver> list) {
+        this.list = list;
         this.hist = access.get_all_history(patient, name, type);
     }
 
@@ -55,7 +58,7 @@ public class HistoryRecycler extends RecyclerView.Adapter<HistoryHolder> {
             time = i.get_time();
         } else {
             Instruction i = (Instruction)p;
-            text = i.get_action_string(holder.itemView.getContext());
+            text = i.get_action_string(holder.itemView.getContext(), list);
             time = i.get_time();
         }
         holder.text.setText(text);

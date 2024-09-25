@@ -27,13 +27,15 @@ public class CaregiverMainActivity extends AppCompatActivity {
     RecyclerView patient_view;
     PatientRecycler adapter;
 
+    Session session;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_caregiver_main);
 
-        Intent intent   = getIntent();
-        Session session = (Session) intent.getSerializableExtra("session");
+        Intent intent = getIntent();
+        session = (Session) intent.getSerializableExtra("session");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -71,6 +73,10 @@ public class CaregiverMainActivity extends AppCompatActivity {
                 adapter.show_hidden = false;
                 adapter.notifyDataSetChanged();
             }
+        } else if (item.getItemId() == R.id.assign_hist) {
+            Intent i = new Intent(this, AssignmentHistoryActivity.class);
+            i.putExtra("session", session);
+            startActivity(i);
         }
         return super.onOptionsItemSelected(item);
     }

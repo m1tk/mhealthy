@@ -197,6 +197,8 @@ public class CaregiverEvents {
         } else if (ins.type == Instruction.InstructionType.UnassignCaregiver) {
             // We ignore all notices about other caregivers as it is not supported
             Instruction.UnassignCaregiver inst = (Instruction.UnassignCaregiver) ins.instruction;
+            inst.patient = patient;
+            ons.addProperty("patient", patient);
             if (inst.id == null) {
                 cd.unassign_patient(inst, ons.toString(), patient, ins.id);
                 if (inst.stop != null && inst.stop) {

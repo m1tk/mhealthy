@@ -58,8 +58,6 @@ public class PatientMainActivity extends AppCompatActivity {
     Session session;
     PatientDAO con;
 
-    List<Caregiver> caregivers;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +71,6 @@ public class PatientMainActivity extends AppCompatActivity {
         session       = (Session) intent.getSerializableExtra("session");
 
         con = new PatientDAO(getApplicationContext(), session);
-        caregivers = con.get_caregivers();
 
         TextView welcome = findViewById(R.id.tvWelcome);
         MaterialCardView chatCard = findViewById(R.id.cardChat);
@@ -156,7 +153,7 @@ public class PatientMainActivity extends AppCompatActivity {
     }
 
     private String get_caregiver_phone() {
-        caregivers = con.get_caregivers();
+        List<Caregiver> caregivers = con.get_caregivers();
         for (Caregiver caregiver : caregivers) {
             if (caregiver.active) {
                 return caregiver.phone;
@@ -182,6 +179,10 @@ public class PatientMainActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
+        } else if (item.getItemId() == R.id.assign_hist) {
+            Intent i = new Intent(this, AssignmentHistoryActivity.class);
+            i.putExtra("session", session);
+            startActivity(i);
         } else {
             MenuUtils.onClickMenuItem(this, item.getItemId());
         }

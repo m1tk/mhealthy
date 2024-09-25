@@ -94,6 +94,7 @@
     <string name="show_del_patient">Show unassigned patients</string>
     <string name="hide_del_patient">Hide unassigned patients</string>
     <string name="patient_caregiver_unassigned">Caregiver %1$s has been unassigned</string>
-    <string name="you_unassgined">You have been unassigned from taking care of the patient</string>
+    <string name="you_unassgined">You have been unassigned from taking care of %1$s</string>
     <string name="no_active_caregiver">You currently don\'t have a caregiver</string>
+    <string name="assign_hist">Assignment history</string>
 </resources>

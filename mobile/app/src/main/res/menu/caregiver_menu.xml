@@ -2,6 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/show_deleted" android:title="@string/show_del_patient" />
     <item android:id="@+id/hide_deleted" android:title="@string/hide_del_patient" />
+    <item android:id="@+id/assign_hist" android:title="@string/assign_hist"/>
     <item android:id="@+id/c_settings" android:title="@string/settings" />
     <item android:id="@+id/c_logout" android:title="@string/logout" />
 </menu>

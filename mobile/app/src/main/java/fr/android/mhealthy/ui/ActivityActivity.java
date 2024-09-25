@@ -151,7 +151,7 @@ public class ActivityActivity extends AppCompatActivity {
         super.onResume();
         EventBus.getDefault().register(this);
         new Thread(() -> {
-            adapter.load_data(p);
+            adapter.load_data(p, null);
             runOnUiThread(() -> {
                 adapter.notifyDataSetChanged();
             });

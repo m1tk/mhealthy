@@ -74,6 +74,9 @@
         <activity android:name=".ui.ActivityActivity"
             android:exported="false" />
 
+        <activity android:name=".ui.AssignmentHistoryActivity"
+            android:exported="false" />
+
         <activity android:name=".ui.SettingsActivity"
             android:configChanges="locale|orientation" />
 
