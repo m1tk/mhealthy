@@ -73,18 +73,26 @@ public class PatientMainActivity extends AppCompatActivity {
         TextView welcome = findViewById(R.id.tvWelcome);
         MaterialCardView chatCard = findViewById(R.id.cardChat);
         MaterialCardView emerCard = findViewById(R.id.cardEmergency);
+
         Button chat = findViewById(R.id.btnChat);
 
         if (session.account_type.equals("patient")) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             welcome.setText(getString(R.string.welcome, session.name));
             emerCard.setVisibility(View.VISIBLE);
+            chat.setVisibility(View.VISIBLE);
             chat.setText(getString(R.string.contact_caregiver));
+        } else if (session.account_type.equals("selfcarepatient")) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            welcome.setText(getString(R.string.welcome, session.name));
+            emerCard.setVisibility(View.GONE);
+            chat.setVisibility(View.GONE);
         } else {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             Patient p = (Patient) intent.getSerializableExtra("patient");
             welcome.setText(getString(R.string.caregiver_patient_main, p.name));
             emerCard.setVisibility(View.GONE);
+            chat.setVisibility(View.VISIBLE);
             chat.setText(getString(R.string.contact_patient));
         }
 
@@ -169,6 +177,8 @@ public class PatientMainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         if (session.account_type.equals("patient")) {
             getMenuInflater().inflate(R.menu.patient_menu, menu);
+        } else if (session.account_type.equals("selfcarepatient")) {
+            getMenuInflater().inflate(R.menu.selfcare_menu, menu);
         }
         return super.onCreateOptionsMenu(menu);
     }

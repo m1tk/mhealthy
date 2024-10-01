@@ -77,8 +77,15 @@ public class PatientAlarmScheduler {
     public static void schedule(Context ctx, Session s) {
         PatientDAO db = new PatientDAO(ctx, s);
 
-        List<Medicine> meds = db.get_all_meds(null);
-        List<Activity> acts = db.get_all_activities(null);
+        Integer id;
+        if (s.account_type.equals("patient")) {
+            id = null;
+        } else {
+            id = 0;
+        }
+
+        List<Medicine> meds = db.get_all_meds(id);
+        List<Activity> acts = db.get_all_activities(id);
 
         AlarmManager alarmManager = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
 

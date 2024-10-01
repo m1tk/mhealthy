@@ -54,9 +54,14 @@ public class MedicationManagerActivity extends AppCompatActivity {
         TextView title = findViewById(R.id.medTitle);
 
         FloatingActionButton fab = findViewById(R.id.add_med_fab);
-        if (session.account_type.equals("caregiver")) {
+        if (session.account_type.equals("caregiver")
+                || session.account_type.equals("selfcarepatient")) {
             Patient p = (Patient) intent.getSerializableExtra("patient");
-            title.setText(getString(R.string.med_list_caregiver));
+            if (session.account_type.equals("selfcarepatient")) {
+                title.setText(getString(R.string.med_list_patient));
+            } else {
+                title.setText(getString(R.string.med_list_caregiver));
+            }
             fab.setVisibility(View.VISIBLE);
             fab.setOnClickListener(v -> {
                 Intent intent1 = new Intent(this, MedicationActionActivity.class);
@@ -82,7 +87,7 @@ public class MedicationManagerActivity extends AppCompatActivity {
                     Intent intent1 = new Intent(this, MedicineActivity.class);
                     intent1.putExtra("session", session);
                     intent1.putExtra("medicine", v);
-                    if (session.account_type.equals("caregiver")) {
+                    if (!session.account_type.equals("patient")) {
                         intent1.putExtra("patient", intent.getSerializableExtra("patient"));
                     }
                     startActivity(intent1);

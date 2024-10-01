@@ -17,6 +17,7 @@ import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.PatientInfo;
 import fr.android.mhealthy.model.PendingTransactionNotification;
 import fr.android.mhealthy.model.Session;
+import fr.android.mhealthy.service.PatientAlarmScheduler;
 
 public class CaregiverDAO {
     public DatabaseHelper sdb;
@@ -113,7 +114,7 @@ public class CaregiverDAO {
     }
 
     public void instruction_operation(Instruction op, String json, String trans_json,
-                                      int patient) {
+                                      int patient, boolean self_care) {
         SQLiteDatabase db = sdb.getWritableDatabase();
         long pending = 0;
         db.beginTransaction();
@@ -155,7 +156,7 @@ public class CaregiverDAO {
                     return;
             }
             update_last_instruction_id(db, patient, op.id);
-            if (trans_json != null) {
+            if (trans_json != null && !self_care) {
                 pending = PendingTransactionDAO.insert(db, "instruction", trans_json);
             }
             db.setTransactionSuccessful();
@@ -168,6 +169,9 @@ public class CaregiverDAO {
         }
         if (pending != 0) {
             EventBus.getDefault().post(new PendingTransactionNotification(pending));
+        }
+        if (self_care) {
+            EventBus.getDefault().post(new PatientAlarmScheduler.Updated());
         }
     }
 

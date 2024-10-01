@@ -100,4 +100,5 @@
     <string name="profile">Profile</string>
     <string name="profile_token">Profile token QR code</string>
     <string name="profile_qr_gen_warn_patient">Warning: To protect your privacy, only caregiver instructions will be sent to your new device.</string>
+    <string name="selfcarelog">Use offline selfcare profile</string>
 </resources>

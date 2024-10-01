@@ -9,7 +9,7 @@ public class Patient implements Serializable {
     public String phone;
     public boolean active;
 
-    public Patient(int id, String name, long time, String phone, boolean active) {
+    public Patient(Integer id, String name, long time, String phone, boolean active) {
         this.id = id;
         this.name = name;
         this.add_time = time;

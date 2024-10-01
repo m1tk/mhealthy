@@ -24,6 +24,7 @@ import fr.android.mhealthy.api.ErrorResp;
 import fr.android.mhealthy.api.HttpClient;
 import fr.android.mhealthy.api.LoginReq;
 import fr.android.mhealthy.api.LoginResp;
+import fr.android.mhealthy.model.Patient;
 import fr.android.mhealthy.model.Session;
 import fr.android.mhealthy.service.EventHandlerBackground;
 import fr.android.mhealthy.service.SessionManager;
@@ -64,6 +65,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         etIdToken = findViewById(R.id.etIdToken);
         Button btnLogin = findViewById(R.id.btnLogin);
         Button btnQrScan = findViewById(R.id.btnQrScan);
+        Button btnSelfCare = findViewById(R.id.btnSelfCare);
 
         btnLogin.setOnClickListener(v -> {
             String idToken = etIdToken.getText().toString().trim();
@@ -82,14 +84,32 @@ public class AuthenticationActivity extends AppCompatActivity {
             integrator.setOrientationLocked(true);
             integrator.initiateScan();
         });
+
+        btnSelfCare.setOnClickListener(v -> {
+            Session se;
+            try {
+                se = manager.login_selfcare();
+            } catch (Exception e) {
+                AlertDialog err = new AlertDialog.Builder(this)
+                        .setMessage(e.toString())
+                        .create();
+                err.show();
+                return;
+            }
+            navigateToMain(se);
+        });
     }
 
     private void navigateToMain(Session session) {
         Intent intent;
-        if (session.account_type.equals("patient")) {
-            intent = new Intent(this, PatientMainActivity.class);
-        } else {
+        if (session.account_type.equals("caregiver")) {
             intent = new Intent(this, CaregiverMainActivity.class);
+        } else {
+            intent = new Intent(this, PatientMainActivity.class);
+            if (session.account_type.equals("selfcarepatient")) {
+                Patient p = new Patient(0, "", 0, "", true);
+                intent.putExtra("patient", p);
+            }
         }
         intent.putExtra("session", session);
         startActivity(intent);

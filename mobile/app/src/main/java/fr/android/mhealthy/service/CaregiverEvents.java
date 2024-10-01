@@ -193,7 +193,7 @@ public class CaregiverEvents {
                 ins.type == Instruction.InstructionType.AddActivity ||
                 ins.type == Instruction.InstructionType.EditActivity ||
                 ins.type == Instruction.InstructionType.RemoveActivity) {
-            cd.instruction_operation(ins, ons.toString(), null, patient);
+            cd.instruction_operation(ins, ons.toString(), null, patient, false);
         } else if (ins.type == Instruction.InstructionType.UnassignCaregiver) {
             // We ignore all notices about other caregivers as it is not supported
             Instruction.UnassignCaregiver inst = (Instruction.UnassignCaregiver) ins.instruction;

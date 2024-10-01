@@ -96,44 +96,47 @@ public class EventHandlerBackground extends Service {
             return START_NOT_STICKY;
         }
 
-        networkCallback = new ConnectivityManager.NetworkCallback() {
-            @Override
-            public void onAvailable(@NonNull Network network) {
-                super.onAvailable(network);
-                try {
-                    mutex.acquire();
-                } catch (InterruptedException e) {
-                    return;
+        if (s.id != -2) {
+            networkCallback = new ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onAvailable(@NonNull Network network) {
+                    super.onAvailable(network);
+                    try {
+                        mutex.acquire();
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                    Log.d("ForegroundTask", "Starting background tasks.");
+                    start_tasks(s);
+                    mutex.release();
                 }
-                Log.d("ForegroundTask", "Starting background tasks.");
-                start_tasks(s);
-                mutex.release();
-            }
 
-            @Override
-            public void onLost(@NonNull Network network) {
-                super.onLost(network);
-                try {
-                    mutex.acquire();
-                } catch (InterruptedException e) {
-                    return;
+                @Override
+                public void onLost(@NonNull Network network) {
+                    super.onLost(network);
+                    try {
+                        mutex.acquire();
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                    Log.d("ForegroundTask", "Stopping background tasks due to no network activity");
+                    stop_tasks();
+                    mutex.release();
                 }
-                Log.d("ForegroundTask", "Stopping background tasks due to no network activity");
-                stop_tasks();
-                mutex.release();
-            }
-        };
+            };
 
-        NetworkRequest networkRequest = new NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-                .build();
+            NetworkRequest networkRequest = new NetworkRequest.Builder()
+                    .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                    .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                    .build();
 
-        connectivityManager = getSystemService(ConnectivityManager.class);
-        connectivityManager.registerNetworkCallback(networkRequest, networkCallback);
+            connectivityManager = getSystemService(ConnectivityManager.class);
+            connectivityManager.registerNetworkCallback(networkRequest, networkCallback);
+        }
 
-        if (s.account_type.equals("patient")) {
+        if (s.account_type.equals("patient")
+            || s.account_type.equals("selfcarepatient")) {
             PatientAlarmScheduler.schedule(getApplicationContext(), s);
         }
 
@@ -144,7 +147,9 @@ public class EventHandlerBackground extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        connectivityManager.unregisterNetworkCallback(networkCallback);
+        if (connectivityManager != null) {
+            connectivityManager.unregisterNetworkCallback(networkCallback);
+        }
         running.set(false);
     }
 
@@ -191,8 +196,9 @@ public class EventHandlerBackground extends Service {
         }
     }
 
+    @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void alarm_update(PatientAlarmScheduler.Reschedule re) {
+    public void alarm_update2(PatientAlarmScheduler.Reschedule re) {
         if (s != null) {
             PatientAlarmScheduler.reschedule(getApplicationContext(), re.key);
         }

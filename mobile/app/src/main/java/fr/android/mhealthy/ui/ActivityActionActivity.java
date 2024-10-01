@@ -39,6 +39,7 @@ public class ActivityActionActivity extends AppCompatActivity {
     private Patient patient;
 
     String activity_id = null;
+    boolean self_care;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,6 +54,8 @@ public class ActivityActionActivity extends AppCompatActivity {
         Intent intent = getIntent();
         session = (Session) intent.getSerializableExtra("session");
         patient = (Patient) intent.getSerializableExtra("patient");
+
+        self_care = session.account_type.equals("selfcarepatient");
 
         db = new CaregiverDAO(getApplicationContext(), session);
 
@@ -188,7 +191,8 @@ public class ActivityActionActivity extends AppCompatActivity {
                         ins,
                         op.get("data").getAsJsonObject().toString(),
                         op.toString(),
-                        patient.id
+                        patient.id,
+                        self_care
                 );
             } catch (Exception e) {
                 String err_msg;

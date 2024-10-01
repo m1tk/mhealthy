@@ -427,21 +427,24 @@ public class PatientDAO {
         return acts;
     }
 
-    public void add_info(PatientInfo op, String json, String name, long time) {
-        long pending;
+    public void add_info(PatientInfo op, String json, String name, long time,
+                         boolean self_care, Integer patient) {
+        long pending = 0;
         SQLiteDatabase db = sdb.getWritableDatabase();
         db.beginTransaction();
         try {
             if (op.type == PatientInfo.PatientInfoType.MedicineTaken) {
-                add_medicine_history(db, op, json, name, time, null);
+                add_medicine_history(db, op, json, name, time, patient);
             } else {
-                add_activity_history(db, op, json, name, time, null);
+                add_activity_history(db, op, json, name, time, patient);
             }
-            pending = PendingTransactionDAO.insert(
-                    db,
-                    "patient_info",
-                    op.to_server_json_format(new Gson()).toString()
-            );
+            if (!self_care) {
+                pending = PendingTransactionDAO.insert(
+                        db,
+                        "patient_info",
+                        op.to_server_json_format(new Gson()).toString()
+                );
+            }
             db.setTransactionSuccessful();
             db.endTransaction();
             db.close();

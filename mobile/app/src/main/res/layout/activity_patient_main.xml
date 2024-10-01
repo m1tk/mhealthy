@@ -131,18 +131,4 @@
             app:iconPadding="8dp"
             style="@style/Widget.MaterialComponents.Button.TextButton"/>
     </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnSwitchToCaregiver"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/switch_to_caregiver"
-        android:textSize="16sp"
-        android:layout_marginBottom="32dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:visibility="invisible"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

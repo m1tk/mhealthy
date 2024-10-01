@@ -52,6 +52,8 @@ public class MedicineActivity extends AppCompatActivity {
     TextView dose;
     TextView time;
 
+    boolean self_care;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +67,8 @@ public class MedicineActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Session session = (Session) intent.getSerializableExtra("session");
         medicine = (Medicine) intent.getSerializableExtra("medicine");
+
+        self_care = session.account_type.equals("selfcarepatient");
 
         TextView med_name = findViewById(R.id.tvMedTitle);
         med_name.setText(medicine.name);
@@ -94,7 +98,14 @@ public class MedicineActivity extends AppCompatActivity {
 
         MaterialButton btnMedTaken = findViewById(R.id.btnMedTaken);
         FloatingActionButton edit   = findViewById(R.id.edit_act_fab);
-        if (session.account_type.equals("caregiver")) {
+        if (session.account_type.equals("patient")) {
+            pdb = new PatientDAO(getApplicationContext(), session);
+            edit.setVisibility(View.GONE);
+            btnMedTaken.setVisibility(View.VISIBLE);
+            btnMedTaken.setOnClickListener(v -> {
+                medicine_taken(medicine.name);
+            });
+        } else {
             edit.setVisibility(View.VISIBLE);
             btnMedTaken.setVisibility(View.GONE);
             edit.setOnClickListener(v -> {
@@ -105,13 +116,13 @@ public class MedicineActivity extends AppCompatActivity {
                 intent1.putExtra("medicine", medicine);
                 activityResultLauncher.launch(intent1);
             });
-        } else {
-            pdb = new PatientDAO(getApplicationContext(), session);
-            edit.setVisibility(View.GONE);
-            btnMedTaken.setVisibility(View.VISIBLE);
-            btnMedTaken.setOnClickListener(v -> {
-                medicine_taken(medicine.name);
-            });
+            if (session.account_type.equals("selfcarepatient")) {
+                pdb = new PatientDAO(getApplicationContext(), session);
+                btnMedTaken.setVisibility(View.VISIBLE);
+                btnMedTaken.setOnClickListener(v -> {
+                    medicine_taken(medicine.name);
+                });
+            }
         }
 
         Patient patient = (Patient) intent.getSerializableExtra("patient");
@@ -200,7 +211,9 @@ public class MedicineActivity extends AppCompatActivity {
                         info,
                         info.to_store_json_format(new Gson()).toString(),
                         name,
-                        med.time
+                        med.time,
+                        self_care,
+                        self_care ? 0 : null
                 );
             } catch (Exception e) {
                 runOnUiThread(() -> {

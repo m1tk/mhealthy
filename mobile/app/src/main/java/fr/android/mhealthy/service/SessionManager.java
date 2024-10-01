@@ -37,6 +37,24 @@ public class SessionManager {
         }
     }
 
+    public Session login_selfcare() throws Exception {
+        Session s = selfcare();
+        session.active_account_id = s.id;
+        this.write_session_file(session);
+        SecretDAO db = new SecretDAO(ctx, s);
+        db.update_token("");
+        return s;
+    }
+
+    private Session selfcare() {
+        Session s = new Session();
+        s.id = -2;
+        s.name = "Root";
+        s.cin = "";
+        s.account_type = "selfcarepatient";
+        return s;
+    }
+
     public Session login(LoginResp acc, String token) throws Exception {
         int count = 0;
         for (Session s : session.sessions) {
@@ -63,7 +81,11 @@ public class SessionManager {
 
     public Session get_logged_session() {
         if (is_logged) {
-            return session.sessions.get(session.active_account_id);
+            if (session.active_account_id == -2) {
+                return selfcare();
+            } else {
+                return session.sessions.get(session.active_account_id);
+            }
         }
         return null;
     }
