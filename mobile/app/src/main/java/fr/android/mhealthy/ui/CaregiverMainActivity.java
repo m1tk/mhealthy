@@ -77,6 +77,10 @@ public class CaregiverMainActivity extends AppCompatActivity {
             Intent i = new Intent(this, AssignmentHistoryActivity.class);
             i.putExtra("session", session);
             startActivity(i);
+        } else if (item.getItemId() == R.id.profile) {
+            Intent i = new Intent(this, AccountActivity.class);
+            i.putExtra("session", session);
+            startActivity(i);
         }
         return super.onOptionsItemSelected(item);
     }

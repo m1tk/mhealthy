@@ -97,4 +97,7 @@
     <string name="you_unassgined">You have been unassigned from taking care of %1$s</string>
     <string name="no_active_caregiver">You currently don\'t have a caregiver</string>
     <string name="assign_hist">Assignment history</string>
+    <string name="profile">Profile</string>
+    <string name="profile_token">Profile token QR code</string>
+    <string name="profile_qr_gen_warn_patient">Warning: To protect your privacy, only caregiver instructions will be sent to your new device.</string>
 </resources>

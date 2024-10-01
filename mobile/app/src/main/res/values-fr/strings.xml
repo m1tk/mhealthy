@@ -95,4 +95,7 @@
     <string name="you_unassgined">Vous avez été désassigné de la prise en charge de %1$s</string>
     <string name="no_active_caregiver">Vous n\'avez actuellement pas de soignant</string>
     <string name="assign_hist">Historique des assignations</string>
+    <string name="profile">Profile</string>
+    <string name="profile_token">QR code de jeton du profile</string>
+    <string name="profile_qr_gen_warn_patient">Attention : Pour protéger votre vie privée, seules les instructions des soignants seront envoyées à votre nouvel appareil.</string>
 </resources>

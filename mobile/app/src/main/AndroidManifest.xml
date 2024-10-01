@@ -78,8 +78,12 @@
         <activity android:name=".ui.AssignmentHistoryActivity"
             android:exported="false" />
 
+        <activity android:name=".ui.AccountActivity"
+            android:exported="false" />
+
         <activity android:name=".ui.SettingsActivity"
             android:configChanges="locale|orientation" />
+
 
         <service android:name=".service.EventHandlerBackground"
             android:foregroundServiceType="remoteMessaging" />
