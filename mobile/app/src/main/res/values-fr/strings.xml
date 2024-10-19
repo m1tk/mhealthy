@@ -45,7 +45,7 @@
     <string name="act_list_caregiver">Activités</string>
     <string name="no_goal">Pas d\'objectif</string>
     <string name="med_modify">La prescription de %1$s a été modifiée pour %2$s</string>
-    <string name="med_remove">La prescription de $1$s a été retirée pour %2$s</string>
+    <string name="med_remove">La prescription de %1$s a été retirée pour %2$s</string>
     <string name="remove_med">Retirer la medicine</string>
     <string name="remove_act">Retirer l\'activité</string>
     <string name="act_modify">L\'activité \'%1$s\' a été modifiée pour %2$s</string>
