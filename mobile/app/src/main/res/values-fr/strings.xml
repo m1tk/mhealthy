@@ -98,4 +98,5 @@
     <string name="profile">Profile</string>
     <string name="profile_token">QR code de jeton du profile</string>
     <string name="profile_qr_gen_warn_patient">Attention : Pour protéger votre vie privée, seules les instructions des soignants seront envoyées à votre nouvel appareil.</string>
+    <string name="selfcarelog">Utiliser le profil de soins personnels hors ligne</string>
 </resources>
